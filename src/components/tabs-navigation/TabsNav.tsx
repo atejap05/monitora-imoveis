@@ -1,4 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LayoutDashboardIcon } from "lucide-react";
 
 const TabsNav = () => {
   return (
@@ -8,7 +9,10 @@ const TabsNav = () => {
       className="flex flex-col h-full w-full mr-4"
     >
       <TabsList className="flex-shrink-0 bg-green text-white ">
-        <TabsTrigger value="visao-geral">Visão Geral</TabsTrigger>
+        <TabsTrigger value="visao-geral">
+          <LayoutDashboardIcon size={18} />
+          <span className="hidden">Visão Geral</span>
+        </TabsTrigger>
         <TabsTrigger value="nfse">Notas Fiscais</TabsTrigger>
         <TabsTrigger value="contribuintes">Contribuintes</TabsTrigger>
         <TabsTrigger value="tab-4">Tab 4</TabsTrigger>
