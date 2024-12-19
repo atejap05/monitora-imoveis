@@ -1,17 +1,19 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   LayoutDashboardIcon,
   FileTextIcon,
   User2Icon,
-  HelpCircleIcon,
   SearchIcon,
 } from "lucide-react";
 
-const TabsNav = () => {
+import { useDashboardState } from "@/state/dashboardState";
+
+const TabsNav = ({ children }: { children: React.ReactNode }) => {
+  const { setTabValue } = useDashboardState();
   return (
     <Tabs
       defaultValue="visao-geral"
-      onValueChange={value => console.log(value)}
+      onValueChange={value => setTabValue(value)}
       className="flex flex-col h-full w-full mr-4"
     >
       <TabsList className="flex-shrink-0 bg-green text-white md:text-lg tracking-wide">
@@ -31,29 +33,21 @@ const TabsNav = () => {
           <SearchIcon size={18} />
           <span className="hidden md:block">Consultas</span>
         </TabsTrigger>
-        <TabsTrigger className="flex-between gap-2" value="tab-5">
-          <HelpCircleIcon size={18} />
-          <span className="hidden md:block">Tab 5</span>
-        </TabsTrigger>
-        <TabsTrigger className="flex-between gap-2" value="tab-6">
-          <HelpCircleIcon size={18} />
-          <span className="hidden md:block ">Tab 6</span>
-        </TabsTrigger>
       </TabsList>
-      <main className="flex-grow text-center">
-        <TabsContent value="visao-geral">
-          Visão Geral Dashboard content
-        </TabsContent>
-        <TabsContent value="nfse">Notas Fiscais Dashboard content</TabsContent>
-        <TabsContent value="contribuintes">
-          Contribuintes Dashboard content
-        </TabsContent>
-        <TabsContent value="consultas">Painel Consultas</TabsContent>
-        <TabsContent value="tab-5">Tab 5 content</TabsContent>
-        <TabsContent value="tab-6">Tab 6 content</TabsContent>
-      </main>
+      <main className="flex-grow text-center">{children}</main>
     </Tabs>
   );
 };
 
 export default TabsNav;
+
+//    <TabsContent value="visao-geral">
+//       Visão Geral Dashboard content
+//     </TabsContent>
+//     <TabsContent value="nfse">Notas Fiscais Dashboard content</TabsContent>
+//     <TabsContent value="contribuintes">
+//       Contribuintes Dashboard content
+//     </TabsContent>
+//     <TabsContent value="consultas">Painel Consultas</TabsContent>
+//     <TabsContent value="tab-5">Tab 5 content</TabsContent>
+//     <TabsContent value="tab-6">Tab 6 content</TabsContent>
