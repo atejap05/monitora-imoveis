@@ -3,7 +3,7 @@ import { Separator } from "./ui/separator";
 
 const Header = () => {
   return (
-    <div className="flex items-center justify-between p-4 md:p-6 w-full shadow-md sticky top-0 bg-[#fafafa]">
+    <div className="flex items-center justify-between p-4 md:p-6 w-full shadow-md sticky top-0 bg-[#fafafa] z-50">
       <div className="flex items-center gap-8">
         <img
           className="w-36 h-8 sm:w-40 sm:h-10 md:w-44 md:h-12 lg:w-56 lg:h-14"
