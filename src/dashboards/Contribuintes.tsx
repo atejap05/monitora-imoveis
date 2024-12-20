@@ -27,9 +27,21 @@ const Contribuintes = () => {
           value={data.total_ni_distintos.toLocaleString("pt-BR")}
           description="Variação percentual"
         />
-        {/* <DashCard />
-        <DashCard />
-        <DashCard /> */}
+        <DashCard
+          title="Total Contribuintes"
+          value={data.total_ni_distintos.toLocaleString("pt-BR")}
+          description="Variação percentual"
+        />
+        <DashCard
+          title="Total Contribuintes"
+          value={data.total_ni_distintos.toLocaleString("pt-BR")}
+          description="Variação percentual"
+        />
+        <DashCard
+          title="Total Contribuintes"
+          value={data.total_ni_distintos.toLocaleString("pt-BR")}
+          description="Variação percentual"
+        />
         <div className="col-span-4 h-96 flex items-center justify-center">
           <DashChart />
         </div>
