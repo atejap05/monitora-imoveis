@@ -1,15 +1,36 @@
 import { TabsContent } from "@/components/ui/tabs";
 import DashCard from "@/components/DashCard";
 import DashChart from "@/components/DashChart";
+import { useQuery } from "@tanstack/react-query";
+
+const fetchNotasFiscais = async () => {
+  const response = await fetch(
+    "https://localhost:8443/ctx/once/PainelNFSe/get_total_ni_distintos"
+  );
+  return response.json();
+};
 
 const NotasFiscais = () => {
+  const { data, status } = useQuery({
+    queryKey: ["nfse"],
+    queryFn: fetchNotasFiscais,
+  });
+
+  if (status === "pending") {
+    return <div>Loading...</div>;
+  }
+
   return (
     <TabsContent value="nfse">
       <div className="grid grid-cols-4 gap-4 lg:gap-6 p-4">
+        <DashCard
+          title="Total Contribuintes"
+          value={data.total_ni_distintos}
+          description="Variação percentual"
+        />
+        {/* <DashCard />
         <DashCard />
-        <DashCard />
-        <DashCard />
-        <DashCard />
+        <DashCard /> */}
         <div className="col-span-4 h-96 flex items-center justify-center">
           <DashChart />
         </div>
