@@ -15,31 +15,31 @@ const Contribuintes = () => {
     queryFn: fetchTotalContribuintes,
   });
 
-  if (status === "pending") {
-    return <div>Loading...</div>;
-  }
-
   return (
     <TabsContent value="contribuintes">
       <div className="grid grid-cols-4 gap-4 lg:gap-6 p-4">
         <DashCard
+          isPending={status === "pending"}
           title="Total Contribuintes"
-          value={data.total_ni_distintos.toLocaleString("pt-BR")}
+          value={data?.total_ni_distintos.toLocaleString("pt-BR")}
           description="Variação percentual"
         />
         <DashCard
+          isPending={status === "pending"}
           title="Total Contribuintes"
-          value={data.total_ni_distintos.toLocaleString("pt-BR")}
+          value={data?.total_ni_distintos.toLocaleString("pt-BR")}
           description="Variação percentual"
         />
         <DashCard
+          isPending={status === "pending"}
           title="Total Contribuintes"
-          value={data.total_ni_distintos.toLocaleString("pt-BR")}
+          value={data?.total_ni_distintos.toLocaleString("pt-BR")}
           description="Variação percentual"
         />
         <DashCard
+          isPending={status === "pending"}
           title="Total Contribuintes"
-          value={data.total_ni_distintos.toLocaleString("pt-BR")}
+          value={data?.total_ni_distintos.toLocaleString("pt-BR")}
           description="Variação percentual"
         />
         <div className="col-span-4 h-96 flex items-center justify-center">
