@@ -26,19 +26,19 @@ const Contribuintes = () => {
         />
         <DashCard
           isPending={status === "pending"}
-          title="Total Contribuintes"
+          title="Total MEI"
           value={data?.total_ni_distintos.toLocaleString("pt-BR")}
           description="Variação percentual"
         />
         <DashCard
           isPending={status === "pending"}
-          title="Total Contribuintes"
+          title="Total ME/EPP"
           value={data?.total_ni_distintos.toLocaleString("pt-BR")}
           description="Variação percentual"
         />
         <DashCard
           isPending={status === "pending"}
-          title="Total Contribuintes"
+          title="Total PJ"
           value={data?.total_ni_distintos.toLocaleString("pt-BR")}
           description="Variação percentual"
         />

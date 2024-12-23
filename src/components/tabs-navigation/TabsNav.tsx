@@ -4,6 +4,7 @@ import {
   FileTextIcon,
   User2Icon,
   SearchIcon,
+  AppWindowIcon,
 } from "lucide-react";
 
 import { useDashboardState } from "@/state/dashboardState";
@@ -28,6 +29,10 @@ const TabsNav = ({ children }: { children: React.ReactNode }) => {
         <TabsTrigger className="flex-between gap-2" value="contribuintes">
           <User2Icon size={18} />
           <span className="hidden md:block">Contribuintes</span>
+        </TabsTrigger>
+        <TabsTrigger className="flex-between gap-2" value="ambiente">
+          <AppWindowIcon size={18} />
+          <span className="hidden md:block">Ambiente</span>
         </TabsTrigger>
         <TabsTrigger className="flex-between gap-2" value="consultas">
           <SearchIcon size={18} />

@@ -1,3 +1,4 @@
+import Ambiente from "./Ambiente";
 import Consultas from "./Consultas";
 import Contribuintes from "./Contribuintes";
 import NotasFiscais from "./NotasFiscais";
@@ -15,6 +16,8 @@ const Dashboard = ({ tabValue }: DashboardProps) => {
         return <NotasFiscais />;
       case "contribuintes":
         return <Contribuintes />;
+      case "ambiente":
+        return <Ambiente />;
       case "consultas":
         return <Consultas />;
       default:

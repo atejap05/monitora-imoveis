@@ -30,6 +30,9 @@ const FormSchema = z.object({
   uf: z.string().nonempty("UF é obrigatório"),
   ano: z.array(z.string()).optional(),
   municipio: z.string().nonempty("Município é obrigatório"),
+  regiao: z
+    .enum(["norte", "nordeste", "centro-oeste", "sudeste", "sul", "todos"])
+    .default("todos"),
   filter_option: z
     .enum(["uf", "municipio", "regiao", "todos"])
     .default("todos"),
@@ -47,6 +50,9 @@ export function FormContribuintes() {
     resolver: zodResolver(FormSchema),
     defaultValues: {
       filter_option: "todos",
+      uf: "",
+      municipio: "",
+      regiao: "todos",
     },
   });
 
@@ -67,7 +73,9 @@ export function FormContribuintes() {
           name="filter_option"
           render={({ field }) => (
             <FormItem className="space-y-3">
-              <FormLabel>Filtrar por:</FormLabel>
+              <FormLabel className="text-green font-bold">
+                Filtrar por:
+              </FormLabel>
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}
@@ -195,6 +203,34 @@ export function FormContribuintes() {
             />
           </>
         )}
+        {form.watch("filter_option") === "regiao" && (
+          <FormField
+            control={form.control}
+            name="regiao"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-green font-bold">Região</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione uma Região" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos</SelectItem>
+                    <SelectItem value="norte">Norte</SelectItem>
+                    <SelectItem value="nordeste">Nordeste</SelectItem>
+                    <SelectItem value="centro-oeste">Centro-Oeste</SelectItem>
+                    <SelectItem value="sudeste">Sudeste</SelectItem>
+                    <SelectItem value="sul">Sul</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
         <FormField
           control={form.control}
           name="ano"
@@ -216,7 +252,9 @@ export function FormContribuintes() {
             </FormItem>
           )}
         />
-        <Button type="submit">Aplicar</Button>
+        <div className="flex justify-center">
+          <Button type="submit">Aplicar</Button>
+        </div>
       </form>
     </Form>
   );
