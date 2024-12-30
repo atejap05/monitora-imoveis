@@ -23,25 +23,81 @@ import { MultiSelect } from "@/components/ui/multi-select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { findUFCodigo, selectUFOptions } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { FormSchema } from "./formSchema";
 
-//////////// FormSchema ////////////
-const FormSchema = z.object({
-  uf: z.string().nonempty("UF é obrigatório"),
-  ano: z.array(z.string()).optional(),
-  municipio: z.string().nonempty("Município é obrigatório"),
-  regiao: z
-    .enum(["norte", "nordeste", "centro-oeste", "sudeste", "sul", "todos"])
-    .default("todos"),
-  filter_option: z
-    .enum(["uf", "municipio", "regiao", "todos"])
-    .default("todos"),
-});
+type Municipio = {
+  id: number;
+  nome: string;
+  microrregiao: {
+    id: number;
+    nome: string;
+    mesorregiao: {
+      id: number;
+      nome: string;
+      UF: {
+        id: number;
+        sigla: string;
+        nome: string;
+        regiao: {
+          id: number;
+          sigla: string;
+          nome: string;
+        };
+      };
+    };
+  };
+  "regiao-imediata": {
+    id: number;
+    nome: string;
+    "regiao-intermediaria": {
+      id: number;
+      nome: string;
+      UF: {
+        id: number;
+        sigla: string;
+        nome: string;
+        regiao: {
+          id: number;
+          sigla: string;
+          nome: string;
+        };
+      };
+    };
+  };
+};
+
+type formType = {
+  filter_option: "uf" | "municipio" | "regiao" | "todos";
+  uf: string;
+  municipio: string;
+  regiao: "norte" | "nordeste" | "centro-oeste" | "sudeste" | "sul" | "todos";
+};
 
 const fecthMunicipioByUf = async (uf: string) => {
   const ufCodigo = await findUFCodigo(uf);
   const url = `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${ufCodigo}/municipios`;
   const response = await fetch(url);
+  const data = await response.json();
+  console.log(data);
+  return data as Municipio[];
+};
+
+const pushFormData = async (data: formType) => {
+  const response = await fetch(
+    "https://localhost:8443/ctx/once/PainelNFSe/push_data",
+    {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    }
+  );
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
   return await response.json();
 };
 
@@ -56,13 +112,35 @@ export function FormContribuintes() {
     },
   });
 
+  const queryClient = useQueryClient();
+
   const result = useQuery({
     queryKey: ["fecth-municipios", form.watch("uf")],
     queryFn: () => fecthMunicipioByUf(form.watch("uf")),
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
+  const { mutateAsync: pushFormDataMutation } = useMutation<
+    formType,
+    unknown,
+    formType
+  >({
+    mutationFn: pushFormData,
+    onSuccess: () => {
+      alert("Dados enviados com sucesso!");
+      queryClient.invalidateQueries({
+        queryKey: ["contribuintes"],
+      });
+    },
+  });
+
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
     console.log(JSON.stringify(data, null, 2));
+    try {
+      const res = await pushFormDataMutation(data);
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return (
@@ -186,12 +264,14 @@ export function FormContribuintes() {
                       <SelectValue placeholder="Selecione o Município">
                         {result.isLoading
                           ? "Carregando..."
-                          : field.value || "Selecione o Município"}
+                          : result.data?.find((municipio: Municipio) => {
+                              return municipio.id === Number(field.value);
+                            })?.nome || "Selecione o Município"}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {result.data?.map((municipio: any) => (
-                        <SelectItem key={municipio.id} value={municipio.nome}>
+                        <SelectItem key={municipio.id} value={municipio.id}>
                           {municipio.nome}
                         </SelectItem>
                       ))}

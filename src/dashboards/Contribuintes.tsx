@@ -10,34 +10,35 @@ const fetchTotalContribuintes = async () => {
   return response.json();
 };
 const Contribuintes = () => {
-  const { data, status } = useQuery({
+  const { data, isFetching, isPending } = useQuery({
     queryKey: ["contribuintes"],
     queryFn: fetchTotalContribuintes,
   });
 
   return (
     <TabsContent value="contribuintes">
+      <pre>{JSON.stringify(data)}</pre>
       <div className="grid grid-cols-4 gap-4 lg:gap-6 p-4">
         <DashCard
-          isPending={status === "pending"}
+          isPending={isFetching}
           title="Total Contribuintes"
           value={data?.total_ni_distintos.toLocaleString("pt-BR")}
           description="Variação percentual"
         />
         <DashCard
-          isPending={status === "pending"}
+          isPending={isPending}
           title="Total MEI"
           value={data?.total_ni_distintos.toLocaleString("pt-BR")}
           description="Variação percentual"
         />
         <DashCard
-          isPending={status === "pending"}
+          isPending={isFetching}
           title="Total ME/EPP"
           value={data?.total_ni_distintos.toLocaleString("pt-BR")}
           description="Variação percentual"
         />
         <DashCard
-          isPending={status === "pending"}
+          isPending={isFetching}
           title="Total PJ"
           value={data?.total_ni_distintos.toLocaleString("pt-BR")}
           description="Variação percentual"
