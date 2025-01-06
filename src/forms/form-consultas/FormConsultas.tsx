@@ -14,6 +14,17 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MultiSelect } from "@/components/ui/multi-select";
+import { useMutation } from "@tanstack/react-query";
+
+const fetchContribuintes = async (ni: string) => {
+  const response = await fetch(
+    `https://localhost:8443/ctx/once/PainelNFSe/consulta_nfse_by_cpf_cnpj?ni=${ni}`
+  );
+  if (!response.ok) {
+    throw new Error("Erro ao buscar contribuintes");
+  }
+  return response.json();
+};
 
 export const FormConsultas = () => {
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -23,12 +34,27 @@ export const FormConsultas = () => {
     },
   });
 
+  const { mutate } = useMutation<unknown, unknown, { ni: string }>({
+    mutationFn: fetchContribuintes,
+    onSuccess: data => {
+      console.log(data);
+    },
+  });
+
+  const onSubmit = async (data: z.infer<typeof FormSchema>) => {
+    console.log(data);
+
+    try {
+      const res = await mutate(data.ni);
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(data => console.log(data))}
-        className="space-y-6"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
           name="ni"
