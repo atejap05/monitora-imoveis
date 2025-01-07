@@ -18,3 +18,7 @@ export interface NfseData {
   descricao_servico: string;
   municipio_tomador: string;
 }
+
+export type Consulta = {
+  consulta: NfseData[];
+};

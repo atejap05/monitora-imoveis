@@ -15,7 +15,8 @@ import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { useMutation } from "@tanstack/react-query";
-import { type NfseData } from "./@types";
+import { type Consulta } from "../../dashboards/Consultas/@types";
+import { useConsultasState } from "@/state/consultasState";
 
 const fetchContribuintes = async (ni: string) => {
   const response = await fetch(
@@ -24,7 +25,7 @@ const fetchContribuintes = async (ni: string) => {
   if (!response.ok) {
     throw new Error("Erro ao buscar contribuintes");
   }
-  return response.json() as Promise<NfseData[]>;
+  return response.json() as Promise<Consulta>;
 };
 
 export const FormConsultas = () => {
@@ -35,25 +36,22 @@ export const FormConsultas = () => {
     },
   });
 
-  const { mutate } = useMutation<
-    NfseData[],
-    unknown,
-    string,
-    { status: number }
-  >({
-    mutationFn: fetchContribuintes,
-    onSuccess: data => {
-      console.log(data);
-    },
-  });
+  const { setNfseData } = useConsultasState();
+
+  const { mutate } = useMutation<Consulta, unknown, string, { status: number }>(
+    {
+      mutationFn: fetchContribuintes,
+      onSuccess: data => {
+        setNfseData(data);
+        // console.log(data);
+      },
+    }
+  );
 
   const onSubmit = async (FormData: z.infer<typeof FormSchema>) => {
-    console.log(FormData);
-
     try {
       if (FormData.ni) {
-        const res = mutate(FormData.ni);
-        console.log(res);
+        mutate(FormData.ni);
       } else {
         console.error("NI is undefined");
       }

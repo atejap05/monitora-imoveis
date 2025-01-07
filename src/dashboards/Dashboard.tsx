@@ -1,5 +1,5 @@
 import Ambiente from "./Ambiente";
-import Consultas from "./Consultas";
+import Consultas from "./Consultas/Consultas";
 import Contribuintes from "./Contribuintes";
 import NotasFiscais from "./NotasFiscais";
 import VisaoGeral from "./VisaoGeral";
