@@ -43,7 +43,6 @@ export const FormConsultas = () => {
       mutationFn: fetchContribuintes,
       onSuccess: data => {
         setNfseData(data);
-        // console.log(data);
       },
     }
   );

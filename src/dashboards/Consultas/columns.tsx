@@ -1,11 +1,21 @@
-import { ColumnDef } from "@tanstack/react-table";
+import { CellContext, ColumnDef } from "@tanstack/react-table";
 import { type NfseData } from "./@types";
+import BasicTooltip from "@/components/BasicTooltip";
+
+const formataTextoLongo = (info: CellContext<NfseData, unknown>) => {
+  const text = String(info.getValue());
+
+  return (
+    <div className="truncate">
+      <BasicTooltip
+        label={text.slice(0, 10) + (text ? "..." : "")}
+        content={text}
+      />
+    </div>
+  );
+};
 
 export const nfseColumns: ColumnDef<NfseData>[] = [
-  {
-    header: "Nro NFSe",
-    accessorKey: "nro_nfse",
-  },
   {
     header: "Chave Acesso",
     accessorKey: "chave_acesso",
@@ -46,19 +56,31 @@ export const nfseColumns: ColumnDef<NfseData>[] = [
   {
     header: "Tomador",
     accessorKey: "tomador",
+    size: 200,
+    cell: info => {
+      const text = String(info.getValue());
+      return (
+        <div className="text-nowrap">
+          <BasicTooltip label={text} content={text} />
+        </div>
+      );
+    },
   },
   {
     header: "Servico Nacional",
     accessorKey: "servico_nacional",
+    cell: formataTextoLongo,
   },
 
   {
     header: "NBS",
     accessorKey: "nbs",
+    cell: formataTextoLongo,
   },
   {
     header: "Descricao Servico",
     accessorKey: "descricao_servico",
+    cell: formataTextoLongo,
   },
   {
     header: "Municipio Tomador",
@@ -73,38 +95,3 @@ export const nfseColumns: ColumnDef<NfseData>[] = [
     accessorKey: "mes",
   },
 ];
-
-// export const consultasColumns: ColumnDef<TFunprespColumns>[] = [
-//   {
-//     header: "ID",
-//     accessorKey: "id",
-//   },
-//   {
-//     header: "Taxa Acumulada",
-//     accessorKey: "taxaAcumulada",
-//   },
-//   {
-//     header: "Taxa Mensal",
-//     accessorKey: "taxaMensal",
-//   },
-//   {
-//     header: "Total Investido",
-//     accessorKey: "totalInvestido",
-//   },
-//   {
-//     header: "Rendimento Até Aposentadoria",
-//     accessorKey: "rendimentoAteAposentadoria",
-//   },
-//   {
-//     header: "Valor Acumulado",
-//     accessorKey: "valorAcumulado",
-//   },
-//   {
-//     header: "Renda Mensal Bruta",
-//     accessorKey: "rendaMensalBruta",
-//   },
-//   {
-//     header: "Renda Líquida Funpresp",
-//     accessorKey: "rendaLiquidaFunpresp",
-//   },
-// ];
