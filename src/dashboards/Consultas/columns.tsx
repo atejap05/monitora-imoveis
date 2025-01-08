@@ -15,46 +15,45 @@ const formataTextoLongo = (info: CellContext<NfseData, unknown>) => {
   );
 };
 
+const formataHeader = (text: string) => (
+  <span className="text-center text-base flex">{text}</span>
+);
+
 export const nfseColumns: ColumnDef<NfseData>[] = [
   {
-    header: "Chave Acesso",
+    header: () => formataHeader("Chave Acesso"),
     accessorKey: "chave_acesso",
   },
   {
-    header: "NI Prestador",
+    header: () => formataHeader("NI Prestador"),
     accessorKey: "ni_prestador",
   },
-
   {
-    header: "NI Tomador",
+    header: () => formataHeader("NI Tomador"),
     accessorKey: "ni_tomador",
   },
   {
-    header: "Valor Servico",
+    header: () => formataHeader("Valor Servico"),
     accessorKey: "valor_servico",
   },
   {
-    header: "Valor Liq",
+    header: () => formataHeader("Valor Liq"),
     accessorKey: "valor_liq",
   },
-
   {
-    header: "Municipio",
+    header: () => formataHeader("Municipio"),
     accessorKey: "municipio",
   },
-
   {
-    header: "Loc Prestacao",
+    header: () => formataHeader("Loc Prestacao"),
     accessorKey: "loc_prestacao",
   },
-
   {
-    header: "Local Emissao",
+    header: () => formataHeader("Local Emissao"),
     accessorKey: "local_emissao",
   },
-
   {
-    header: "Tomador",
+    header: () => formataHeader("Tomador"),
     accessorKey: "tomador",
     size: 200,
     cell: info => {
@@ -67,31 +66,30 @@ export const nfseColumns: ColumnDef<NfseData>[] = [
     },
   },
   {
-    header: "Servico Nacional",
+    header: () => formataHeader("Servico Nacional"),
     accessorKey: "servico_nacional",
     cell: formataTextoLongo,
   },
-
   {
-    header: "NBS",
+    header: () => formataHeader("NBS"),
     accessorKey: "nbs",
     cell: formataTextoLongo,
   },
   {
-    header: "Descricao Servico",
+    header: () => formataHeader("Descricao Servico"),
     accessorKey: "descricao_servico",
     cell: formataTextoLongo,
   },
   {
-    header: "Municipio Tomador",
+    header: () => formataHeader("Municipio Tomador"),
     accessorKey: "municipio_tomador",
   },
   {
-    header: "Ano",
+    header: () => formataHeader("Ano"),
     accessorKey: "ano",
   },
   {
-    header: "Mes",
+    header: () => formataHeader("Mes"),
     accessorKey: "mes",
   },
 ];
