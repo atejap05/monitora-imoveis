@@ -4,10 +4,14 @@ import { DataTable } from "./data-table";
 import { useConsultasState } from "@/state/consultasState";
 
 const Consultas = () => {
-  const { consulta } = useConsultasState();
+  const { consulta, formData } = useConsultasState();
   return (
     <TabsContent value="consultas" className="p-4">
       <div className="p-4">Painel Consultas</div>
+      <div>
+        <span>NI: {formData.ni}</span>
+        <span>Ano: {formData.ano}</span>
+      </div>
       <DataTable columns={nfseColumns} data={consulta.consulta} />
     </TabsContent>
   );

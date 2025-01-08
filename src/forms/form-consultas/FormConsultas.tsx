@@ -17,6 +17,7 @@ import { MultiSelect } from "@/components/ui/multi-select";
 import { useMutation } from "@tanstack/react-query";
 import { type Consulta } from "../../dashboards/Consultas/@types";
 import { useConsultasState } from "@/state/consultasState";
+import { years } from "../../lib/utils";
 
 const fetchContribuintes = async (ni: string) => {
   const response = await fetch(
@@ -29,14 +30,16 @@ const fetchContribuintes = async (ni: string) => {
 };
 
 export const FormConsultas = () => {
+  const currentYear = new Date().getFullYear();
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       ni: "",
+      ano: [String(currentYear - 1)],
     },
   });
 
-  const { setNfseData } = useConsultasState();
+  const { setNfseData, setFormData } = useConsultasState();
 
   const { mutate } = useMutation<Consulta, unknown, string, { status: number }>(
     {
@@ -50,6 +53,7 @@ export const FormConsultas = () => {
   const onSubmit = async (FormData: z.infer<typeof FormSchema>) => {
     try {
       if (FormData.ni) {
+        setFormData({ ni: FormData.ni, ano: FormData.ano ?? [] });
         mutate(FormData.ni);
       } else {
         console.error("NI is undefined");
@@ -89,13 +93,15 @@ export const FormConsultas = () => {
               <FormLabel className="text-green font-bold">Ano</FormLabel>
               <FormControl>
                 <MultiSelect
+                  placeholder="Selecione o(s) ano(s)"
                   onValueChange={field.onChange}
                   defaultValue={field.value}
-                  options={[
-                    { label: "2022", value: "2022" },
-                    { label: "2023", value: "2023" },
-                    { label: "2024", value: "2024" },
-                  ]}
+                  options={
+                    years.map((year: string) => ({
+                      label: year,
+                      value: year,
+                    })) ?? []
+                  }
                 />
               </FormControl>
               <FormMessage />

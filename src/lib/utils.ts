@@ -68,3 +68,8 @@ export const selectUFOptions = [
 export const findUFCodigo = async (uf: string) => {
   return UFS.find(item => item.uf === uf)!.codigo;
 };
+
+export const currentYear = new Date().getFullYear();
+export const years = Array.from({ length: currentYear - 2022 + 1 }, (_, i) =>
+  (2022 + i).toString()
+);
