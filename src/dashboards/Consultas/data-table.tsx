@@ -96,7 +96,7 @@ export function DataTable<TData, TValue>({
                             }
                           }}
                         >
-                          <SearchIcon size={24} />
+                          <SearchIcon size={24} className="text-green" />
                         </Button>
                       )}
                       {header.isPlaceholder ? null : (

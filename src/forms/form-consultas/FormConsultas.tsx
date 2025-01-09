@@ -19,9 +19,11 @@ import { type Consulta } from "../../dashboards/Consultas/@types";
 import { useConsultasState } from "@/state/consultasState";
 import { years } from "../../lib/utils";
 
-const fetchContribuintes = async (ni: string) => {
+const fetchContribuintes = async (ni: string, anos: Array<string>) => {
   const response = await fetch(
-    `https://localhost:8443/ctx/once/PainelNFSe/consulta_nfse_by_cpf_cnpj?ni=${ni}`
+    `https://localhost:8443/ctx/once/PainelNFSe/consulta_nfse_by_cpf_cnpj?ni=${ni}&anos=${anos.join(
+      ","
+    )}`
   );
   if (!response.ok) {
     throw new Error("Erro ao buscar contribuintes");
@@ -35,26 +37,36 @@ export const FormConsultas = () => {
     resolver: zodResolver(FormSchema),
     defaultValues: {
       ni: "",
-      ano: [String(currentYear - 1)],
+      anos: [String(currentYear - 1)],
     },
   });
 
   const { setNfseData, setFormData } = useConsultasState();
 
-  const { mutate } = useMutation<Consulta, unknown, string, { status: number }>(
-    {
-      mutationFn: fetchContribuintes,
-      onSuccess: data => {
-        setNfseData(data);
-      },
-    }
-  );
+  const { mutate, isPending } = useMutation<
+    Consulta,
+    unknown,
+    { ni: string; anos: Array<string> },
+    { status: number }
+  >({
+    mutationFn: ({ ni, anos }) => fetchContribuintes(ni, anos),
+    onSuccess: data => {
+      setNfseData(data);
+      console.log(data);
+    },
+    onError: error => {
+      console.error(error);
+    },
+  });
 
   const onSubmit = async (FormData: z.infer<typeof FormSchema>) => {
+    const anos =
+      FormData.anos && FormData.anos.length > 0 ? FormData.anos : years;
     try {
       if (FormData.ni) {
-        setFormData({ ni: FormData.ni, ano: FormData.ano ?? [] });
-        mutate(FormData.ni);
+        console.log(FormData);
+        setFormData({ ni: FormData.ni, anos: anos });
+        mutate({ ni: FormData.ni, anos: anos }); // Se ano foi selecionado o ano, passa todos os anos de 2022 ate agora
       } else {
         console.error("NI is undefined");
       }
@@ -80,19 +92,30 @@ export const FormConsultas = () => {
                   "
                 />
               </FormLabel>
-              <Input {...field} placeholder="Informe o CPF/CNPJ" id="ni" />
+              <Input
+                {...field}
+                placeholder="Informe o CPF/CNPJ"
+                id="ni"
+                className="bg-white"
+              />
               <FormMessage {...field} />
             </FormItem>
           )}
         />
         <FormField
           control={form.control}
-          name="ano"
+          name="anos"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-green font-bold">Ano</FormLabel>
+              <FormLabel className="text-green font-bold">
+                <BasicTooltip
+                  label="Ano"
+                  content="Se nenhum ano for selecionado, a consulta levará em consideração todos os anos de 2022 até o corrente ano."
+                />
+              </FormLabel>
               <FormControl>
                 <MultiSelect
+                  className="bg-white hover:bg-white"
                   placeholder="Selecione o(s) ano(s)"
                   onValueChange={field.onChange}
                   defaultValue={field.value}
@@ -110,7 +133,16 @@ export const FormConsultas = () => {
         />
         <div className="flex justify-center">
           <FormControl>
-            <Button type="submit">Consultar</Button>
+            <Button type="submit" disabled={isPending}>
+              {isPending ? (
+                <p>
+                  Carregando{" "}
+                  <span className="animate-pulse font-semibold">...</span>
+                </p>
+              ) : (
+                "Consultar"
+              )}
+            </Button>
           </FormControl>
         </div>
       </form>

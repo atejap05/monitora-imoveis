@@ -5,7 +5,7 @@ import { Consulta } from "@/dashboards/Consultas/@types";
 
 type FormData = {
   ni: string;
-  ano: string[];
+  anos: string[];
 };
 
 type ConsultasState = {
@@ -17,7 +17,7 @@ type ConsultasState = {
 
 export const useConsultasState = create<ConsultasState>(set => ({
   consulta: { consulta: [] },
-  formData: { ni: "", ano: [] },
+  formData: { ni: "", anos: [] },
   setFormData: data => set({ formData: data }),
   setNfseData: data => set({ consulta: data }),
 }));

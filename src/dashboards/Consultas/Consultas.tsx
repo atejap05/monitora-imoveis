@@ -12,7 +12,9 @@ const Consultas = () => {
         <span>NI: {formData.ni}</span>
         <span>Ano: {formData.ano}</span>
       </div>
-      <DataTable columns={nfseColumns} data={consulta.consulta} />
+      {consulta.consulta.length > 0 && (
+        <DataTable columns={nfseColumns} data={consulta.consulta} />
+      )}
     </TabsContent>
   );
 };
