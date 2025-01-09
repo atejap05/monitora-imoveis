@@ -85,9 +85,9 @@ export const FormConsultas = () => {
             <FormItem>
               <FormLabel className="text-green font-bold" htmlFor="ni">
                 <BasicTooltip
-                  label="CPF/CNPJ"
+                  label="CNPJ"
                   content="
-                    CPF no formato XXX.XXX.XXX-XX ou XXXXXXXXXXX.
+                  
                     CNPJ no formato XX.XXX.XXX/XXXX-XX ou XXXXXXXXXXXXXX.
                   "
                 />

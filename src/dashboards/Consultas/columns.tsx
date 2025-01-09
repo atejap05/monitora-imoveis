@@ -23,8 +23,15 @@ const formataTextoLongo = (info: CellContext<NfseData, unknown>) => {
 };
 
 const formataHeader = (text: string) => (
-  <span className=" flex text-center text-base text-green py-2">{text}</span>
+  <span className="text-base text-nowrap text-green py-2">{text}</span>
 );
+
+const formataValorReal = (valor: number) => {
+  return valor.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+};
 
 export const nfseColumns: ColumnDef<NfseData, any>[] = [
   {
@@ -32,23 +39,25 @@ export const nfseColumns: ColumnDef<NfseData, any>[] = [
     accessorKey: "chave_acesso",
   },
   {
-    header: () => formataHeader("NI Prestador"),
+    header: () => formataHeader("CNPJ Prestador"),
     accessorKey: "ni_prestador",
     cell: info => formataCNPF(info.getValue()),
   },
   {
-    header: () => formataHeader("NI Tomador"),
+    header: () => formataHeader("CNPJ Tomador"),
     accessorKey: "ni_tomador",
     cell: info => formataCNPF(info.getValue()),
   },
   {
     header: () => formataHeader("Valor Servico"),
     accessorKey: "valor_servico",
+    cell: info => formataValorReal(info.getValue() as number),
   },
   {
     header: () => formataHeader("Valor Liq"),
     accessorKey: "valor_liq",
     filterFn: "includesString",
+    cell: info => formataValorReal(info.getValue() as number),
   },
   {
     header: () => formataHeader("Municipio"),
@@ -66,7 +75,7 @@ export const nfseColumns: ColumnDef<NfseData, any>[] = [
   {
     header: () => formataHeader("Tomador"),
     accessorKey: "tomador",
-    size: 200,
+
     cell: info => {
       const text = String(info.getValue());
       return (
