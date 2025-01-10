@@ -4,11 +4,13 @@ import { useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { InfoIcon } from "lucide-react";
 import BasicTooltip from "@/components/BasicTooltip";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -18,6 +20,7 @@ import { useMutation } from "@tanstack/react-query";
 import { type Consulta } from "../../dashboards/Consultas/@types";
 import { useConsultasState } from "@/state/consultasState";
 import { years } from "../../lib/utils";
+import { useEffect } from "react";
 
 const fetchContribuintes = async (ni: string, anos: Array<string>) => {
   const response = await fetch(
@@ -41,7 +44,7 @@ export const FormConsultas = () => {
     },
   });
 
-  const { setNfseData, setFormData } = useConsultasState();
+  const { setNfseData, setFormData, setIsPending } = useConsultasState();
 
   const { mutate, isPending } = useMutation<
     Consulta,
@@ -59,7 +62,11 @@ export const FormConsultas = () => {
     },
   });
 
+  useEffect(() => setIsPending(isPending), [isPending]);
+
   const onSubmit = async (FormData: z.infer<typeof FormSchema>) => {
+    setNfseData({ consulta: [] });
+
     const anos =
       FormData.anos && FormData.anos.length > 0 ? FormData.anos : years;
     try {
@@ -85,20 +92,22 @@ export const FormConsultas = () => {
             <FormItem>
               <FormLabel className="text-green font-bold" htmlFor="ni">
                 <BasicTooltip
-                  label="CNPJ"
-                  content="
-                  
-                    CNPJ no formato XX.XXX.XXX/XXXX-XX ou XXXXXXXXXXXXXX.
-                  "
+                  label={
+                    <span className="flex items-center gap-1">
+                      CNPJ <InfoIcon size={12} className="text-green" />
+                    </span>
+                  }
+                  content="CNPJ no formato XX.XXX.XXX/XXXX-XX ou XXXXXXXXXXXXXX."
                 />
               </FormLabel>
               <Input
                 {...field}
-                placeholder="Informe o CPF/CNPJ"
+                placeholder="Informe o CNPJ"
                 id="ni"
                 className="bg-white"
               />
               <FormMessage {...field} />
+              <FormDescription>CNPJ raiz ou completo.</FormDescription>
             </FormItem>
           )}
         />
@@ -107,9 +116,13 @@ export const FormConsultas = () => {
           name="anos"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-green font-bold">
+              <FormLabel className=" text-green font-bold">
                 <BasicTooltip
-                  label="Ano"
+                  label={
+                    <span className="flex items-center gap-1">
+                      Ano <InfoIcon size={12} className="text-green" />
+                    </span>
+                  }
                   content="Se nenhum ano for selecionado, a consulta levará em consideração todos os anos de 2022 até o corrente ano."
                 />
               </FormLabel>

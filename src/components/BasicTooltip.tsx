@@ -4,10 +4,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { JSX } from "react";
 
 type BasicTooltipProps = {
-  label: string;
-  content: string;
+  label: string | JSX.Element;
+  content: string | JSX.Element;
 };
 
 const BasicTooltip = ({ label, content }: BasicTooltipProps) => {

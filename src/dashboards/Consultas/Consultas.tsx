@@ -4,21 +4,35 @@ import { DataTable } from "./data-table";
 import { useConsultasState } from "@/state/consultasState";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
+import { GridLoader } from "react-spinners";
+
 const Consultas = () => {
-  const { consulta, formData } = useConsultasState();
+  const { consulta, formData, isPending } = useConsultasState();
   return (
     <TabsContent value="consultas" className="p-4">
       <div className="p-4">Painel Consultas</div>
-      {consulta.consulta.length > 0 && (
+      {isPending ? (
+        <GridLoader
+          loading={isPending}
+          color="#709f77"
+          aria-label="Loading ..."
+        />
+      ) : (
         <Card>
           <CardHeader>
-            <div>
-              <span>NI: {formData.ni}</span>
-              <span>Ano: {formData.anos}</span>
-            </div>
+            {formData && formData.ni && formData.anos ? (
+              <div>
+                <span>NI: {formData.ni}</span>
+                <span>Ano: {formData.anos}</span>
+              </div>
+            ) : (
+              <div>
+                <span>Pesquisa não retornou resultados.</span>
+              </div>
+            )}
           </CardHeader>
           <CardContent>
-            <DataTable columns={nfseColumns} data={consulta.consulta} />
+            <DataTable columns={nfseColumns} data={consulta?.consulta} />
           </CardContent>
         </Card>
       )}
