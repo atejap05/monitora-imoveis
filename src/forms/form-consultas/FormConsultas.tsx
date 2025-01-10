@@ -65,10 +65,13 @@ export const FormConsultas = () => {
   useEffect(() => setIsPending(isPending), [isPending]);
 
   const onSubmit = async (FormData: z.infer<typeof FormSchema>) => {
+    // Limpa os dados da consulta
     setNfseData({ consulta: [] });
 
+    // Se não for passado anos, pega os anos de 2022 ate o corrente ano
     const anos =
       FormData.anos && FormData.anos.length > 0 ? FormData.anos : years;
+
     try {
       if (FormData.ni) {
         console.log(FormData);

@@ -18,7 +18,7 @@ const Consultas = () => {
           aria-label="Loading ..."
         />
       ) : (
-        <Card>
+        <Card className="max-w-7xl mx-auto">
           <CardHeader>
             {formData && formData.ni && formData.anos ? (
               <div>
