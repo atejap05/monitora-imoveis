@@ -11,7 +11,7 @@ import { FilterIcon } from "lucide-react";
 //Visite https://ui.shadcn.com/docs/components/sidebar para mais informações sobre o componente Sidebar.
 const SidebarFilters = () => {
   return (
-    <Sidebar className="md:mt-[6.5rem]">
+    <Sidebar className="mt-[6.5rem]">
       {/* TODO: Implementar Header */}
       <SidebarHeader className="mt-4">
         <span className="text-lg font-bold flex items-center justify-center gap-2 text-green">

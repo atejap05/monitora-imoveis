@@ -17,39 +17,41 @@ import {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const Pagination = ({ table }: { table: any }) => {
   return (
-    <div className="flex flex-col gap-3 py-4">
-      <div className="flex-between">
-        <div className="flex-between gap-3">
-          <Button
-            size={"icon"}
-            onClick={() => table.firstPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            <ChevronsLeft />
-          </Button>
-          <Button
-            size={"icon"}
-            className="w-8"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            <ChevronLeft />
-          </Button>
-          <Button
-            size={"icon"}
-            className="w-8"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            <ChevronRight />
-          </Button>
-          <Button
-            size={"icon"}
-            onClick={() => table.lastPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            <ChevronsRight />
-          </Button>
+    <div className="flex flex-col gap-5 py-4 px-2">
+      <div className="flex flex-col justify-between sm:flex-row gap-3">
+        <div className="flex-between gap-6 mb-2">
+          <div className="flex gap-1 sm:gap-2">
+            <Button
+              size={"icon"}
+              onClick={() => table.firstPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              <ChevronsLeft />
+            </Button>
+            <Button
+              size={"icon"}
+              className="w-8"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              <ChevronLeft />
+            </Button>
+            <Button
+              size={"icon"}
+              className="w-8"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              <ChevronRight />
+            </Button>
+            <Button
+              size={"icon"}
+              onClick={() => table.lastPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              <ChevronsRight />
+            </Button>
+          </div>
           <span className="flex-between gap-1">
             <div>Página</div>
             <strong>
