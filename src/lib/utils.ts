@@ -79,3 +79,16 @@ export const formataCNPJ = (cnpj: string) => {
     ? cnpj.replace(/(\d{2})(\d{3})(\d{3})/, "$1.$2.$3")
     : cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
 };
+
+export const setFileName = (ni: string, anos: string[]) => {
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  return `consulta-${ni}-${anos.join("-")}-${timestamp}`;
+};
+
+export const exportXLSX = async (data: any) => {
+  const XLSX = await import("xlsx");
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "NFSe");
+  XLSX.writeFile(wb, "nfse.xlsx");
+};

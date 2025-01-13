@@ -7,13 +7,18 @@ import { Badge } from "@/components/ui/badge";
 import { formataCNPJ } from "@/lib/utils";
 import { useCSVDownloader } from "react-papaparse";
 import { GridLoader } from "react-spinners";
+import csv_icon from "@/assets/csv.png";
+import xlsx_icon from "@/assets/xlsx.png";
+import BasicTooltip from "@/components/BasicTooltip";
+import { setFileName } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { exportXLSX } from "@/lib/utils";
 
 const Consultas = () => {
   const { consulta, formData, isPending } = useConsultasState();
   const { CSVDownloader, Type } = useCSVDownloader();
   return (
     <TabsContent value="consultas" className="p-4">
-      <div className="p-4 bg-red-300 mb-6">Painel Consultas</div>
       <div>
         {isPending ? (
           <GridLoader
@@ -23,10 +28,11 @@ const Consultas = () => {
           />
         ) : (
           <Card className="max-w-md sm:max-w-2xl md:max-w-5xl lg:max-w-6xl xl:max-w-full mx-auto">
+            {/* TODO: Separar CardHeader em arquivo  */}
             <CardHeader className="flex flex-row justify-between items-center ">
               <div>
                 {formData && formData.ni && formData.anos ? (
-                  <div className="flex flex-col gap-2">
+                  <div className="flex justify-start gap-2">
                     <Badge className="text-sm place-content-center tracking-wide">
                       {formataCNPJ(formData.ni)}
                     </Badge>
@@ -43,17 +49,55 @@ const Consultas = () => {
                 )}
               </div>
               <div>
-                <span className="text-sm text-gray-500">
-                  <CSVDownloader
-                    type={Type.Button}
-                    data={consulta.consulta}
-                    filename="consulta.csv"
-                  >
-                    Exportar CSV
-                  </CSVDownloader>
-                  {consulta.consulta.length} registros
+                <span>
+                  <span className="text-lg font-mono font-semibold tracking-wide text-gray-500">
+                    {consulta.consulta.length}
+                  </span>{" "}
+                  registro(s) encontrado(s).
                 </span>
               </div>
+              {consulta.consulta.length > 0 && (
+                <div className="flex flex-row gap-3">
+                  <span className="text-sm text-gray-500">
+                    <CSVDownloader
+                      type={Type.Button}
+                      data={consulta.consulta}
+                      filename={setFileName(
+                        formData?.ni ?? "",
+                        formData?.anos ?? []
+                      )}
+                    >
+                      <BasicTooltip
+                        content="Exportar CSV"
+                        label={
+                          <Button
+                            variant={"outline"}
+                            size={"icon"}
+                            className="shadow-sm"
+                          >
+                            <img src={csv_icon} alt="csv" className="w-6 h-6" />
+                          </Button>
+                        }
+                      />
+                    </CSVDownloader>
+                  </span>
+                  <span>
+                    <BasicTooltip
+                      content="Exportar XLSX"
+                      label={
+                        <Button
+                          variant={"outline"}
+                          size={"icon"}
+                          onClick={() => exportXLSX(consulta.consulta)}
+                          className="shadow-sm"
+                        >
+                          <img src={xlsx_icon} alt="xlsx" className="w-6 h-6" />
+                        </Button>
+                      }
+                    />
+                  </span>
+                </div>
+              )}
             </CardHeader>
             <CardContent>
               <DataTable columns={nfseColumns} data={consulta.consulta} />
@@ -66,22 +110,3 @@ const Consultas = () => {
 };
 
 export default Consultas;
-
-// import Papa from "papaparse";
-
-// const ExportCSV = ({ data }) => {
-//   const handleExport = () => {
-//     const csv = Papa.unparse(data);
-//     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-//     const link = document.createElement("a");
-//     const url = URL.createObjectURL(blob);
-//     link.setAttribute("href", url);
-//     link.setAttribute("download", "data.csv");
-//     link.style.visibility = "hidden";
-//     document.body.appendChild(link);
-//     link.click();
-//     document.body.removeChild(link);
-//   };
-
-//   return <button onClick={handleExport}>Export to CSV</button>;
-// };
