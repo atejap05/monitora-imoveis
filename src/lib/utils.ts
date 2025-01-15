@@ -85,14 +85,20 @@ export const formataCPF = (cpf: string) => {
 };
 
 export const setFileName = (ni: string, anos: string[]) => {
-  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const timestamp = new Date()
+    .toISOString()
+    .replace(/[:.]/g, "-")
+    .replace("T", "")
+    .split("-")
+    .slice(0, 5)
+    .join("");
   return `consulta-${ni}-${anos.join("-")}-${timestamp}`;
 };
 
-export const exportXLSX = async (data: any) => {
+export const exportXLSX = async (data: any, ni: string, anos: string[]) => {
   const XLSX = await import("xlsx");
   const ws = XLSX.utils.json_to_sheet(data);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "NFSe");
-  XLSX.writeFile(wb, "nfse.xlsx");
+  XLSX.writeFile(wb, `${setFileName(ni, anos)}.xlsx`);
 };

@@ -102,7 +102,13 @@ const Consultas = () => {
                       <Button
                         variant={"outline"}
                         size={"icon"}
-                        onClick={() => exportXLSX(consulta.consulta)}
+                        onClick={() =>
+                          exportXLSX(
+                            consulta.consulta,
+                            formData?.ni ?? "",
+                            formData?.anos ?? []
+                          )
+                        }
                         className="shadow-sm"
                       >
                         <img src={xlsx_icon} alt="xlsx" className="w-6 h-6" />
@@ -123,12 +129,3 @@ const Consultas = () => {
 };
 
 export default Consultas;
-
-// const crypto = require("crypto");
-
-// function generatePassword(length) {
-//   return crypto.randomBytes(length).toString("base64").slice(0, length);
-// }
-
-// const password = generatePassword(20);
-// console.log(password);
