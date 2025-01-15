@@ -10,7 +10,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { InfoIcon } from "lucide-react";
+import { InfoIcon, FilterXIcon, SearchIcon } from "lucide-react";
 import BasicTooltip from "@/components/BasicTooltip";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -147,7 +147,7 @@ export const FormConsultas = () => {
             </FormItem>
           )}
         />
-        <div className="flex justify-center">
+        <div className="flex-between">
           <FormControl>
             <Button type="submit" disabled={isPending}>
               {isPending ? (
@@ -156,8 +156,26 @@ export const FormConsultas = () => {
                   <span className="animate-pulse font-semibold">...</span>
                 </p>
               ) : (
-                "Consultar"
+                <>
+                  <SearchIcon size={16} className="text-white " />
+                  <span>Consultar</span>
+                </>
               )}
+            </Button>
+          </FormControl>
+          <FormControl>
+            <Button
+              type="button"
+              onClick={() => {
+                form.reset;
+                setNfseData({ consulta: [] });
+                setFormData({ ni: "", anos: [] });
+              }}
+              disabled={isPending}
+              variant="outline"
+            >
+              <FilterXIcon size={16} className="text-green" />
+              Limpar
             </Button>
           </FormControl>
         </div>

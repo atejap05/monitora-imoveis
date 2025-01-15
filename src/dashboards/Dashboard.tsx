@@ -25,7 +25,7 @@ const Dashboard = ({ tabValue }: DashboardProps) => {
     }
   };
 
-  return <div>{renderComponent()}</div>;
+  return <>{renderComponent()}</>;
 };
 
 export default Dashboard;

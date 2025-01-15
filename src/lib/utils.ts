@@ -80,6 +80,10 @@ export const formataCNPJ = (cnpj: string) => {
     : cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
 };
 
+export const formataCPF = (cpf: string) => {
+  return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+};
+
 export const setFileName = (ni: string, anos: string[]) => {
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
   return `consulta-${ni}-${anos.join("-")}-${timestamp}`;

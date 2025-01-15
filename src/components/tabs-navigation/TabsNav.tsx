@@ -15,7 +15,7 @@ const TabsNav = ({ children }: { children: React.ReactNode }) => {
     <Tabs
       defaultValue="visao-geral"
       onValueChange={value => setTabValue(value)}
-      className="flex flex-col h-full w-full mr-4"
+      className="flex flex-col h-full w-full mr-4 relative"
     >
       <TabsList className="flex-shrink-0 bg-green text-white md:text-lg tracking-wide">
         <TabsTrigger className="flex-between gap-2" value="visao-geral">

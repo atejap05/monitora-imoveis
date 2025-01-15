@@ -13,100 +13,122 @@ import BasicTooltip from "@/components/BasicTooltip";
 import { setFileName } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { exportXLSX } from "@/lib/utils";
+import { Separator } from "@radix-ui/react-separator";
+import { useSidebarState } from "@/state/sidebarState";
 
 const Consultas = () => {
   const { consulta, formData, isPending } = useConsultasState();
   const { CSVDownloader, Type } = useCSVDownloader();
+  const { isOpen } = useSidebarState();
+
+  console.log(isOpen);
   return (
-    <TabsContent value="consultas" className="p-4">
-      <div>
-        {isPending ? (
-          <GridLoader
-            loading={isPending}
-            color="#709f77"
-            aria-label="Loading ..."
-          />
-        ) : (
-          <Card className="max-w-md sm:max-w-2xl md:max-w-5xl lg:max-w-6xl xl:max-w-full mx-auto">
-            {/* TODO: Separar CardHeader em arquivo  */}
-            <CardHeader className="flex flex-row justify-between items-center ">
-              <div>
-                {formData && formData.ni && formData.anos ? (
-                  <div className="flex justify-start gap-2">
-                    <Badge className="text-sm place-content-center tracking-wide">
-                      {formataCNPJ(formData.ni)}
-                    </Badge>
-                    <div className="flex flex-row gap-2">
-                      {formData.anos.map(ano => (
-                        <Badge key={ano}>{ano}</Badge>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <span>Pesquisa não retornou resultados.</span>
-                  </div>
-                )}
-              </div>
-              <div>
-                <span>
-                  <span className="text-lg font-mono font-semibold tracking-wide text-gray-500">
-                    {consulta.consulta.length}
-                  </span>{" "}
-                  registro(s) encontrado(s).
-                </span>
-              </div>
-              {consulta.consulta.length > 0 && (
-                <div className="flex flex-row gap-3">
-                  <span className="text-sm text-gray-500">
-                    <CSVDownloader
-                      type={Type.Button}
-                      data={consulta.consulta}
-                      filename={setFileName(
-                        formData?.ni ?? "",
-                        formData?.anos ?? []
-                      )}
-                    >
-                      <BasicTooltip
-                        content="Exportar CSV"
-                        label={
-                          <Button
-                            variant={"outline"}
-                            size={"icon"}
-                            className="shadow-sm"
-                          >
-                            <img src={csv_icon} alt="csv" className="w-6 h-6" />
-                          </Button>
-                        }
-                      />
-                    </CSVDownloader>
-                  </span>
+    <TabsContent
+      value="consultas"
+      // className={`${isOpen ? "w-[98%] mx-auto" : "w-full md:w-4/5"} `}
+    >
+      {isPending ? (
+        <GridLoader
+          loading={isPending}
+          color="#709f77"
+          aria-label="Loading ..."
+        />
+      ) : (
+        <Card>
+          {/* TODO: Separar CardHeader em arquivo  */}
+          <CardHeader className="flex flex-row justify-between items-center ">
+            <div>
+              {formData && formData.ni && formData.anos ? (
+                <div className="flex justify-start gap-2">
+                  <Badge className="text-sm place-content-center tracking-wide">
+                    {formataCNPJ(formData.ni)}
+                  </Badge>
                   <span>
+                    <Separator
+                      className="h-full w-0.5 bg-green"
+                      orientation="vertical"
+                    />
+                  </span>
+
+                  <div className="flex flex-row gap-2">
+                    {formData.anos.map(ano => (
+                      <Badge key={ano}>{ano}</Badge>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <span>Pesquisa não retornou resultados.</span>
+                </div>
+              )}
+            </div>
+            <div>
+              <span>
+                <span className="text-lg font-mono font-semibold tracking-wide text-gray-500">
+                  {consulta.consulta.length}
+                </span>{" "}
+                registro(s) encontrado(s).
+              </span>
+            </div>
+            {consulta.consulta.length > 0 && (
+              <div className="flex flex-row gap-3">
+                <span className="text-sm text-gray-500">
+                  <CSVDownloader
+                    type={Type.Button}
+                    data={consulta.consulta}
+                    filename={setFileName(
+                      formData?.ni ?? "",
+                      formData?.anos ?? []
+                    )}
+                  >
                     <BasicTooltip
-                      content="Exportar XLSX"
+                      content="Exportar CSV"
                       label={
                         <Button
                           variant={"outline"}
                           size={"icon"}
-                          onClick={() => exportXLSX(consulta.consulta)}
                           className="shadow-sm"
                         >
-                          <img src={xlsx_icon} alt="xlsx" className="w-6 h-6" />
+                          <img src={csv_icon} alt="csv" className="w-6 h-6" />
                         </Button>
                       }
                     />
-                  </span>
-                </div>
-              )}
-            </CardHeader>
-            <CardContent>
-              <DataTable columns={nfseColumns} data={consulta.consulta} />
-            </CardContent>
-          </Card>
-        )}
-      </div>
+                  </CSVDownloader>
+                </span>
+                <span>
+                  <BasicTooltip
+                    content="Exportar XLSX"
+                    label={
+                      <Button
+                        variant={"outline"}
+                        size={"icon"}
+                        onClick={() => exportXLSX(consulta.consulta)}
+                        className="shadow-sm"
+                      >
+                        <img src={xlsx_icon} alt="xlsx" className="w-6 h-6" />
+                      </Button>
+                    }
+                  />
+                </span>
+              </div>
+            )}
+          </CardHeader>
+          <CardContent className="">
+            <DataTable columns={nfseColumns} data={consulta.consulta} />
+          </CardContent>
+        </Card>
+      )}
     </TabsContent>
   );
 };
 
 export default Consultas;
+
+// const crypto = require("crypto");
+
+// function generatePassword(length) {
+//   return crypto.randomBytes(length).toString("base64").slice(0, length);
+// }
+
+// const password = generatePassword(20);
+// console.log(password);

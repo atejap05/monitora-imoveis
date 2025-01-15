@@ -4,24 +4,27 @@ import Header from "./components/Header";
 import TabsNav from "./components/tabs-navigation/TabsNav";
 import Dashboard from "./dashboards/Dashboard";
 import { useDashboardState } from "./state/dashboardState";
+import { useSidebarState } from "./state/sidebarState";
 
 function App() {
   const { tabValue } = useDashboardState();
+  const { setSidebarState } = useSidebarState();
   return (
-    <div className="flex flex-col h-screen w-full">
+    <SidebarProvider className="flex flex-col h-screen w-full">
       <Header />
-      <SidebarProvider>
-        <div className="flex h-screen w-full">
-          <SidebarFilters />
-          <div className="flex w-full">
-            <SidebarTrigger className="mx-1" />
-            <TabsNav>
-              <Dashboard tabValue={tabValue} />
-            </TabsNav>
-          </div>
+      <div className="flex h-screen w-full">
+        <SidebarFilters />
+        <div className="flex w-full">
+          <TabsNav>
+            <SidebarTrigger
+              onClick={setSidebarState}
+              className="absolute top-1 left-1 text-white font-semibold"
+            />
+            <Dashboard tabValue={tabValue} />
+          </TabsNav>
         </div>
-      </SidebarProvider>
-    </div>
+      </div>
+    </SidebarProvider>
   );
 }
 
