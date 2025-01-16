@@ -3,17 +3,19 @@ import DashCard from "@/components/DashCard";
 import DashChart from "@/components/DashChart";
 import { useQuery } from "@tanstack/react-query";
 
-const fetchNotasFiscais = async () => {
+type NotasFiscaisMeiPorAno = Record<string, number>;
+
+const fetchNotasFiscaisMeiPorAno = async () => {
   const response = await fetch(
-    "https://localhost:8443/ctx/once/PainelNFSe/get_total_ni_distintos"
+    "https://localhost:8443/ctx/once/PainelNFSe/get_total_nfse_emitidas_por_mei_por_ano?anos=2022,2023,2024"
   );
-  return response.json();
+  return response.json() as Promise<NotasFiscaisMeiPorAno>;
 };
 
 const NotasFiscais = () => {
   const { data, status } = useQuery({
-    queryKey: ["nfse"],
-    queryFn: fetchNotasFiscais,
+    queryKey: ["nfse_mei_por_ano"],
+    queryFn: fetchNotasFiscaisMeiPorAno,
   });
 
   if (status === "pending") {
@@ -22,68 +24,22 @@ const NotasFiscais = () => {
 
   return (
     <TabsContent value="nfse">
-      <div className="grid grid-cols-4 gap-4 lg:gap-6 p-4">
+      <div className="grid grid-cols-4 gap-4 lg:gap-6">
         <DashCard
-          title="Total Contribuintes"
-          value={data.total_ni_distintos}
-          description="Variação percentual"
+          title="Notas Fiscais Emitidas"
+          value={data ? String(data["2022"]) : "0"}
+          description="Notas fiscais emitidas por MEI em 2022"
         />
-        {/* <DashCard />
-        <DashCard />
-        <DashCard /> */}
-        <div className="col-span-4 h-96 flex items-center justify-center">
-          <DashChart />
-        </div>
-        <div className="col-span-4 overflow-auto">
-          <table className="min-w-full">
-            <thead>
-              <tr>
-                <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                  Data
-                </th>
-                <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                  N o
-                </th>
-                <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                  Valor
-                </th>
-                <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-sm leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white">
-              <tr>
-                <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
-                  01/01/2023
-                </td>
-                <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
-                  123
-                </td>
-                <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
-                  R$ 100,00
-                </td>
-                <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
-                  Emitida
-                </td>
-              </tr>
-              <tr>
-                <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
-                  01/01/2023
-                </td>
-                <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
-                  123
-                </td>
-                <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
-                  R$ 100,00
-                </td>
-                <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
-                  Emitida
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <DashCard
+          title="Notas Fiscais Emitidas"
+          value={data ? String(data["2023"]) : "0"}
+          description="Notas fiscais emitidas por MEI em 2023"
+        />
+        <DashCard
+          title="Notas Fiscais Emitidas"
+          value={data ? String(data["2024"]) : "0"}
+          description="Notas fiscais emitidas por MEI em 2024"
+        />
       </div>
     </TabsContent>
   );
