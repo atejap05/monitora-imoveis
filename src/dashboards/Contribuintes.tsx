@@ -1,6 +1,6 @@
 import { TabsContent } from "@/components/ui/tabs";
 import DashCard from "@/components/DashCard";
-import DashChart from "@/components/DashChart";
+import DashChart from "@/components/DashBarChart";
 import { useQuery } from "@tanstack/react-query";
 
 const fetchTotalContribuintes = async () => {

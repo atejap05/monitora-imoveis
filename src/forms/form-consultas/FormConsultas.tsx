@@ -55,7 +55,6 @@ export const FormConsultas = () => {
     mutationFn: ({ ni, anos }) => fetchContribuintes(ni, anos),
     onSuccess: data => {
       setNfseData(data);
-      console.log(data);
     },
     onError: error => {
       console.error(error);
@@ -170,6 +169,8 @@ export const FormConsultas = () => {
                 form.reset;
                 setNfseData({ consulta: [] });
                 setFormData({ ni: "", anos: [] });
+                form.setValue("ni", "");
+                form.setValue("anos", []);
               }}
               disabled={isPending}
               variant="outline"

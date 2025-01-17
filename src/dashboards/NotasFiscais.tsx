@@ -1,7 +1,14 @@
 import { TabsContent } from "@/components/ui/tabs";
 import DashCard from "@/components/DashCard";
-import DashChart from "@/components/DashChart";
+import DashBarChart from "@/components/DashBarChart";
 import { useQuery } from "@tanstack/react-query";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 type NotasFiscaisMeiPorAno = Record<string, number>;
 
@@ -23,8 +30,13 @@ const NotasFiscais = () => {
   }
 
   return (
-    <TabsContent value="nfse">
-      <div className="grid grid-cols-4 gap-4 lg:gap-6">
+    <TabsContent value="nfse" className=" pl-4 py-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">
+        <DashCard
+          title="Notas Fiscais Emitidas"
+          value={data ? String(data["2022"]) : "0"}
+          description="Notas fiscais emitidas por MEI em 2022"
+        />
         <DashCard
           title="Notas Fiscais Emitidas"
           value={data ? String(data["2022"]) : "0"}
@@ -40,6 +52,69 @@ const NotasFiscais = () => {
           value={data ? String(data["2024"]) : "0"}
           description="Notas fiscais emitidas por MEI em 2024"
         />
+        <DashCard
+          title="Notas Fiscais Emitidas"
+          value={data ? String(data["2024"]) : "0"}
+          description="Notas fiscais emitidas por MEI em 2024"
+        />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2  lg:gap-6 mt-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Notas Fiscais Emitidas por MEI</CardTitle>
+            <CardDescription>
+              Anos de {data ? Object.keys(data).join(", ") : ""}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <DashBarChart
+              chartData={
+                data
+                  ? Object.entries(data).map(([ano, value]) => ({
+                      ano,
+                      NFSE: value,
+                    }))
+                  : []
+              }
+              dataKeyX="ano"
+              barDataKey="NFSE"
+              chartConfig={{
+                NFSE: {
+                  label: "Notas Fiscais Emitidas",
+                  color: "#709f77",
+                },
+              }}
+            />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Notas Fiscais Emitidas por MEI</CardTitle>
+            <CardDescription>
+              Anos de {data ? Object.keys(data).join(", ") : ""}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <DashBarChart
+              chartData={
+                data
+                  ? Object.entries(data).map(([ano, value]) => ({
+                      ano,
+                      NFSE: value,
+                    }))
+                  : []
+              }
+              dataKeyX="ano"
+              barDataKey="NFSE"
+              chartConfig={{
+                NFSE: {
+                  label: "Notas Fiscais Emitidas",
+                  color: "#709f77",
+                },
+              }}
+            />
+          </CardContent>
+        </Card>
       </div>
     </TabsContent>
   );
