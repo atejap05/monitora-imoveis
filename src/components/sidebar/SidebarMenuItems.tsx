@@ -2,7 +2,7 @@ import { SidebarMenu, SidebarMenuItem } from "@/components/ui/sidebar";
 import { ITEMS } from "./menu_items";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { FormContribuintes, FormConsultas } from "@/forms";
+import { FormContribuintes, FormConsultas, FormNotasFiscais } from "@/forms";
 import { useDashboardState } from "@/state/dashboardState";
 
 export const SidebarMenuItems = () => {
@@ -14,6 +14,8 @@ export const SidebarMenuItems = () => {
         return <FormContribuintes />;
       case "consultas":
         return <FormConsultas />;
+      case "nfse":
+        return <FormNotasFiscais />;
       default:
         return ITEMS.map(item => (
           <SidebarMenuItem key={item.label} className="mb-4">
