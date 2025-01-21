@@ -1,3 +1,4 @@
+import { TFormData } from "@/@types";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -102,3 +103,14 @@ export const exportXLSX = async (data: any, ni: string, anos: string[]) => {
   XLSX.utils.book_append_sheet(wb, ws, "NFSe");
   XLSX.writeFile(wb, `${setFileName(ni, anos)}.xlsx`);
 };
+
+///////////// setFormData para FormNotasFiscais.tsx /////////////
+export function setFormData(data: any, selectedOption: string): TFormData {
+  return {
+    todos: selectedOption === "todos",
+    uf: selectedOption === "uf" ? data.uf : "",
+    municipio: selectedOption === "municipio" ? data.municipio : "",
+    regiao: selectedOption === "regiao" ? data.regiao : "",
+    ano: selectedOption === "todos" && data.ano.length === 0 ? years : data.ano,
+  };
+}

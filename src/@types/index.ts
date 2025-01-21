@@ -38,3 +38,11 @@ export type Municipio = {
     };
   };
 };
+
+export type TFormData = {
+  todos: boolean;
+  uf: string;
+  municipio: string;
+  regiao: string;
+  ano: string[];
+};
