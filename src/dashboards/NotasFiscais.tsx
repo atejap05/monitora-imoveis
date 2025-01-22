@@ -14,7 +14,7 @@ type NotasFiscaisMeiPorAno = Record<string, number>;
 
 const fetchNotasFiscaisMeiPorAno = async () => {
   const response = await fetch(
-    "https://localhost:8443/ctx/once/PainelNFSe/get_total_nfse_emitidas_por_mei_por_ano?anos=2022,2023,2024"
+    "https://localhost:8443/ctx/once/PainelNFSe/get_totais_nfse_com_filtro?anos=2022,2023,2024"
   );
   return response.json() as Promise<NotasFiscaisMeiPorAno>;
 };
