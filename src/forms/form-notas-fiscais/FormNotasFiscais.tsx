@@ -2,13 +2,13 @@
 import { useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { pushFormData, formType } from "@/service";
 import { FormMunicipio } from "./form-municipio";
 import { FormRegiao } from "./form-regiao";
 import { FormUF } from "./form-uf";
 import { FormAno } from "./form-ano";
 import { FormOptions } from "./form-options";
-import { setFormData } from "@/lib/utils";
+import { setFormData, years } from "@/lib/utils";
+import type { TFormData } from "@/@types";
 
 const fetchNotasFiscais = async (
   filtro: string | null,
@@ -26,8 +26,6 @@ const fetchNotasFiscais = async (
     throw new Error("Erro ao buscar notas fiscais");
   }
   const data = await response.json();
-
-  console.log(data);
   return data;
 };
 
@@ -37,36 +35,41 @@ export const FormNotasFiscais = () => {
 
   const { data, isPending } = useQuery({
     queryKey: ["totais-notas-fiscais"],
-    queryFn: () => fetchNotasFiscais("todos", [2022, 2023], null, null, null),
+    queryFn: () => fetchNotasFiscais("todos", years, null, null, null), // TODO: by default, fetch all data for all years
   });
 
-  const { mutateAsync: pushFormDataMutation } = useMutation<
-    formType<any>,
+  const { mutateAsync, isPending: isPandingMutation } = useMutation<
+    TFormData,
     unknown,
-    formType<any>
+    TFormData
   >({
-    mutationFn: pushFormData,
-    onSuccess: () => {
+    mutationFn: (formData: TFormData) =>
+      fetchNotasFiscais(
+        formData.filtro,
+        formData.ano,
+        formData.regiao,
+        formData.municipio,
+        formData.uf
+      ),
+    onSuccess: data => {
+      console.log(data);
       alert("Dados enviados com sucesso!");
       queryClient.invalidateQueries({
-        queryKey: ["contribuintes"],
+        queryKey: ["totais-notas-fiscais"],
       });
     },
   });
 
-  if (isPending) {
+  if (isPending || isPandingMutation) {
     return <div>Carregando...</div>;
   }
 
-  if (data) {
-    console.log(data);
-  }
   async function onSubmit(data: any) {
     const FormData = setFormData(data, selectedOption);
 
-    console.log(JSON.stringify(FormData, null, 2));
+    // console.log(JSON.stringify(FormData, null, 2));
     try {
-      const res = await pushFormDataMutation(FormData);
+      const res = await mutateAsync(FormData);
       console.log(res);
     } catch (error) {
       console.error(error);
