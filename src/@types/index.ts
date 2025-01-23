@@ -40,7 +40,7 @@ export type Municipio = {
 };
 
 export type TFormData = {
-  todos: boolean;
+  filtro: string;
   uf: string;
   municipio: string;
   regiao: string;
