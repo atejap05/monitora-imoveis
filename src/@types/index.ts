@@ -49,9 +49,9 @@ export type TFormData = {
 
 export type TConsultaNFSeTotais = {
   [key: string]: {
-    total_geral_nfes_base: number;
-    total_nfes_base_me_epp: number;
-    total_nfes_base_mei: number;
-    total_nfes_base_nao_optante: number;
+    total: number;
+    me_epp: number;
+    mei: number;
+    nao_optante: number;
   };
 };

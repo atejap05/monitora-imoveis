@@ -1,14 +1,15 @@
-import { TabsContent } from "@/components/ui/tabs";
-import DashCard from "@/components/DashCard";
-import DashBarChart from "@/components/DashBarChart";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+// import { TabsContent } from "@/components/ui/tabs";
+// import DashCard from "@/components/DashCard";
+// import DashBarChart from "@/components/DashBarChart";
+// import {
+//   Card,
+//   CardContent,
+//   CardDescription,
+//   CardHeader,
+//   CardTitle,
+// } from "@/components/ui/card";
 import { useNotasFiscaisState } from "@/state/notasFiscaisState";
+import { PieChartNFSe } from "./PieChartNFSe";
 
 const NotasFiscais = () => {
   const { consultaNFSeTotais } = useNotasFiscaisState();
@@ -16,6 +17,7 @@ const NotasFiscais = () => {
     <>
       <div>nfse</div>
       <div>{JSON.stringify(consultaNFSeTotais)}</div>
+      <PieChartNFSe />
     </>
     // <TabsContent value="nfse" className=" pl-4 py-6">
     //   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">

@@ -1,7 +1,7 @@
 import Ambiente from "./Ambiente";
 import Consultas from "./Consultas/Consultas";
 import Contribuintes from "./Contribuintes";
-import NotasFiscais from "./NotasFiscais";
+import NotasFiscais from "./NotasFiscais/NotasFiscais";
 import VisaoGeral from "./VisaoGeral";
 
 type DashboardProps = {
