@@ -36,6 +36,7 @@ export const FormNotasFiscais = () => {
   const { data, isPending } = useQuery({
     queryKey: ["totais-notas-fiscais"],
     queryFn: () => fetchNotasFiscais("todos", years, null, null, null), // TODO: by default, fetch all data for all years
+    refetchOnWindowFocus: false,
   });
 
   const { mutateAsync, isPending: isPandingMutation } = useMutation<
@@ -53,7 +54,7 @@ export const FormNotasFiscais = () => {
       ),
     onSuccess: data => {
       console.log(data);
-      alert("Dados enviados com sucesso!");
+
       queryClient.invalidateQueries({
         queryKey: ["totais-notas-fiscais"],
       });
@@ -67,13 +68,9 @@ export const FormNotasFiscais = () => {
   async function onSubmit(data: any) {
     const FormData = setFormData(data, selectedOption);
 
-    // console.log(JSON.stringify(FormData, null, 2));
-    try {
-      const res = await mutateAsync(FormData);
-      console.log(res);
-    } catch (error) {
-      console.error(error);
-    }
+    console.log(JSON.stringify(FormData, null, 2));
+
+    await mutateAsync(FormData);
   }
 
   return (
