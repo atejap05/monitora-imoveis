@@ -21,9 +21,7 @@ import { MultiSelect } from "@/components/ui/multi-select";
 import { years } from "@/lib/utils";
 
 const FormRegiaoSchema = z.object({
-  regiao: z
-    .enum(["norte", "nordeste", "centro-oeste", "sudeste", "sul", "todos"])
-    .default("todos"),
+  regiao: z.enum(["N", "NE", "CO", "SE", "S"]).default("SE"),
   ano: z.array(z.string()).optional(),
 });
 
@@ -35,7 +33,7 @@ export const FormRegiao = ({
   const form = useForm<z.infer<typeof FormRegiaoSchema>>({
     resolver: zodResolver(FormRegiaoSchema),
     defaultValues: {
-      regiao: "todos",
+      regiao: "SE",
       ano: [],
     },
   });
@@ -56,12 +54,11 @@ export const FormRegiao = ({
                   <SelectValue placeholder="Selecione uma Região" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="todos">Todos</SelectItem>
-                  <SelectItem value="norte">Norte</SelectItem>
-                  <SelectItem value="nordeste">Nordeste</SelectItem>
-                  <SelectItem value="centro-oeste">Centro-Oeste</SelectItem>
-                  <SelectItem value="sudeste">Sudeste</SelectItem>
-                  <SelectItem value="sul">Sul</SelectItem>
+                  <SelectItem value="N">Norte</SelectItem>
+                  <SelectItem value="NE">Nordeste</SelectItem>
+                  <SelectItem value="CO">Centro-Oeste</SelectItem>
+                  <SelectItem value="SE">Sudeste</SelectItem>
+                  <SelectItem value="S">Sul</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
