@@ -46,3 +46,12 @@ export type TFormData = {
   regiao: string;
   ano: string[];
 };
+
+export type TConsultaNFSeTotais = {
+  [key: string]: {
+    total_geral_nfes_base: number;
+    total_nfes_base_me_epp: number;
+    total_nfes_base_mei: number;
+    total_nfes_base_nao_optante: number;
+  };
+};

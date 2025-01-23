@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FormMunicipio } from "./form-municipio";
@@ -8,7 +8,8 @@ import { FormUF } from "./form-uf";
 import { FormAno } from "./form-ano";
 import { FormOptions } from "./form-options";
 import { setFormData, years } from "@/lib/utils";
-import type { TFormData } from "@/@types";
+import type { TConsultaNFSeTotais, TFormData } from "@/@types";
+import { useNotasFiscaisState } from "@/state/notasFiscaisState";
 
 const fetchNotasFiscais = async (
   filtro: string | null,
@@ -25,14 +26,14 @@ const fetchNotasFiscais = async (
   if (!response.ok) {
     throw new Error("Erro ao buscar notas fiscais");
   }
-  const data = await response.json();
-  return data;
+  return await response.json();
 };
 
 export const FormNotasFiscais = () => {
   const [selectedOption, setSelectedOption] = useState("todos");
+  const { setConsultaNFSeTotais, setConsultaNFSeTotaisIsPending } =
+    useNotasFiscaisState();
   const queryClient = useQueryClient();
-
   const { data, isPending } = useQuery({
     queryKey: ["totais-notas-fiscais"],
     queryFn: () => fetchNotasFiscais("todos", years, null, null, null), // TODO: by default, fetch all data for all years
@@ -40,36 +41,29 @@ export const FormNotasFiscais = () => {
   });
 
   const { mutateAsync, isPending: isPandingMutation } = useMutation<
-    TFormData,
+    TConsultaNFSeTotais,
     unknown,
     TFormData
   >({
-    mutationFn: (formData: TFormData) =>
-      fetchNotasFiscais(
-        formData.filtro,
-        formData.ano,
-        formData.regiao,
-        formData.municipio,
-        formData.uf
-      ),
+    mutationFn: (formData: TFormData) => {
+      const { filtro, ano, regiao, municipio, uf } = formData;
+      return fetchNotasFiscais(filtro, ano, regiao, municipio, uf);
+    },
     onSuccess: data => {
-      console.log(data);
-
+      setConsultaNFSeTotais(data);
       queryClient.invalidateQueries({
         queryKey: ["totais-notas-fiscais"],
       });
     },
   });
 
-  if (isPending || isPandingMutation) {
-    return <div>Carregando...</div>;
-  }
+  useEffect(() => {
+    setConsultaNFSeTotaisIsPending(isPending || isPandingMutation);
+    if (data) setConsultaNFSeTotais(data);
+  }, [data, isPending]);
 
   async function onSubmit(data: any) {
     const FormData = setFormData(data, selectedOption);
-
-    console.log(JSON.stringify(FormData, null, 2));
-
     await mutateAsync(FormData);
   }
 
