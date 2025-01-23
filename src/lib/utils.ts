@@ -105,9 +105,13 @@ export const exportXLSX = async (data: any, ni: string, anos: string[]) => {
 };
 
 ///////////// setFormData para FormNotasFiscais.tsx /////////////
-export function setFormData(data: any, selectedOption: string): TFormData {
+export function setFormData(
+  data: Omit<TFormData, "filtro">,
+  selectedOption: string
+): TFormData {
   return {
-    todos: selectedOption === "todos",
+    ...data,
+    filtro: selectedOption,
     uf: selectedOption === "uf" ? data.uf : "",
     municipio: selectedOption === "municipio" ? data.municipio : "",
     regiao: selectedOption === "regiao" ? data.regiao : "",
