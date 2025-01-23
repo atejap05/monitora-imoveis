@@ -115,6 +115,6 @@ export function setFormData(
     uf: selectedOption === "uf" ? data.uf : "",
     municipio: selectedOption === "municipio" ? data.municipio : "",
     regiao: selectedOption === "regiao" ? data.regiao : "",
-    ano: selectedOption === "todos" && data.ano.length === 0 ? years : data.ano,
+    ano: data.ano.length === 0 ? years : data.ano,
   };
 }
