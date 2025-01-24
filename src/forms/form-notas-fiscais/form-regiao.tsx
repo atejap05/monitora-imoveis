@@ -50,7 +50,7 @@ export const FormRegiao = ({
             <FormItem>
               <FormLabel className="text-green font-bold">Região</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-white">
                   <SelectValue placeholder="Selecione uma Região" />
                 </SelectTrigger>
                 <SelectContent>

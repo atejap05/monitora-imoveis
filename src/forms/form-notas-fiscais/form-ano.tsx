@@ -43,6 +43,7 @@ export const FormAno = ({
               <FormLabel className="text-green font-bold">Ano</FormLabel>
               <FormControl>
                 <MultiSelect
+                  className="bg-white"
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                   options={years.map(year => ({

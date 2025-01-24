@@ -31,7 +31,11 @@ export const FormOptions = ({
             key={option.value}
             className="flex items-center justify-start gap-2"
           >
-            <RadioGroupItem id={option.value} value={option.value} />
+            <RadioGroupItem
+              className="bg-white"
+              id={option.value}
+              value={option.value}
+            />
             <Label htmlFor={option.value} className="font-normal">
               {option.label}
             </Label>
