@@ -1,34 +1,27 @@
 import * as React from "react";
 import { TrendingUp } from "lucide-react";
-import { Label, Pie, PieChart } from "recharts";
-
+import { Label as ChartLabel, Pie, PieChart } from "recharts";
+import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-const chartData = [
-  {
-    browser: "nao_optante",
-    visitors: 100000,
-    fill: "var(--color-nao_optante)",
-  },
-  { browser: "mei", visitors: 120000, fill: "var(--color-mei)" },
-  { browser: "me_epp", visitors: 130000, fill: "var(--color-me_epp)" },
-];
+import { Switch } from "@/components/ui/switch";
 
 const chartConfig = {
-  visitors: {
-    label: "Visitors",
+  total: {
+    label: "Total",
   },
   nao_optante: {
     label: "Não Optante",
@@ -44,35 +37,76 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function PieChartNFSe() {
-  const totalVisitors = React.useMemo(() => {
-    return chartData.reduce((acc, curr) => acc + curr.visitors, 0);
-  }, []);
+type ChartData = Array<{
+  emitente: string;
+  total: number;
+  fill: string;
+}>;
+
+type PieChartNFSeProps = {
+  chartData: ChartData;
+  ano: string;
+};
+
+export function PieChartNFSe({ chartData, ano }: PieChartNFSeProps) {
+  const [showLabel, setShowLabel] = React.useState(false);
+  const totalGeral = React.useMemo(() => {
+    return chartData.reduce((acc, curr) => acc + curr.total, 0);
+  }, [chartData]);
 
   return (
-    <Card className="flex flex-col">
+    <Card className="flex flex-col gap-3">
       <CardHeader className="items-center pb-0">
         <CardTitle>Total de NFSe</CardTitle>
-        <CardDescription>2024</CardDescription>
+        <CardDescription className="flex items-center gap-1 text-muted-foreground">
+          <p>NFSe disponíveis no RD para o ano de {ano}</p>
+          <TrendingUp className="h-4 w-4" />
+        </CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 pb-0">
+
+      <CardContent className="flex-1 my-3 pb-0 ">
+        <div className="flex items-center space-x-2">
+          <Switch onCheckedChange={setShowLabel} id="label" />
+          <Label htmlFor="label">Label</Label>
+        </div>
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square max-h-[350px]"
+          className="mx-auto aspect-square max-h-[350px] w-full"
         >
           <PieChart>
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent hideLabel={true} />}
             />
+            <ChartLegend
+              content={<ChartLegendContent nameKey="emitente" />}
+              className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center mt-2"
+            />
             <Pie
               data={chartData}
-              dataKey="visitors"
-              nameKey="browser"
-              innerRadius={90}
-              strokeWidth={5}
+              dataKey="total"
+              nameKey="emitente"
+              innerRadius={80}
+              strokeWidth={0}
+              label={
+                showLabel
+                  ? ({ payload, ...props }) => (
+                      <text
+                        cx={props.cx}
+                        cy={props.cy}
+                        x={props.x}
+                        y={props.y}
+                        textAnchor={props.textAnchor}
+                        dominantBaseline={props.dominantBaseline}
+                        fill="hsla(var(--foreground))"
+                      >
+                        {payload.total.toLocaleString()}
+                      </text>
+                    )
+                  : undefined
+              }
             >
-              <Label
+              <ChartLabel
                 content={({ viewBox }) => {
                   if (viewBox && "cx" in viewBox && "cy" in viewBox) {
                     return (
@@ -85,16 +119,16 @@ export function PieChartNFSe() {
                         <tspan
                           x={viewBox.cx}
                           y={viewBox.cy}
-                          className="fill-foreground text-3xl font-bold"
+                          className="fill-foreground text-2xl font-bold"
                         >
-                          {totalVisitors.toLocaleString()}
+                          {totalGeral.toLocaleString()}
                         </tspan>
                         <tspan
                           x={viewBox.cx}
                           y={(viewBox.cy || 0) + 24}
                           className="fill-muted-foreground"
                         >
-                          Visitors
+                          Total
                         </tspan>
                       </text>
                     );
@@ -105,14 +139,6 @@ export function PieChartNFSe() {
           </PieChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col gap-2 text-sm">
-        <div className="flex items-center gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
-        </div>
-      </CardFooter>
     </Card>
   );
 }
