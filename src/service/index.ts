@@ -1,5 +1,5 @@
 import { findUFCodigo } from "@/lib/utils";
-import type { Municipio } from "@/@types";
+import type { DadosUsuarioAutenticado, Municipio } from "@/@types";
 
 export const fecthMunicipioByUf = async (uf: string) => {
   const ufCodigo = await findUFCodigo(uf);
@@ -27,4 +27,12 @@ export const pushFormData = async <T>(data: formType<T>) => {
     throw new Error("Network response was not ok");
   }
   return await response.json();
+};
+
+export const getDadosUsuarioAutenticado = async () => {
+  const url =
+    "https://localhost:8443/ctx/once/PainelNFSe/get_dados_usuario_autenticado";
+  const response = await fetch(url);
+  const data = await response.json();
+  return data as DadosUsuarioAutenticado;
 };
