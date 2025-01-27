@@ -5,12 +5,31 @@ import { PieChartNFSe } from "./PieChartNFSe";
 import { prepareData } from "@/lib/utils";
 
 const NotasFiscais = () => {
-  const { consultaNFSeTotais, isPending } = useNotasFiscaisState();
+  const { consultaNFSeTotais, isPending, submitedNFSeFormData } =
+    useNotasFiscaisState();
   const chartData = prepareData(consultaNFSeTotais);
 
+  const dashboardDisplayTitle = () => {
+    const { filtro, regiao, municipio, uf } = submitedNFSeFormData;
+    const anos = chartData.map(chart => chart.year).join(", ");
+
+    if (filtro === "todos")
+      return `Notas Fiscais de Serviços emitidas no Brasil em ${anos}`;
+    if (filtro === "uf")
+      return `Notas Fiscais de Serviços emitidas em ${uf} em ${anos}`;
+    if (filtro === "municipio")
+      return `Notas Fiscais de Serviços emitidas em ${municipio} em ${anos}`;
+    if (filtro === "regiao")
+      return `Notas Fiscais de Serviços emitidas na região ${regiao} em ${anos}`;
+  };
+
   return (
-    <TabsContent value="nfse" className=" pl-4 py-6">
-      <div>{JSON.stringify(consultaNFSeTotais)}</div>
+    <TabsContent value="nfse" className="pl-4 py-6">
+      <div>
+        <h2 className="text-2xl font-bold text-green">
+          {dashboardDisplayTitle()}
+        </h2>
+      </div>
 
       {isPending ? (
         <div className="flex flex-col justify-center items-center gap-3 h-96">

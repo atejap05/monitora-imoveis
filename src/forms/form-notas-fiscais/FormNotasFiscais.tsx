@@ -14,12 +14,27 @@ import { fetchNotasFiscais } from "@/service";
 
 export const FormNotasFiscais = () => {
   const [selectedOption, setSelectedOption] = useState("todos");
-  const { setConsultaNFSeTotais, setConsultaNFSeTotaisIsPending } =
-    useNotasFiscaisState();
+  const {
+    setConsultaNFSeTotais,
+    setConsultaNFSeTotaisIsPending,
+    setSubmitedNFSeFormData,
+  } = useNotasFiscaisState();
+  const [selectedMunicipio, setSelectedMunicipio] = useState<string | null>(
+    null
+  );
   const queryClient = useQueryClient();
   const { data, isPending } = useQuery({
     queryKey: ["totais-notas-fiscais"],
-    queryFn: () => fetchNotasFiscais("todos", years, null, null, null), // TODO: by default, fetch all data for all years
+    queryFn: () => {
+      setSubmitedNFSeFormData({
+        filtro: "todos",
+        anos: years,
+        regiao: null,
+        municipio: null,
+        uf: null,
+      });
+      return fetchNotasFiscais("todos", years, null, null, null);
+    }, // TODO: by default, fetch all data for all years
     refetchOnWindowFocus: false,
   });
 
@@ -52,6 +67,13 @@ export const FormNotasFiscais = () => {
 
   async function onSubmit(data: any) {
     const FormData = setFormData(data, selectedOption);
+    setSubmitedNFSeFormData({
+      filtro: selectedOption,
+      anos: FormData.ano,
+      regiao: FormData.regiao,
+      municipio: selectedMunicipio,
+      uf: FormData.uf,
+    });
     await mutateAsync(FormData);
   }
 
@@ -73,6 +95,7 @@ export const FormNotasFiscais = () => {
           <FormMunicipio
             isFormPending={isPending || isPendingMutation}
             onSubmit={onSubmit}
+            getSelectedMunicipio={setSelectedMunicipio}
           />
         )}
         {selectedOption === "regiao" && (

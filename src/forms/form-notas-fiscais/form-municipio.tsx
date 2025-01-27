@@ -32,9 +32,11 @@ const FormMunicipioSchema = z.object({
 export const FormMunicipio = ({
   onSubmit,
   isFormPending,
+  getSelectedMunicipio,
 }: {
   onSubmit: (data: z.infer<typeof FormMunicipioSchema>) => void;
   isFormPending: boolean;
+  getSelectedMunicipio: (municipio: string) => void;
 }) => {
   const form = useForm<z.infer<typeof FormMunicipioSchema>>({
     resolver: zodResolver(FormMunicipioSchema),
@@ -45,10 +47,30 @@ export const FormMunicipio = ({
     },
   });
 
-  const result = useQuery({
+  const { data, isPending, isError } = useQuery({
     queryKey: ["fecth-municipios", form.watch("uf")],
     queryFn: () => fecthMunicipioByUf(form.watch("uf")),
   });
+
+  const getMunicipioDisplayText = (data: Municipio[], municipio: string) => {
+    if (isPending) {
+      return "Carregando...";
+    }
+
+    if (isError) {
+      return "Erro ao carregar municípios";
+    }
+
+    if (municipio) {
+      const municipioObj = data?.find(
+        (m: Municipio) => m.id === Number(municipio)
+      );
+      getSelectedMunicipio(municipioObj?.nome ?? "");
+      return municipioObj?.nome;
+    }
+
+    return "Selecione o Município";
+  };
 
   return (
     <Form {...form}>
@@ -85,21 +107,17 @@ export const FormMunicipio = ({
             <FormItem>
               <FormLabel className="text-green font-bold">Município</FormLabel>
               <Select
-                disabled={result.isLoading}
+                disabled={isPending}
                 onValueChange={field.onChange}
                 defaultValue={field.value}
               >
                 <SelectTrigger className="bg-white">
                   <SelectValue placeholder="Selecione o Município">
-                    {result.isLoading
-                      ? "Carregando..."
-                      : result.data?.find((municipio: Municipio) => {
-                          return municipio.id === Number(field.value);
-                        })?.nome || "Selecione o Município"}
+                    {getMunicipioDisplayText(data ?? [], field.value)}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {result.data?.map((municipio: any) => (
+                  {data?.map((municipio: any) => (
                     <SelectItem key={municipio.id} value={municipio.id}>
                       {municipio.nome}
                     </SelectItem>
