@@ -10,24 +10,7 @@ import { FormOptions } from "./form-options";
 import { setFormData, years } from "@/lib/utils";
 import type { TConsultaNFSeTotais, TFormData } from "@/@types";
 import { useNotasFiscaisState } from "@/state/notasFiscaisState";
-
-const fetchNotasFiscais = async (
-  filtro: string | null,
-  anos: Array<number | string>,
-  regiao: string | null,
-  municipio: string | null,
-  uf: string | null
-) => {
-  const url = `https://localhost:8443/ctx/once/PainelNFSe/get_totais_nfse_com_filtro?filtro=${filtro}&anos=${anos.join(
-    ","
-  )}&regiao=${regiao}&municipio=${municipio}&uf=${uf}`;
-
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error("Erro ao buscar notas fiscais");
-  }
-  return await response.json();
-};
+import { fetchNotasFiscais } from "@/service";
 
 export const FormNotasFiscais = () => {
   const [selectedOption, setSelectedOption] = useState("todos");
@@ -40,7 +23,7 @@ export const FormNotasFiscais = () => {
     refetchOnWindowFocus: false,
   });
 
-  const { mutateAsync, isPending: isPandingMutation } = useMutation<
+  const { mutateAsync, isPending: isPendingMutation } = useMutation<
     TConsultaNFSeTotais,
     unknown,
     TFormData
@@ -51,6 +34,7 @@ export const FormNotasFiscais = () => {
     },
     onSuccess: data => {
       setConsultaNFSeTotais(data);
+
       queryClient.invalidateQueries({
         queryKey: ["totais-notas-fiscais"],
       });
@@ -58,9 +42,13 @@ export const FormNotasFiscais = () => {
   });
 
   useEffect(() => {
-    setConsultaNFSeTotaisIsPending(isPending || isPandingMutation);
+    setConsultaNFSeTotaisIsPending(isPending);
     if (data) setConsultaNFSeTotais(data);
-  }, [data, isPending, isPandingMutation]);
+  }, []);
+
+  useEffect(() => {
+    setConsultaNFSeTotaisIsPending(isPendingMutation);
+  }, [isPendingMutation]);
 
   async function onSubmit(data: any) {
     const FormData = setFormData(data, selectedOption);
@@ -68,7 +56,7 @@ export const FormNotasFiscais = () => {
   }
 
   return (
-    <div>
+    <>
       <FormOptions
         selectedOption={selectedOption}
         setSelectedOption={setSelectedOption}
@@ -77,29 +65,29 @@ export const FormNotasFiscais = () => {
       <div className="mt-4">
         {selectedOption === "uf" && (
           <FormUF
-            isPending={isPending || isPandingMutation}
+            isFormPending={isPending || isPendingMutation}
             onSubmit={onSubmit}
           />
         )}
         {selectedOption === "municipio" && (
           <FormMunicipio
-            isPending={isPending || isPandingMutation}
+            isFormPending={isPending || isPendingMutation}
             onSubmit={onSubmit}
           />
         )}
         {selectedOption === "regiao" && (
           <FormRegiao
-            isPending={isPending || isPandingMutation}
+            isFormPending={isPending || isPendingMutation}
             onSubmit={onSubmit}
           />
         )}
         {selectedOption === "todos" && (
           <FormAno
-            isPending={isPending || isPandingMutation}
+            isFormPending={isPending || isPendingMutation}
             onSubmit={onSubmit}
           />
         )}
       </div>
-    </div>
+    </>
   );
 };

@@ -19,9 +19,9 @@ const FormAnoSchema = z.object({
 
 export const FormAno = ({
   onSubmit,
-  isPending,
+  isFormPending,
 }: {
-  isPending: boolean;
+  isFormPending: boolean;
   onSubmit: (data: z.infer<typeof FormAnoSchema>) => void;
 }) => {
   const form = useForm<z.infer<typeof FormAnoSchema>>({
@@ -59,8 +59,8 @@ export const FormAno = ({
           )}
         />
         <div className="flex justify-center mt-2">
-          <Button type="submit" disabled={isPending}>
-            {isPending ? "Aplicando..." : "Aplicar"}
+          <Button type="submit" disabled={isFormPending}>
+            {isFormPending ? "Aplicando..." : "Aplicar"}
           </Button>
         </div>
       </form>

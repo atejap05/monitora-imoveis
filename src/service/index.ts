@@ -36,3 +36,21 @@ export const getDadosUsuarioAutenticado = async () => {
   const data = await response.json();
   return data as DadosUsuarioAutenticado;
 };
+
+export const fetchNotasFiscais = async (
+  filtro: string | null,
+  anos: Array<number | string>,
+  regiao: string | null,
+  municipio: string | null,
+  uf: string | null
+) => {
+  const url = `https://localhost:8443/ctx/once/PainelNFSe/get_totais_nfse_com_filtro?filtro=${filtro}&anos=${anos.join(
+    ","
+  )}&regiao=${regiao}&municipio=${municipio}&uf=${uf}`;
+
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error("Erro ao buscar notas fiscais");
+  }
+  return await response.json();
+};

@@ -27,10 +27,10 @@ const FormRegiaoSchema = z.object({
 
 export const FormRegiao = ({
   onSubmit,
-  isPending,
+  isFormPending,
 }: {
   onSubmit: (data: z.infer<typeof FormRegiaoSchema>) => void;
-  isPending: boolean;
+  isFormPending: boolean;
 }) => {
   const form = useForm<z.infer<typeof FormRegiaoSchema>>({
     resolver: zodResolver(FormRegiaoSchema),
@@ -88,8 +88,8 @@ export const FormRegiao = ({
           )}
         />
         <div className="flex justify-center mt-2">
-          <Button type="submit" disabled={isPending}>
-            {isPending ? "Aplicando..." : "Aplicar"}
+          <Button type="submit" disabled={isFormPending}>
+            {isFormPending ? "Aplicando..." : "Aplicar"}
           </Button>
         </div>
       </form>

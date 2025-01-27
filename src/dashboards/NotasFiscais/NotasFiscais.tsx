@@ -6,12 +6,11 @@ import { prepareData } from "@/lib/utils";
 
 const NotasFiscais = () => {
   const { consultaNFSeTotais, isPending } = useNotasFiscaisState();
-
   const chartData = prepareData(consultaNFSeTotais);
 
   return (
     <TabsContent value="nfse" className=" pl-4 py-6">
-      <div>nfse</div>
+      <div>{JSON.stringify(consultaNFSeTotais)}</div>
 
       {isPending ? (
         <div className="flex flex-col justify-center items-center gap-3 h-96">
