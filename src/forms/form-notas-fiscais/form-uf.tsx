@@ -27,8 +27,10 @@ const FormUFSchema = z.object({
 
 export const FormUF = ({
   onSubmit,
+  isPending,
 }: {
   onSubmit: (data: z.infer<typeof FormUFSchema>) => void;
+  isPending: boolean;
 }) => {
   const form = useForm<z.infer<typeof FormUFSchema>>({
     resolver: zodResolver(FormUFSchema),
@@ -87,7 +89,9 @@ export const FormUF = ({
           )}
         />
         <div className="flex justify-center mt-2">
-          <Button type="submit">Aplicar</Button>
+          <Button type="submit" disabled={isPending}>
+            {isPending ? "Aplicando..." : "Aplicar"}
+          </Button>
         </div>
       </form>
     </Form>

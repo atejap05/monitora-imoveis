@@ -31,8 +31,10 @@ const FormMunicipioSchema = z.object({
 
 export const FormMunicipio = ({
   onSubmit,
+  isPending,
 }: {
   onSubmit: (data: z.infer<typeof FormMunicipioSchema>) => void;
+  isPending: boolean;
 }) => {
   const form = useForm<z.infer<typeof FormMunicipioSchema>>({
     resolver: zodResolver(FormMunicipioSchema),
@@ -130,7 +132,9 @@ export const FormMunicipio = ({
           )}
         />
         <div className="flex justify-center mt-2">
-          <Button type="submit">Aplicar</Button>
+          <Button type="submit" disabled={isPending}>
+            {isPending ? "Aplicando..." : "Aplicar"}
+          </Button>
         </div>
       </form>
     </Form>

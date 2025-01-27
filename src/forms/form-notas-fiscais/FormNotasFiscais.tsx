@@ -60,7 +60,7 @@ export const FormNotasFiscais = () => {
   useEffect(() => {
     setConsultaNFSeTotaisIsPending(isPending || isPandingMutation);
     if (data) setConsultaNFSeTotais(data);
-  }, [data, isPending]);
+  }, [data, isPending, isPandingMutation]);
 
   async function onSubmit(data: any) {
     const FormData = setFormData(data, selectedOption);
@@ -75,12 +75,30 @@ export const FormNotasFiscais = () => {
       />
       <Separator />
       <div className="mt-4">
-        {selectedOption === "uf" && <FormUF onSubmit={onSubmit} />}
-        {selectedOption === "municipio" && (
-          <FormMunicipio onSubmit={onSubmit} />
+        {selectedOption === "uf" && (
+          <FormUF
+            isPending={isPending || isPandingMutation}
+            onSubmit={onSubmit}
+          />
         )}
-        {selectedOption === "regiao" && <FormRegiao onSubmit={onSubmit} />}
-        {selectedOption === "todos" && <FormAno onSubmit={onSubmit} />}
+        {selectedOption === "municipio" && (
+          <FormMunicipio
+            isPending={isPending || isPandingMutation}
+            onSubmit={onSubmit}
+          />
+        )}
+        {selectedOption === "regiao" && (
+          <FormRegiao
+            isPending={isPending || isPandingMutation}
+            onSubmit={onSubmit}
+          />
+        )}
+        {selectedOption === "todos" && (
+          <FormAno
+            isPending={isPending || isPandingMutation}
+            onSubmit={onSubmit}
+          />
+        )}
       </div>
     </div>
   );
