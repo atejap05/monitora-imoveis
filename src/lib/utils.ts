@@ -1,4 +1,4 @@
-import { TFormData } from "@/@types";
+import { TConsultaNFSeTotais, TFormData } from "@/@types";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -118,3 +118,41 @@ export function setFormData(
     ano: data.ano.length === 0 ? years : data.ano,
   };
 }
+
+type ChartData = Array<{
+  emitente: string;
+  total: number;
+  fill: string;
+}>;
+
+export const prepareData = (consulta: TConsultaNFSeTotais) => {
+  const pieChartData = Object.entries(consulta).map(([year, data]) => {
+    const chartData: ChartData = Object.entries(data)
+      .filter(([emitente]) => emitente !== "total")
+      .map(([emitente, total]) => {
+        let fill = "";
+        switch (emitente) {
+          case "mei":
+            fill = "hsl(var(--chart-2))";
+            break;
+          case "me_epp":
+            fill = "hsl(var(--chart-3))";
+            break;
+          case "nao_optante":
+            fill = "hsl(var(--chart-1))";
+            break;
+        }
+        return {
+          emitente,
+          total,
+          fill,
+        };
+      });
+    return {
+      year,
+      data: chartData,
+    };
+  });
+
+  return pieChartData;
+};
