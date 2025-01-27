@@ -10,10 +10,9 @@ import { GridLoader } from "react-spinners";
 import csv_icon from "@/assets/csv.png";
 import xlsx_icon from "@/assets/xlsx.png";
 import BasicTooltip from "@/components/BasicTooltip";
-import { setFileName } from "@/lib/utils";
+import { setFileName, exportXLSX } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { exportXLSX } from "@/lib/utils";
-import { Separator } from "@radix-ui/react-separator";
+import { Separator } from "@/components/ui/separator";
 
 const Consultas = () => {
   const { consulta, formData, isPending } = useConsultasState();
