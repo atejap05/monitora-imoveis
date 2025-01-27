@@ -1,52 +1,13 @@
 import { TabsContent } from "@/components/ui/tabs";
-// import DashCard from "@/components/DashCard";
-// import DashBarChart from "@/components/DashBarChart";
-// import {
-//   Card,
-//   CardContent,
-//   CardDescription,
-//   CardHeader,
-//   CardTitle,
-// } from "@/components/ui/card";
 import { useNotasFiscaisState } from "@/state/notasFiscaisState";
 import { HashLoader } from "react-spinners";
 import { PieChartNFSe } from "./PieChartNFSe";
-type ChartData = Array<{
-  emitente: string;
-  total: number;
-  fill: string;
-}>;
+import { prepareData } from "@/lib/utils";
+
 const NotasFiscais = () => {
   const { consultaNFSeTotais, isPending } = useNotasFiscaisState();
 
-  // Preparar os dados para o PieChart. Sera um chart por ano com os totais de NFSe
-  const chartData = Object.entries(consultaNFSeTotais).map(([year, data]) => {
-    const chartData: ChartData = Object.entries(data)
-      .filter(([emitente]) => emitente !== "total")
-      .map(([emitente, total]) => {
-        let fill = "";
-        switch (emitente) {
-          case "mei":
-            fill = "hsl(var(--chart-2))";
-            break;
-          case "me_epp":
-            fill = "hsl(var(--chart-3))";
-            break;
-          case "nao_optante":
-            fill = "hsl(var(--chart-1))";
-            break;
-        }
-        return {
-          emitente,
-          total,
-          fill,
-        };
-      });
-    return {
-      year,
-      data: chartData,
-    };
-  });
+  const chartData = prepareData(consultaNFSeTotais);
 
   return (
     <TabsContent value="nfse" className=" pl-4 py-6">
