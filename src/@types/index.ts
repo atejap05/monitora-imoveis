@@ -55,3 +55,11 @@ export type TConsultaNFSeTotais = {
     nao_optante: number;
   };
 };
+
+export type DadosUsuarioAutenticado = {
+  cpf: string;
+  email: string;
+  nome: string;
+  matricula: string;
+  unidade_cod: string;
+};
