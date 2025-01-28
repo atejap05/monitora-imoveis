@@ -53,7 +53,7 @@ export const FormUF = ({
             <FormItem>
               <FormLabel className="text-green font-bold">UF</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-white">
                   <SelectValue placeholder="Selecione um Estado" />
                 </SelectTrigger>
                 <SelectContent>
@@ -76,6 +76,8 @@ export const FormUF = ({
               <FormLabel className="text-green font-bold">Ano</FormLabel>
               <FormControl>
                 <MultiSelect
+                  placeholder="Selecinone o(s) ano(s)"
+                  className="bg-white"
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                   options={years.map(year => ({

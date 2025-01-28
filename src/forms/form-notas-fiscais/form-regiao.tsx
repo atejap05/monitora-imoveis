@@ -75,6 +75,8 @@ export const FormRegiao = ({
               <FormLabel className="text-green font-bold">Ano</FormLabel>
               <FormControl>
                 <MultiSelect
+                  className="bg-white"
+                  placeholder="Selecinone o(s) ano(s)"
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                   options={years.map(year => ({
