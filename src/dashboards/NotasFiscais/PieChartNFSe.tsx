@@ -55,7 +55,7 @@ export function PieChartNFSe({ chartData, ano }: PieChartNFSeProps) {
   }, [chartData]);
 
   return (
-    <Card className="flex flex-col gap-3">
+    <Card className="flex flex-col gap-3 w-2/3">
       <CardHeader className="items-center pb-0">
         <CardTitle>Total de NFSe</CardTitle>
         <CardDescription className="flex items-center gap-1 text-muted-foreground">
