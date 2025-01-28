@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { FormMunicipio } from "./form-municipio";
 import { FormRegiao } from "./form-regiao";
 import { FormUF } from "./form-uf";
@@ -22,7 +22,7 @@ export const FormNotasFiscais = () => {
   const [selectedMunicipio, setSelectedMunicipio] = useState<string | null>(
     null
   );
-  const queryClient = useQueryClient();
+
   const { data, isPending } = useQuery({
     queryKey: ["totais-notas-fiscais"],
     queryFn: () => {
@@ -34,7 +34,7 @@ export const FormNotasFiscais = () => {
         uf: null,
       });
       return fetchNotasFiscais("todos", years, null, null, null);
-    }, // TODO: by default, fetch all data for all years
+    },
     refetchOnWindowFocus: false,
   });
 
@@ -49,21 +49,16 @@ export const FormNotasFiscais = () => {
     },
     onSuccess: data => {
       setConsultaNFSeTotais(data);
-
-      queryClient.invalidateQueries({
-        queryKey: ["totais-notas-fiscais"],
-      });
     },
   });
 
   useEffect(() => {
-    setConsultaNFSeTotaisIsPending(isPending);
-    if (data) setConsultaNFSeTotais(data);
-  }, []);
+    setConsultaNFSeTotaisIsPending(isPending || isPendingMutation);
+  }, [isPending, isPendingMutation]);
 
   useEffect(() => {
-    setConsultaNFSeTotaisIsPending(isPendingMutation);
-  }, [isPendingMutation]);
+    if (data) setConsultaNFSeTotais(data);
+  }, [data]);
 
   async function onSubmit(data: any) {
     const FormData = setFormData(data, selectedOption);

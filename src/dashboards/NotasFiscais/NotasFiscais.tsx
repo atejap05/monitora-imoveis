@@ -24,13 +24,7 @@ const NotasFiscais = () => {
   };
 
   return (
-    <TabsContent value="nfse" className="pl-4 py-6">
-      <div>
-        <h2 className="text-2xl font-bold text-green">
-          {dashboardDisplayTitle()}
-        </h2>
-      </div>
-
+    <TabsContent value="nfse" className="mx-auto pl-4 py-6">
       {isPending ? (
         <div className="flex flex-col justify-center items-center gap-3 h-96">
           <HashLoader
@@ -38,17 +32,27 @@ const NotasFiscais = () => {
             color="#709f77"
             aria-label="Loading ..."
           />
-
           <span className="text-green animate-pulse">
             Consultado o Receita Data ...
           </span>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 lg:gap-4">
-          {chartData.map((chart, index) => (
-            <PieChartNFSe key={index} chartData={chart.data} ano={chart.year} />
-          ))}
-        </div>
+        <>
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-green">
+              {dashboardDisplayTitle()}
+            </h2>
+          </div>
+          <div className="flex flex-col justify-center items-center gap-8 sm:flex-row sm:gap-4 ">
+            {chartData.map((chart, index) => (
+              <PieChartNFSe
+                key={index}
+                chartData={chart.data}
+                ano={chart.year}
+              />
+            ))}
+          </div>
+        </>
       )}
     </TabsContent>
   );
