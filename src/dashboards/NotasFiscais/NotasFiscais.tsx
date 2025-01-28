@@ -3,6 +3,7 @@ import { useNotasFiscaisState } from "@/state/notasFiscaisState";
 import { HashLoader } from "react-spinners";
 import { PieChartNFSe } from "./PieChartNFSe";
 import { prepareData } from "@/lib/utils";
+import BasicLoading from "@/components/BasicLoading";
 
 const NotasFiscais = () => {
   const { consultaNFSeTotais, isPending, submitedNFSeFormData } =
@@ -26,16 +27,13 @@ const NotasFiscais = () => {
   return (
     <TabsContent value="nfse" className="mx-auto pl-4 py-6">
       {isPending ? (
-        <div className="flex flex-col justify-center items-center gap-3 h-96">
-          <HashLoader
-            loading={isPending}
-            color="#709f77"
-            aria-label="Loading ..."
-          />
-          <span className="text-green animate-pulse">
-            Consultado o Receita Data ...
-          </span>
-        </div>
+        <BasicLoading
+          loading={isPending}
+          color={"#00A478"}
+          size={50}
+          Loader={HashLoader}
+          label="Carregando dados do RD ..."
+        />
       ) : (
         <>
           <div className="mb-8">
