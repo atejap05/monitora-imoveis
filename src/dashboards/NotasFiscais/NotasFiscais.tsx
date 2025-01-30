@@ -10,18 +10,19 @@ const NotasFiscais = () => {
     useNotasFiscaisState();
   const chartData = prepareData(consultaNFSeTotais);
 
+  //TODO: Move this to a utils function
   const dashboardDisplayTitle = () => {
     const { filtro, regiao, municipio, uf } = submitedNFSeFormData;
     const anos = chartData.map(chart => chart.year).join(", ");
 
     if (filtro === "todos")
-      return `Notas Fiscais de Serviços emitidas no Brasil em ${anos}`;
+      return `Notas Fiscais de Serviço emitidas no Brasil em ${anos}`;
     if (filtro === "uf")
-      return `Notas Fiscais de Serviços emitidas em ${uf} em ${anos}`;
+      return `Notas Fiscais de Serviço emitidas em ${uf} em ${anos}`;
     if (filtro === "municipio")
-      return `Notas Fiscais de Serviços emitidas em ${municipio} em ${anos}`;
+      return `Notas Fiscais de Serviço emitidas em ${municipio} em ${anos}`;
     if (filtro === "regiao")
-      return `Notas Fiscais de Serviços emitidas na região ${regiao} em ${anos}`;
+      return `Notas Fiscais de Serviço emitidas na região ${regiao} em ${anos}`;
   };
 
   return (

@@ -69,6 +69,7 @@ export const FormNotasFiscais = () => {
       municipio: selectedMunicipio,
       uf: FormData.uf,
     });
+    // TODO: Setar os dados para ao retornar para a página de nfse exibir a ultima consulta
     await mutateAsync(FormData);
   }
 

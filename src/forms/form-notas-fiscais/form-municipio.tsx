@@ -47,7 +47,7 @@ export const FormMunicipio = ({
     },
   });
 
-  const { data, isPending, isError } = useQuery({
+  const { data, isPending } = useQuery({
     queryKey: ["fecth-municipios", form.watch("uf")],
     queryFn: () => fecthMunicipioByUf(form.watch("uf")),
   });
@@ -56,11 +56,6 @@ export const FormMunicipio = ({
     if (isPending) {
       return "Carregando...";
     }
-
-    if (isError) {
-      return "Erro ao carregar municípios";
-    }
-
     if (municipio) {
       const municipioObj = data?.find(
         (m: Municipio) => m.id === Number(municipio)
@@ -68,7 +63,6 @@ export const FormMunicipio = ({
       getSelectedMunicipio(municipioObj?.nome ?? "");
       return municipioObj?.nome;
     }
-
     return "Selecione o Município";
   };
 
@@ -107,7 +101,7 @@ export const FormMunicipio = ({
             <FormItem>
               <FormLabel className="text-green font-bold">Município</FormLabel>
               <Select
-                disabled={isPending}
+                disabled={!form.watch("uf")}
                 onValueChange={field.onChange}
                 defaultValue={field.value}
               >

@@ -1,6 +1,5 @@
 import { TabsContent } from "@/components/ui/tabs";
 import DashCard from "@/components/DashCard";
-import DashChart from "@/components/DashBarChart";
 import { useQuery } from "@tanstack/react-query";
 
 const fetchTotalContribuintes = async () => {
@@ -43,9 +42,7 @@ const Contribuintes = () => {
           value={data?.total_ni_distintos.toLocaleString("pt-BR")}
           description="Variação percentual"
         />
-        <div className="col-span-4 h-96 flex items-center justify-center">
-          <DashChart />
-        </div>
+
         <div className="col-span-4 overflow-auto">
           <table className="min-w-full">
             <thead>
