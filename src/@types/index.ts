@@ -1,3 +1,11 @@
+export type DadosUsuarioAutenticado = {
+  cpf: string;
+  email: string;
+  nome: string;
+  matricula: string;
+  unidade_cod: string;
+};
+
 export type Municipio = {
   id: number;
   nome: string;
@@ -44,7 +52,7 @@ export type TFormData = {
   uf: string;
   municipio: string;
   regiao: string;
-  ano: string[];
+  anos: string[];
 };
 
 export type TConsultaNFSeTotais = {
@@ -56,10 +64,10 @@ export type TConsultaNFSeTotais = {
   };
 };
 
-export type DadosUsuarioAutenticado = {
-  cpf: string;
-  email: string;
-  nome: string;
-  matricula: string;
-  unidade_cod: string;
-};
+export type TConsultaNFSeTotaisMeiAmbiente = {
+  year: string;
+  app: number;
+  web: number;
+  webservice: number;
+  proprio: number;
+}[];

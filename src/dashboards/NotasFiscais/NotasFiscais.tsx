@@ -2,12 +2,30 @@ import { TabsContent } from "@/components/ui/tabs";
 import { useNotasFiscaisState } from "@/state/notasFiscaisState";
 import { HashLoader } from "react-spinners";
 import { PieChartNFSe } from "./PieChartNFSe";
+import { BarChartNFSe } from "./BarChartNFSe";
 import { prepareData } from "@/lib/utils";
 import BasicLoading from "@/components/BasicLoading";
 
+// const barChartData = [
+//   {
+//     year: "2022",
+//     app: 2875198,
+//     web: 44551212,
+//     webservice: 815955,
+//     proprio: 83164,
+//   },
+//   { year: "2023", app: 305, web: 200, webservice: 30, proprio: 15 },
+//   { year: "2024", app: 237, web: 120, webservice: 40, proprio: 20 },
+// ];
+
 const NotasFiscais = () => {
-  const { consultaNFSeTotais, isPending, submitedNFSeFormData } =
-    useNotasFiscaisState();
+  const {
+    consultaNFSeTotais,
+    consultaNFSeTotaisIsPending,
+    submitedNFSeFormData,
+    consutaNFSeTotaisMeiAmbiente,
+    consultaMeiAmbienteIsPending,
+  } = useNotasFiscaisState();
   const chartData = prepareData(consultaNFSeTotais);
 
   //TODO: Move this to a utils function
@@ -27,9 +45,9 @@ const NotasFiscais = () => {
 
   return (
     <TabsContent value="nfse" className="mx-auto pl-4 py-6">
-      {isPending ? (
+      {consultaNFSeTotaisIsPending ? (
         <BasicLoading
-          loading={isPending}
+          loading={consultaNFSeTotaisIsPending}
           color={"#00A478"}
           size={50}
           Loader={HashLoader}
@@ -53,6 +71,24 @@ const NotasFiscais = () => {
           </div>
         </>
       )}
+      <div className="mt-8 w-full h-full">
+        <h2 className="text-2xl font-bold text-green">
+          Notas Fiscais por Município
+        </h2>
+        {consultaMeiAmbienteIsPending ? (
+          <BasicLoading
+            loading={consultaMeiAmbienteIsPending}
+            color={"#00A478"}
+            size={50}
+            Loader={HashLoader}
+            label="Carregando dados do IBGE ..."
+          />
+        ) : (
+          <div className="w-1/2">
+            <BarChartNFSe chartData={consutaNFSeTotaisMeiAmbiente} />
+          </div>
+        )}
+      </div>
     </TabsContent>
   );
 };

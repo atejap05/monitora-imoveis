@@ -10,7 +10,7 @@ import { FormOptions } from "./form-options";
 import { setFormData, years } from "@/lib/utils";
 import type { TConsultaNFSeTotais, TFormData } from "@/@types";
 import { useNotasFiscaisState } from "@/state/notasFiscaisState";
-import { fetchNotasFiscais } from "@/service";
+import { fetchNotasFiscais, fetchNotasFiscaisMeiAmbiente } from "@/service";
 
 export const FormNotasFiscais = () => {
   const [selectedOption, setSelectedOption] = useState("todos");
@@ -18,13 +18,37 @@ export const FormNotasFiscais = () => {
     setConsultaNFSeTotais,
     setConsultaNFSeTotaisIsPending,
     setSubmitedNFSeFormData,
+    setConsultaNFSeTotaisMeiAmbiente,
+    setConsultaMeiAmbienteIsPending,
   } = useNotasFiscaisState();
   const [selectedMunicipio, setSelectedMunicipio] = useState<string | null>(
     null
   );
 
-  const { data, isPending } = useQuery({
-    queryKey: ["totais-notas-fiscais"],
+  const { data: dataNFSeTotois, isPending: isPendingDataNFSeTotais } = useQuery(
+    {
+      queryKey: ["totais-notas-fiscais"],
+      queryFn: () => {
+        setSubmitedNFSeFormData({
+          filtro: "todos",
+          anos: years,
+          regiao: null,
+          municipio: null,
+          uf: null,
+        });
+        return fetchNotasFiscais({
+          filtro: "todos",
+          anos: years,
+          regiao: null,
+          municipio: null,
+          uf: null,
+        });
+      },
+    }
+  );
+
+  const { data: dataMeiAmbiente, isPending: isPendingMeiAmbiente } = useQuery({
+    queryKey: ["totais-notas-fiscais-mei-ambiente"],
     queryFn: () => {
       setSubmitedNFSeFormData({
         filtro: "todos",
@@ -33,9 +57,14 @@ export const FormNotasFiscais = () => {
         municipio: null,
         uf: null,
       });
-      return fetchNotasFiscais("todos", years, null, null, null);
+      return fetchNotasFiscaisMeiAmbiente({
+        filtro: "todos",
+        anos: years,
+        regiao: null,
+        municipio: null,
+        uf: null,
+      });
     },
-    refetchOnWindowFocus: false,
   });
 
   const { mutateAsync, isPending: isPendingMutation } = useMutation<
@@ -44,8 +73,8 @@ export const FormNotasFiscais = () => {
     TFormData
   >({
     mutationFn: (formData: TFormData) => {
-      const { filtro, ano, regiao, municipio, uf } = formData;
-      return fetchNotasFiscais(filtro, ano, regiao, municipio, uf);
+      const { filtro, anos, regiao, municipio, uf } = formData;
+      return fetchNotasFiscais({ filtro, anos, regiao, municipio, uf });
     },
     onSuccess: data => {
       setConsultaNFSeTotais(data);
@@ -53,18 +82,22 @@ export const FormNotasFiscais = () => {
   });
 
   useEffect(() => {
-    setConsultaNFSeTotaisIsPending(isPending || isPendingMutation);
-  }, [isPending, isPendingMutation]);
+    setConsultaNFSeTotaisIsPending(
+      isPendingDataNFSeTotais || isPendingMutation
+    );
+    setConsultaMeiAmbienteIsPending(isPendingMeiAmbiente);
+  }, [isPendingDataNFSeTotais, isPendingMutation]);
 
   useEffect(() => {
-    if (data) setConsultaNFSeTotais(data);
-  }, [data]);
+    if (dataMeiAmbiente) setConsultaNFSeTotaisMeiAmbiente(dataMeiAmbiente);
+    if (dataNFSeTotois) setConsultaNFSeTotais(dataNFSeTotois);
+  }, [dataNFSeTotois, dataMeiAmbiente]);
 
   async function onSubmit(data: any) {
     const FormData = setFormData(data, selectedOption);
     setSubmitedNFSeFormData({
       filtro: selectedOption,
-      anos: FormData.ano,
+      anos: FormData.anos,
       regiao: FormData.regiao,
       municipio: selectedMunicipio,
       uf: FormData.uf,
@@ -83,26 +116,26 @@ export const FormNotasFiscais = () => {
       <div className="mt-4">
         {selectedOption === "uf" && (
           <FormUF
-            isFormPending={isPending || isPendingMutation}
+            isFormPending={isPendingDataNFSeTotais || isPendingMutation}
             onSubmit={onSubmit}
           />
         )}
         {selectedOption === "municipio" && (
           <FormMunicipio
-            isFormPending={isPending || isPendingMutation}
+            isFormPending={isPendingDataNFSeTotais || isPendingMutation}
             onSubmit={onSubmit}
             getSelectedMunicipio={setSelectedMunicipio}
           />
         )}
         {selectedOption === "regiao" && (
           <FormRegiao
-            isFormPending={isPending || isPendingMutation}
+            isFormPending={isPendingDataNFSeTotais || isPendingMutation}
             onSubmit={onSubmit}
           />
         )}
         {selectedOption === "todos" && (
           <FormAno
-            isFormPending={isPending || isPendingMutation}
+            isFormPending={isPendingDataNFSeTotais || isPendingMutation}
             onSubmit={onSubmit}
           />
         )}

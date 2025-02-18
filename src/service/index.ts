@@ -1,5 +1,9 @@
 import { findUFCodigo } from "@/lib/utils";
-import type { DadosUsuarioAutenticado, Municipio } from "@/@types";
+import type {
+  DadosUsuarioAutenticado,
+  Municipio,
+  TConsultaNFSeTotais,
+} from "@/@types";
 
 export const fecthMunicipioByUf = async (uf: string) => {
   const ufCodigo = await findUFCodigo(uf);
@@ -37,13 +41,22 @@ export const getDadosUsuarioAutenticado = async () => {
   return data as DadosUsuarioAutenticado;
 };
 
-export const fetchNotasFiscais = async (
-  filtro: string | null,
-  anos: Array<number | string>,
-  regiao: string | null,
-  municipio: string | null,
-  uf: string | null
-) => {
+// Notas Fiscais //
+
+type NFSeFiltro = {
+  filtro: string | null;
+  anos: Array<number | string>;
+  regiao: string | null;
+  municipio: string | null;
+  uf: string | null;
+};
+export const fetchNotasFiscais = async ({
+  filtro,
+  anos,
+  regiao,
+  municipio,
+  uf,
+}: NFSeFiltro) => {
   const url = `https://localhost:8443/ctx/once/PainelNFSe/get_totais_nfse_com_filtro?filtro=${filtro}&anos=${anos.join(
     ","
   )}&regiao=${regiao}&municipio=${municipio}&uf=${uf}`;
@@ -52,5 +65,29 @@ export const fetchNotasFiscais = async (
   if (!response.ok) {
     throw new Error("Erro ao buscar notas fiscais");
   }
-  return await response.json();
+  return (await response.json()) as TConsultaNFSeTotais;
+};
+
+export const fetchNotasFiscaisMeiAmbiente = async ({
+  filtro,
+  anos,
+  regiao,
+  municipio,
+  uf,
+}: NFSeFiltro) => {
+  const url = `https://localhost:8443/ctx/once/PainelNFSe/get_totais_ambiente_nfse_mei_com_filtro?filtro=${filtro}&anos=${anos.join(
+    ","
+  )}&regiao=${regiao}&municipio=${municipio}&uf=${uf}`;
+
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error("Erro ao buscar notas fiscais");
+  }
+  return (await response.json()) as Array<{
+    year: string;
+    app: number;
+    web: number;
+    webservice: number;
+    proprio: number;
+  }>;
 };
