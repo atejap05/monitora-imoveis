@@ -14,7 +14,7 @@ import { MultiSelect } from "@/components/ui/multi-select";
 import { years } from "@/lib/utils";
 
 const FormAnoSchema = z.object({
-  ano: z.array(z.string()).optional(),
+  anos: z.array(z.string()).optional(),
 });
 
 export const FormAno = ({
@@ -27,7 +27,7 @@ export const FormAno = ({
   const form = useForm<z.infer<typeof FormAnoSchema>>({
     resolver: zodResolver(FormAnoSchema),
     defaultValues: {
-      ano: [],
+      anos: [],
     },
   });
 
@@ -39,7 +39,7 @@ export const FormAno = ({
       >
         <FormField
           control={form.control}
-          name="ano"
+          name="anos"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-green font-bold">Ano</FormLabel>

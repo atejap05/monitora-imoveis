@@ -22,7 +22,7 @@ import { years } from "@/lib/utils";
 
 const FormRegiaoSchema = z.object({
   regiao: z.enum(["N", "NE", "CO", "SE", "S"]).default("SE"),
-  ano: z.array(z.string()).optional(),
+  anos: z.array(z.string()).optional(),
 });
 
 export const FormRegiao = ({
@@ -36,7 +36,7 @@ export const FormRegiao = ({
     resolver: zodResolver(FormRegiaoSchema),
     defaultValues: {
       regiao: "SE",
-      ano: [],
+      anos: [],
     },
   });
   return (
@@ -69,7 +69,7 @@ export const FormRegiao = ({
         />
         <FormField
           control={form.control}
-          name="ano"
+          name="anos"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-green font-bold">Ano</FormLabel>

@@ -115,7 +115,7 @@ export function setFormData(
     uf: selectedOption === "uf" ? data.uf : "",
     municipio: selectedOption === "municipio" ? data.municipio : "",
     regiao: selectedOption === "regiao" ? data.regiao : "",
-    ano: data.ano.length === 0 ? years : data.ano,
+    anos: data.anos.length === 0 ? years : data.anos, // se não tiver anos selecionados, seleciona todos
   };
 }
 
@@ -155,4 +155,8 @@ export const prepareData = (consulta: TConsultaNFSeTotais) => {
   });
 
   return pieChartData;
+};
+
+export const formatNumber = (number: number) => {
+  return new Intl.NumberFormat("pt-BR").format(number);
 };

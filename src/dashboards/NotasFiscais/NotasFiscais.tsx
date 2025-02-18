@@ -5,18 +5,7 @@ import { PieChartNFSe } from "./PieChartNFSe";
 import { BarChartNFSe } from "./BarChartNFSe";
 import { prepareData } from "@/lib/utils";
 import BasicLoading from "@/components/BasicLoading";
-
-// const barChartData = [
-//   {
-//     year: "2022",
-//     app: 2875198,
-//     web: 44551212,
-//     webservice: 815955,
-//     proprio: 83164,
-//   },
-//   { year: "2023", app: 305, web: 200, webservice: 30, proprio: 15 },
-//   { year: "2024", app: 237, web: 120, webservice: 40, proprio: 20 },
-// ];
+import { BasicTable } from "./BasicTable";
 
 const NotasFiscais = () => {
   const {
@@ -84,8 +73,23 @@ const NotasFiscais = () => {
             label="Carregando dados do IBGE ..."
           />
         ) : (
-          <div className="w-1/2">
-            <BarChartNFSe chartData={consutaNFSeTotaisMeiAmbiente} />
+          <div className="flex  gap-4">
+            <div className="flex-1">
+              <BarChartNFSe chartData={consutaNFSeTotaisMeiAmbiente} />
+            </div>
+            <div className="flex-1">
+              <BasicTable
+                data={consutaNFSeTotaisMeiAmbiente}
+                headers={[
+                  "Ano",
+                  "APP",
+                  "Web",
+                  "Web Service",
+                  "Sistema Próprio",
+                ]}
+                description="NFSe MEI por ambiente de emissão"
+              />
+            </div>
           </div>
         )}
       </div>

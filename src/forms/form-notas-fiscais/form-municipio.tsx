@@ -26,7 +26,7 @@ import type { Municipio } from "@/@types";
 const FormMunicipioSchema = z.object({
   uf: z.string().nonempty("UF é obrigatório"),
   municipio: z.string().nonempty("Município é obrigatório"),
-  ano: z.array(z.string()).optional(),
+  anos: z.array(z.string()).optional(),
 });
 
 export const FormMunicipio = ({
@@ -43,7 +43,7 @@ export const FormMunicipio = ({
     defaultValues: {
       uf: "",
       municipio: "",
-      ano: [],
+      anos: [],
     },
   });
 
@@ -124,7 +124,7 @@ export const FormMunicipio = ({
         />
         <FormField
           control={form.control}
-          name="ano"
+          name="anos"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-green font-bold">Ano</FormLabel>

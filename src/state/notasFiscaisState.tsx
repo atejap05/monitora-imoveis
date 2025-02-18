@@ -27,14 +27,12 @@ type NotasFiscaisState = {
     data: TConsultaNFSeTotaisMeiAmbiente
   ) => void;
   setConsultaMeiAmbienteIsPending: (status: boolean) => void;
-
   setSubmitedNFSeFormData: (data: SubmitedNFSeFormData) => void;
 };
 
 export const useNotasFiscaisState = create<NotasFiscaisState>(set => ({
   consultaNFSeTotais: {},
   consultaNFSeTotaisIsPending: false,
-
   consutaNFSeTotaisMeiAmbiente: [],
   consultaMeiAmbienteIsPending: false,
 

@@ -22,7 +22,7 @@ import { selectUFOptions, years } from "@/lib/utils";
 
 const FormUFSchema = z.object({
   uf: z.string().nonempty("UF é obrigatório"),
-  ano: z.array(z.string()).optional(),
+  anos: z.array(z.string()).optional(),
 });
 
 export const FormUF = ({
@@ -36,7 +36,7 @@ export const FormUF = ({
     resolver: zodResolver(FormUFSchema),
     defaultValues: {
       uf: "",
-      ano: [],
+      anos: [],
     },
   });
 
@@ -70,7 +70,7 @@ export const FormUF = ({
         />
         <FormField
           control={form.control}
-          name="ano"
+          name="anos"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-green font-bold">Ano</FormLabel>

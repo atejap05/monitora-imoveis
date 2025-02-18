@@ -8,7 +8,11 @@ import { FormUF } from "./form-uf";
 import { FormAno } from "./form-ano";
 import { FormOptions } from "./form-options";
 import { setFormData, years } from "@/lib/utils";
-import type { TConsultaNFSeTotais, TFormData } from "@/@types";
+import type {
+  TConsultaNFSeTotais,
+  TFormData,
+  TConsultaNFSeTotaisMeiAmbiente,
+} from "@/@types";
 import { useNotasFiscaisState } from "@/state/notasFiscaisState";
 import { fetchNotasFiscais, fetchNotasFiscaisMeiAmbiente } from "@/service";
 
@@ -65,6 +69,8 @@ export const FormNotasFiscais = () => {
         uf: null,
       });
     },
+    refetchOnWindowFocus: false,
+    refetchInterval: false,
   });
 
   const { mutateAsync, isPending: isPendingMutation } = useMutation<
@@ -81,20 +87,48 @@ export const FormNotasFiscais = () => {
     },
   });
 
+  // New mutation for MeiAmbiente
+  const {
+    mutateAsync: mutateAsyncMeiAmbiente,
+    isPending: isPendingMeiAmbienteMutation,
+  } = useMutation<TConsultaNFSeTotaisMeiAmbiente, unknown, TFormData>({
+    mutationFn: (formData: TFormData) => {
+      const { filtro, anos, regiao, municipio, uf } = formData;
+      return fetchNotasFiscaisMeiAmbiente({
+        filtro,
+        anos,
+        regiao,
+        municipio,
+        uf,
+      });
+    },
+    onSuccess: data => {
+      setConsultaNFSeTotaisMeiAmbiente(data);
+    },
+  });
+
   useEffect(() => {
     setConsultaNFSeTotaisIsPending(
       isPendingDataNFSeTotais || isPendingMutation
     );
-    setConsultaMeiAmbienteIsPending(isPendingMeiAmbiente);
-  }, [isPendingDataNFSeTotais, isPendingMutation]);
+    setConsultaMeiAmbienteIsPending(
+      isPendingMeiAmbiente || isPendingMeiAmbienteMutation
+    );
+  }, [
+    isPendingDataNFSeTotais,
+    isPendingMutation,
+    isPendingMeiAmbiente,
+    isPendingMeiAmbienteMutation,
+  ]);
 
   useEffect(() => {
     if (dataMeiAmbiente) setConsultaNFSeTotaisMeiAmbiente(dataMeiAmbiente);
     if (dataNFSeTotois) setConsultaNFSeTotais(dataNFSeTotois);
-  }, [dataNFSeTotois, dataMeiAmbiente]);
+  }, []);
 
   async function onSubmit(data: any) {
     const FormData = setFormData(data, selectedOption);
+    console.log(FormData);
     setSubmitedNFSeFormData({
       filtro: selectedOption,
       anos: FormData.anos,
@@ -102,8 +136,11 @@ export const FormNotasFiscais = () => {
       municipio: selectedMunicipio,
       uf: FormData.uf,
     });
-    // TODO: Setar os dados para ao retornar para a página de nfse exibir a ultima consulta
-    await mutateAsync(FormData);
+    // Call both mutations concurrently
+    await Promise.all([
+      mutateAsync(FormData),
+      mutateAsyncMeiAmbiente(FormData),
+    ]);
   }
 
   return (
