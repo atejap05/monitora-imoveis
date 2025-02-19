@@ -19,7 +19,7 @@ import { MultiSelect } from "@/components/ui/multi-select";
 import { useMutation } from "@tanstack/react-query";
 import { type Consulta } from "../../dashboards/Consultas/@types";
 import { useConsultasState } from "@/state/consultasState";
-import { years } from "../../lib/utils";
+import { YEARS } from "../../lib/utils";
 import { useEffect } from "react";
 
 const fetchContribuintes = async (ni: string, anos: Array<string>) => {
@@ -69,7 +69,7 @@ export const FormConsultas = () => {
 
     // Se não for passado anos, pega os anos de 2022 ate o corrente ano
     const anos =
-      FormData.anos && FormData.anos.length > 0 ? FormData.anos : years;
+      FormData.anos && FormData.anos.length > 0 ? FormData.anos : YEARS;
 
     try {
       if (FormData.ni) {
@@ -135,7 +135,7 @@ export const FormConsultas = () => {
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                   options={
-                    years.map((year: string) => ({
+                    YEARS.map((year: string) => ({
                       label: year,
                       value: year,
                     })) ?? []

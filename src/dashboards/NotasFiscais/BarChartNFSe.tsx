@@ -1,11 +1,10 @@
-import { TrendingUp } from "lucide-react";
+import { BarChart4Icon } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -50,9 +49,11 @@ type BarChartNFSeProps = {
 export function BarChartNFSe({ chartData }: BarChartNFSeProps) {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Bar Chart - Multiple</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+      <CardHeader className="flex items-center gap-0">
+        <CardTitle>Ambiente de Emissão</CardTitle>
+        <CardDescription className="flex items-center gap-2">
+          NFS-e MEI <BarChart4Icon size={14} />
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
@@ -80,14 +81,6 @@ export function BarChartNFSe({ chartData }: BarChartNFSeProps) {
           </BarChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="flex gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
-        </div>
-      </CardFooter>
     </Card>
   );
 }
