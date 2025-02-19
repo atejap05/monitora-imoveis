@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MultiSelect } from "@/components/ui/multi-select";
-import { years } from "@/lib/utils";
+import { YEARS } from "@/lib/utils";
 
 const FormRegiaoSchema = z.object({
   regiao: z.enum(["N", "NE", "CO", "SE", "S"]).default("SE"),
@@ -79,7 +79,7 @@ export const FormRegiao = ({
                   placeholder="Selecinone o(s) ano(s)"
                   onValueChange={field.onChange}
                   defaultValue={field.value}
-                  options={years.map(year => ({
+                  options={YEARS.map(year => ({
                     label: year,
                     value: year,
                   }))}

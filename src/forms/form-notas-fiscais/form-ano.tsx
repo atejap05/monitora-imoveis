@@ -11,7 +11,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { MultiSelect } from "@/components/ui/multi-select";
-import { years } from "@/lib/utils";
+import { YEARS } from "@/lib/utils";
 
 const FormAnoSchema = z.object({
   anos: z.array(z.string()).optional(),
@@ -49,7 +49,7 @@ export const FormAno = ({
                   className="bg-white"
                   onValueChange={field.onChange}
                   defaultValue={field.value}
-                  options={years.map(year => ({
+                  options={YEARS.map(year => ({
                     label: year,
                     value: year,
                   }))}

@@ -2,11 +2,13 @@ import { formataCPF } from "@/lib/utils";
 import { getDadosUsuarioAutenticado } from "@/service";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "./ui/skeleton";
+import { STALE_TIME } from "@/lib/utils";
 
 const Persona = () => {
   const { data, isLoading } = useQuery({
     queryKey: ["dadosUsuarioAutenticado"],
     queryFn: getDadosUsuarioAutenticado,
+    staleTime: STALE_TIME,
   });
 
   if (isLoading) {

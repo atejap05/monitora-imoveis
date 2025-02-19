@@ -7,7 +7,7 @@ import { FormRegiao } from "./form-regiao";
 import { FormUF } from "./form-uf";
 import { FormAno } from "./form-ano";
 import { FormOptions } from "./form-options";
-import { setFormData, years } from "@/lib/utils";
+import { setFormData, STALE_TIME, YEARS } from "@/lib/utils";
 import type {
   TConsultaNFSeTotais,
   TFormData,
@@ -35,19 +35,20 @@ export const FormNotasFiscais = () => {
       queryFn: () => {
         setSubmitedNFSeFormData({
           filtro: "todos",
-          anos: years,
+          anos: YEARS,
           regiao: null,
           municipio: null,
           uf: null,
         });
         return fetchNotasFiscais({
           filtro: "todos",
-          anos: years,
+          anos: YEARS,
           regiao: null,
           municipio: null,
           uf: null,
         });
       },
+      staleTime: STALE_TIME,
     }
   );
 
@@ -56,21 +57,20 @@ export const FormNotasFiscais = () => {
     queryFn: () => {
       setSubmitedNFSeFormData({
         filtro: "todos",
-        anos: years,
+        anos: YEARS,
         regiao: null,
         municipio: null,
         uf: null,
       });
       return fetchNotasFiscaisMeiAmbiente({
         filtro: "todos",
-        anos: years,
+        anos: YEARS,
         regiao: null,
         municipio: null,
         uf: null,
       });
     },
-    refetchOnWindowFocus: false,
-    refetchInterval: false,
+    staleTime: STALE_TIME,
   });
 
   const { mutateAsync, isPending: isPendingMutation } = useMutation<
@@ -87,7 +87,6 @@ export const FormNotasFiscais = () => {
     },
   });
 
-  // New mutation for MeiAmbiente
   const {
     mutateAsync: mutateAsyncMeiAmbiente,
     isPending: isPendingMeiAmbienteMutation,
@@ -128,7 +127,7 @@ export const FormNotasFiscais = () => {
 
   async function onSubmit(data: any) {
     const FormData = setFormData(data, selectedOption);
-    console.log(FormData);
+
     setSubmitedNFSeFormData({
       filtro: selectedOption,
       anos: FormData.anos,

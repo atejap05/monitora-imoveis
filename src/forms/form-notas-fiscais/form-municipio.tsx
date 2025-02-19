@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { useQuery } from "@tanstack/react-query";
-import { selectUFOptions, years } from "@/lib/utils";
+import { selectUFOptions, YEARS } from "@/lib/utils";
 import { fecthMunicipioByUf } from "@/service";
 import type { Municipio } from "@/@types";
 
@@ -134,7 +134,7 @@ export const FormMunicipio = ({
                   className="bg-white"
                   onValueChange={field.onChange}
                   defaultValue={field.value}
-                  options={years.map(year => ({
+                  options={YEARS.map(year => ({
                     label: year,
                     value: year,
                   }))}

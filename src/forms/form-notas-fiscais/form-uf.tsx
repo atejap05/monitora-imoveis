@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MultiSelect } from "@/components/ui/multi-select";
-import { selectUFOptions, years } from "@/lib/utils";
+import { selectUFOptions, YEARS } from "@/lib/utils";
 
 const FormUFSchema = z.object({
   uf: z.string().nonempty("UF é obrigatório"),
@@ -80,7 +80,7 @@ export const FormUF = ({
                   className="bg-white"
                   onValueChange={field.onChange}
                   defaultValue={field.value}
-                  options={years.map(year => ({
+                  options={YEARS.map(year => ({
                     label: year,
                     value: year,
                   }))}

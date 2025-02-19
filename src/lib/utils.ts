@@ -6,34 +6,36 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export const STALE_TIME = 3600000;
+
 export const UFS = [
-  { uf: "AC", codigo: "12" },
-  { uf: "AL", codigo: "27" },
-  { uf: "AP", codigo: "16" },
-  { uf: "AM", codigo: "13" },
-  { uf: "BA", codigo: "29" },
-  { uf: "CE", codigo: "23" },
-  { uf: "DF", codigo: "53" },
-  { uf: "ES", codigo: "32" },
-  { uf: "GO", codigo: "52" },
-  { uf: "MA", codigo: "21" },
-  { uf: "MT", codigo: "51" },
-  { uf: "MS", codigo: "50" },
-  { uf: "MG", codigo: "31" },
-  { uf: "PA", codigo: "15" },
-  { uf: "PB", codigo: "25" },
-  { uf: "PR", codigo: "41" },
-  { uf: "PE", codigo: "26" },
-  { uf: "PI", codigo: "22" },
-  { uf: "RJ", codigo: "33" },
-  { uf: "RN", codigo: "24" },
-  { uf: "RS", codigo: "43" },
-  { uf: "RO", codigo: "11" },
-  { uf: "RR", codigo: "14" },
-  { uf: "SC", codigo: "42" },
-  { uf: "SP", codigo: "35" },
-  { uf: "SE", codigo: "28" },
-  { uf: "TO", codigo: "17" },
+  { uf: "AC", codigo: "12", name: "Acre" },
+  { uf: "AL", codigo: "27", name: "Alagoas" },
+  { uf: "AP", codigo: "16", name: "Amapá" },
+  { uf: "AM", codigo: "13", name: "Amazonas" },
+  { uf: "BA", codigo: "29", name: "Bahia" },
+  { uf: "CE", codigo: "23", name: "Ceará" },
+  { uf: "DF", codigo: "53", name: "Distrito Federal" },
+  { uf: "ES", codigo: "32", name: "Espírito Santo" },
+  { uf: "GO", codigo: "52", name: "Goiás" },
+  { uf: "MA", codigo: "21", name: "Maranhão" },
+  { uf: "MT", codigo: "51", name: "Mato Grosso" },
+  { uf: "MS", codigo: "50", name: "Mato Grosso do Sul" },
+  { uf: "MG", codigo: "31", name: "Minas Gerais" },
+  { uf: "PA", codigo: "15", name: "Pará" },
+  { uf: "PB", codigo: "25", name: "Paraíba" },
+  { uf: "PR", codigo: "41", name: "Paraná" },
+  { uf: "PE", codigo: "26", name: "Pernambuco" },
+  { uf: "PI", codigo: "22", name: "Piauí" },
+  { uf: "RJ", codigo: "33", name: "Rio de Janeiro" },
+  { uf: "RN", codigo: "24", name: "Rio Grande do Norte" },
+  { uf: "RS", codigo: "43", name: "Rio Grande do Sul" },
+  { uf: "RO", codigo: "11", name: "Rondônia" },
+  { uf: "RR", codigo: "14", name: "Roraima" },
+  { uf: "SC", codigo: "42", name: "Santa Catarina" },
+  { uf: "SP", codigo: "35", name: "São Paulo" },
+  { uf: "SE", codigo: "28", name: "Sergipe" },
+  { uf: "TO", codigo: "17", name: "Tocantins" },
 ];
 
 export const selectUFOptions = [
@@ -66,12 +68,32 @@ export const selectUFOptions = [
   { label: "TO", value: "TO" },
 ];
 
+const REGIONS = [
+  {
+    name: "Norte",
+    abbr: "N",
+    states: ["AC", "AP", "AM", "PA", "RO", "RR", "TO"],
+  },
+  {
+    name: "Nordeste",
+    abbr: "NE",
+    states: ["AL", "BA", "CE", "MA", "PB", "PE", "PI", "RN", "SE"],
+  },
+  { name: "Centro-Oeste", abbr: "CO", states: ["DF", "GO", "MT", "MS"] },
+  { name: "Sudeste", abbr: "SE", states: ["ES", "MG", "RJ", "SP"] },
+  { name: "Sul", abbr: "S", states: ["PR", "RS", "SC"] },
+];
+
+export const formatNumber = (number: number) => {
+  return new Intl.NumberFormat("pt-BR").format(number);
+};
+
 export const findUFCodigo = async (uf: string) => {
   return UFS.find(item => item.uf === uf)!.codigo;
 };
 
 export const currentYear = new Date().getFullYear();
-export const years = Array.from({ length: currentYear - 2022 + 1 }, (_, i) =>
+export const YEARS = Array.from({ length: currentYear - 2022 + 1 }, (_, i) =>
   (2022 + i).toString()
 );
 
@@ -115,7 +137,7 @@ export function setFormData(
     uf: selectedOption === "uf" ? data.uf : "",
     municipio: selectedOption === "municipio" ? data.municipio : "",
     regiao: selectedOption === "regiao" ? data.regiao : "",
-    anos: data.anos.length === 0 ? years : data.anos, // se não tiver anos selecionados, seleciona todos
+    anos: data.anos.length === 0 ? YEARS : data.anos, // se não tiver anos selecionados, seleciona todos
   };
 }
 
@@ -157,6 +179,22 @@ export const prepareData = (consulta: TConsultaNFSeTotais) => {
   return pieChartData;
 };
 
-export const formatNumber = (number: number) => {
-  return new Intl.NumberFormat("pt-BR").format(number);
+export const dashboardDisplayTitle = (
+  text: string,
+  filtro: string,
+  uf: string,
+  municipio: string,
+  regiao: string,
+  chartData: Array<{ year: string }>
+) => {
+  const anos = chartData.map(chart => chart.year).join(", ");
+
+  if (filtro === "todos") return `${text} no Brasil em ${anos}`;
+  if (filtro === "uf")
+    return `${text} em ${UFS.find(u => u.uf === uf)?.name} em ${anos}`;
+  if (filtro === "municipio") return `${text} em ${municipio} em ${anos}`;
+  if (filtro === "regiao")
+    return `${text} na região ${
+      REGIONS.find(r => r.abbr === regiao)?.name
+    } em ${anos}`;
 };
