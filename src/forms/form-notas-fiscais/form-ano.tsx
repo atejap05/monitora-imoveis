@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/form";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { YEARS } from "@/lib/utils";
+import { Slider } from "@/components/ui/slider";
 
 const FormAnoSchema = z.object({
   anos: z.array(z.string()).optional(),
@@ -59,6 +60,13 @@ export const FormAno = ({
             </FormItem>
           )}
         />
+        <Slider
+          onValueCommit={value => console.log(value)}
+          defaultValue={[33]}
+          max={100}
+          step={1}
+        />
+
         <div className="flex justify-center mt-2">
           <Button type="submit" disabled={isFormPending}>
             {isFormPending ? "Aplicando..." : "Aplicar"}

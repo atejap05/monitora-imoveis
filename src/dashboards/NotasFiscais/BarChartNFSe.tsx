@@ -11,6 +11,8 @@ import {
 import {
   ChartConfig,
   ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
@@ -70,6 +72,11 @@ export function BarChartNFSe({ chartData }: BarChartNFSeProps) {
               cursor={false}
               content={<ChartTooltipContent indicator="dot" />}
             />
+            <ChartLegend
+              content={<ChartLegendContent />}
+              className="flex justify-center sm:gap-4 md:gap-8"
+            />
+
             <Bar dataKey="app" fill="var(--color-app)" radius={4} />
             <Bar dataKey="web" fill="var(--color-web)" radius={4} />
             <Bar
