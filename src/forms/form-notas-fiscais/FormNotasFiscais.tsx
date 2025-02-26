@@ -123,7 +123,7 @@ export const FormNotasFiscais = () => {
   useEffect(() => {
     if (dataMeiAmbiente) setConsultaNFSeTotaisMeiAmbiente(dataMeiAmbiente);
     if (dataNFSeTotois) setConsultaNFSeTotais(dataNFSeTotois);
-  }, []);
+  }, [dataMeiAmbiente, dataNFSeTotois]);
 
   async function onSubmit(data: any) {
     const FormData = setFormData(data, selectedOption);
