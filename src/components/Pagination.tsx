@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const Pagination = ({ table }: { table: any }) => {
+export const Pagination = ({ table, slice }: { table: any; slice: number }) => {
   return (
     <div className="flex flex-col gap-5 py-4 px-2">
       <div className="flex flex-col justify-between sm:flex-row gap-3">
@@ -87,11 +87,13 @@ export const Pagination = ({ table }: { table: any }) => {
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              {[10, 20, 30, 40, 50].map(pageSize => (
-                <SelectItem key={pageSize} value={pageSize.toString()}>
-                  Mostrar {pageSize}
-                </SelectItem>
-              ))}
+              {[...Array.from({ length: 5 }, (_, i) => (i + 1) * slice)].map(
+                pageSize => (
+                  <SelectItem key={pageSize} value={pageSize.toString()}>
+                    Mostrar {pageSize}
+                  </SelectItem>
+                )
+              )}
             </SelectContent>
           </Select>
         </div>
