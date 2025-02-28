@@ -5,7 +5,8 @@ import { PieChartNFSe } from "./PieChartNFSe";
 import { BarChartNFSe } from "./BarChartNFSe";
 import { dashboardDisplayTitle, prepareData } from "@/lib/utils";
 import BasicLoading from "@/components/BasicLoading";
-import { BasicTable } from "./BasicTable";
+import { BasicTable } from "../../components/BasicTable";
+import { formatNumber } from "@/lib/utils";
 
 const NotasFiscais = () => {
   const {
@@ -82,12 +83,28 @@ const NotasFiscais = () => {
               <div className="flex-1">
                 <BasicTable
                   data={consutaNFSeTotaisMeiAmbiente}
-                  headers={[
-                    "Ano",
-                    "APP",
-                    "Web",
-                    "Web Service",
-                    "Sistema Próprio",
+                  columns={[
+                    { header: "Ano", key: "year", className: "bg-gray-100" },
+                    {
+                      header: "APP",
+                      key: "app",
+                      format: formatNumber,
+                    },
+                    {
+                      header: "WEB",
+                      key: "web",
+                      format: formatNumber,
+                    },
+                    {
+                      header: "WEB Service",
+                      key: "webservice",
+                      format: formatNumber,
+                    },
+                    {
+                      header: "Sistema Próprio",
+                      key: "proprio",
+                      format: formatNumber,
+                    },
                   ]}
                   description="NFSe MEI por ambiente de emissão"
                 />
