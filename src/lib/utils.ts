@@ -84,8 +84,8 @@ const REGIONS = [
   { name: "Sul", abbr: "S", states: ["PR", "RS", "SC"] },
 ];
 
-export const formatNumber = (number: number) => {
-  return new Intl.NumberFormat("pt-BR").format(number);
+export const formatNumber = (number: number | string) => {
+  return new Intl.NumberFormat("pt-BR").format(Number(number));
 };
 
 export const findUFCodigo = async (uf: string) => {
