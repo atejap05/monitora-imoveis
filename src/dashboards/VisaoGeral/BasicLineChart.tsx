@@ -35,7 +35,7 @@ const chartConfig = {
 
 export function BasicLineChart() {
   return (
-    <Card className="flex-1">
+    <Card className="container mx-auto">
       <CardHeader>
         <CardTitle>Histograma</CardTitle>
         <CardDescription>
