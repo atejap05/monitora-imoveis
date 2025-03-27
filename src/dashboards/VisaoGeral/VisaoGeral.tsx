@@ -12,51 +12,60 @@ import { distFreqColumns } from "./columns";
 
 const VisaoGeral = () => {
   return (
-    <TabsContent className="px-4" value="visao-geral">
+    <TabsContent className="px-4 py-8" value="visao-geral">
       <h1 className="text-2xl font-semibold text-gray-800 mb-4 md:mb-6 lg:mb-8">
         Visão Geral da Base NFSe
       </h1>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 mb-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Total de NFSe</CardTitle>
-            <CardDescription>Total de notas fiscais emitidas</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <span className="text-2xl font-semibold text-gray-800">
-              100.000.000
-            </span>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>MEI</CardTitle>
-            <CardDescription>Total de notas fiscais MEI</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <span className="text-2xl font-semibold text-gray-800">5.000</span>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>ME/EPP</CardTitle>
-            <CardDescription>Total de notas fiscais ME/EPP</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <span className="text-2xl font-semibold text-gray-800">5.000</span>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Grandes Empresas</CardTitle>
-            <CardDescription>
-              Total de notas fiscais de grandes empresas
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <span className="text-2xl font-semibold text-gray-800">5.000</span>
-          </CardContent>
-        </Card>
+
+      <div className="flex flex-col gap-4 md:gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Total de NFSe</CardTitle>
+              <CardDescription>Total de notas fiscais emitidas</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <span className="text-2xl font-semibold text-gray-800">
+                100.000.000
+              </span>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>MEI</CardTitle>
+              <CardDescription>Total de notas fiscais MEI</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <span className="text-2xl font-semibold text-gray-800">
+                5.000
+              </span>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>ME/EPP</CardTitle>
+              <CardDescription>Total de notas fiscais ME/EPP</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <span className="text-2xl font-semibold text-gray-800">
+                5.000
+              </span>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Grandes Empresas</CardTitle>
+              <CardDescription>
+                Total de notas fiscais de grandes empresas
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <span className="text-2xl font-semibold text-gray-800">
+                5.000
+              </span>
+            </CardContent>
+          </Card>
+        </div>
 
         <div className="col-span-4 flex flex-col lg:flex-row gap-4">
           <BasicLineChart />
@@ -130,6 +139,63 @@ const VisaoGeral = () => {
             ]}
             columns={distFreqColumns}
           />
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Cancelamento por Substituição</CardTitle>
+              <CardDescription>
+                Total de notas fiscais canceladas
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <span className="text-2xl font-semibold text-gray-800">
+                5.000
+              </span>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                Cancelamento por Deferido por Análise Fiscal
+              </CardTitle>
+              <CardDescription>
+                Total de notas fiscais canceladas
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <span className="text-2xl font-semibold text-gray-800">
+                5.000
+              </span>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Cancelamento por Ofício</CardTitle>
+              <CardDescription>
+                Total de notas fiscais canceladas
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <span className="text-2xl font-semibold text-gray-800">
+                5.000
+              </span>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Cancelamento - Outros</CardTitle>
+              <CardDescription>
+                Total de notas fiscais canceladas
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <span className="text-2xl font-semibold text-gray-800">
+                5.000
+              </span>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </TabsContent>
