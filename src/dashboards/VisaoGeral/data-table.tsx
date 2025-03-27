@@ -77,7 +77,7 @@ export function DataTable<TData>({
   });
 
   return (
-    <Card className="container w-2/3">
+    <Card className="container lg:w-2/3 mx-auto">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription className="pb-4">{subtitle}</CardDescription>
