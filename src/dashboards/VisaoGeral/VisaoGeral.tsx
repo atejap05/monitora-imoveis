@@ -9,8 +9,46 @@ import {
 import { BasicLineChart } from "./BasicLineChart";
 import { DataTable } from "./data-table";
 import { distFreqColumns } from "./columns";
+import { useNotasFiscaisState } from "@/state/notasFiscaisState";
+import { formatNumber } from "@/lib/utils";
 
 const VisaoGeral = () => {
+  const { consultaNFSeTotais } = useNotasFiscaisState();
+
+  const calcularTotaisGerais = (data: any) => {
+    if (!data) {
+      return {
+        total: 0,
+        mei: 0,
+        me_epp: 0,
+        nao_optante: 0,
+      };
+    }
+
+    let total = 0;
+    let mei = 0;
+    let me_epp = 0;
+    let nao_optante = 0;
+
+    for (const ano in data) {
+      if (data.hasOwnProperty(ano)) {
+        total += data[ano].total || 0;
+        mei += data[ano].mei || 0;
+        me_epp += data[ano].me_epp || 0;
+        nao_optante += data[ano].nao_optante || 0;
+      }
+    }
+
+    return {
+      total,
+      mei,
+      me_epp,
+      nao_optante,
+    };
+  };
+
+  const totaisGerais = calcularTotaisGerais(consultaNFSeTotais);
+
   return (
     <TabsContent className="px-4 py-8" value="visao-geral">
       <h1 className="text-2xl font-semibold text-gray-800 mb-4 md:mb-6 lg:mb-8">
@@ -26,7 +64,7 @@ const VisaoGeral = () => {
             </CardHeader>
             <CardContent>
               <span className="text-2xl font-semibold text-gray-800">
-                100.000.000
+                {formatNumber(totaisGerais?.total?.toString() || "0")}
               </span>
             </CardContent>
           </Card>
@@ -37,7 +75,7 @@ const VisaoGeral = () => {
             </CardHeader>
             <CardContent>
               <span className="text-2xl font-semibold text-gray-800">
-                5.000
+                {formatNumber(totaisGerais?.mei?.toString() || "0")}
               </span>
             </CardContent>
           </Card>
@@ -48,7 +86,7 @@ const VisaoGeral = () => {
             </CardHeader>
             <CardContent>
               <span className="text-2xl font-semibold text-gray-800">
-                5.000
+                {formatNumber(totaisGerais?.me_epp?.toString() || "0")}
               </span>
             </CardContent>
           </Card>
@@ -61,7 +99,7 @@ const VisaoGeral = () => {
             </CardHeader>
             <CardContent>
               <span className="text-2xl font-semibold text-gray-800">
-                5.000
+                {formatNumber(totaisGerais?.nao_optante?.toString() || "0")}
               </span>
             </CardContent>
           </Card>

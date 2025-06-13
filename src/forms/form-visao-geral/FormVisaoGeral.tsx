@@ -31,7 +31,7 @@ export const FormVisaoGeral = () => {
 
   const { data: dataNFSeTotois, isPending: isPendingDataNFSeTotais } = useQuery(
     {
-      queryKey: ["totais-notas-fiscais"],
+      queryKey: ["totais-notas-fiscais-1"],
       queryFn: () => {
         setSubmitedNFSeFormData({
           filtro: "todos",
@@ -53,7 +53,7 @@ export const FormVisaoGeral = () => {
   );
 
   const { data: dataMeiAmbiente, isPending: isPendingMeiAmbiente } = useQuery({
-    queryKey: ["totais-notas-fiscais-mei-ambiente"],
+    queryKey: ["totais-notas-fiscais-mei-ambiente-1"],
     queryFn: () => {
       setSubmitedNFSeFormData({
         filtro: "todos",
@@ -127,6 +127,8 @@ export const FormVisaoGeral = () => {
 
   async function onSubmit(data: any) {
     const FormData = setFormData(data, selectedOption);
+
+    console.log("FormData", FormData);
 
     setSubmitedNFSeFormData({
       filtro: selectedOption,

@@ -173,7 +173,7 @@ export function DataTable<TData, TValue>({
         </TableBody>
       </Table>
       <Separator />
-      <Pagination table={table} />
+      <Pagination slice={10} table={table} />
       <Separator />
     </div>
   );
