@@ -61,17 +61,17 @@ const Consultas = () => {
               <div>
                 <span>
                   <span className="text-lg font-mono font-semibold tracking-wide text-gray-500">
-                    {consulta.consulta.length}
+                    {consulta.length}
                   </span>{" "}
                   registro(s) encontrado(s).
                 </span>
               </div>
-              {consulta.consulta.length > 0 && (
+              {consulta.length > 0 && (
                 <div className="flex flex-row gap-3">
                   <span className="text-sm text-gray-500">
                     <CSVDownloader
                       type={Type.Button}
-                      data={consulta.consulta}
+                      data={consulta}
                       filename={setFileName(
                         formData?.ni ?? "",
                         formData?.anos ?? []
@@ -100,7 +100,7 @@ const Consultas = () => {
                           size={"icon"}
                           onClick={() =>
                             exportXLSX(
-                              consulta.consulta,
+                              consulta,
                               formData?.ni ?? "",
                               formData?.anos ?? []
                             )
@@ -116,7 +116,7 @@ const Consultas = () => {
               )}
             </CardHeader>
             <CardContent className="">
-              <DataTable columns={nfseColumns} data={consulta.consulta} />
+              <DataTable columns={nfseColumns} data={consulta} />
             </CardContent>
           </Card>
         </div>

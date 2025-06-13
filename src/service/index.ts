@@ -4,6 +4,7 @@ import type {
   Municipio,
   TConsultaNFSeTotais,
 } from "@/@types";
+import { Consulta } from "@/dashboards/Consultas/@types";
 
 export const fecthMunicipioByUf = async (uf: string) => {
   const ufCodigo = await findUFCodigo(uf);
@@ -33,14 +34,37 @@ export const pushFormData = async <T>(data: formType<T>) => {
   return await response.json();
 };
 
-export const getDadosUsuarioAutenticado = async () => {
-  const url =
-    "https://localhost:8443/ctx/once/PainelNFSe/get_dados_usuario_autenticado";
-  const response = await fetch(url);
-  const data = await response.json();
-  return data as DadosUsuarioAutenticado;
-};
+export const getDadosUsuarioAutenticado =
+  async (): Promise<DadosUsuarioAutenticado> => {
+    const win = window as unknown as Window & {
+      runScript: (
+        a: string,
+        b: string
+      ) => Promise<{ nome: string; cpf: string }>;
+    };
 
+    const resposta = await win.runScript("", "get_dados_usuario_autenticado");
+    return resposta as DadosUsuarioAutenticado;
+  };
+
+export const fetchContribuintes = async (
+  ni: string,
+  anos: Array<string>
+): Promise<Consulta> => {
+  const win = window as Window & {
+    runScript?: (
+      a: string,
+      b: string,
+      c: string,
+      d: Array<string>
+    ) => Promise<Consulta>;
+  };
+
+  const response = await win.runScript!("", "consulta_nfse_por_cnpj", ni, anos);
+
+  console.log("Response from consulta_nfse_por_cnpj:", response);
+  return response as Consulta;
+};
 // Notas Fiscais //
 
 type NFSeFiltro = {

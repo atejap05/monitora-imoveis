@@ -21,18 +21,7 @@ import { type Consulta } from "../../dashboards/Consultas/@types";
 import { useConsultasState } from "@/state/consultasState";
 import { YEARS } from "../../lib/utils";
 import { useEffect } from "react";
-
-const fetchContribuintes = async (ni: string, anos: Array<string>) => {
-  const response = await fetch(
-    `https://localhost:8443/ctx/once/PainelNFSe/consulta_nfse_by_cpf_cnpj?ni=${ni}&anos=${anos.join(
-      ","
-    )}`
-  );
-  if (!response.ok) {
-    throw new Error("Erro ao buscar contribuintes");
-  }
-  return response.json() as Promise<Consulta>;
-};
+import { fetchContribuintes } from "@/service/index";
 
 export const FormConsultas = () => {
   const currentYear = new Date().getFullYear();
@@ -47,14 +36,14 @@ export const FormConsultas = () => {
   const { setNfseData, setFormData, setIsPending } = useConsultasState();
 
   const { mutate, isPending } = useMutation<
-    Consulta,
+    Consulta, // O tipo de retorno esperado de fetchContribuintes é Consulta (NfseData[])
     unknown,
     { ni: string; anos: Array<string> },
     { status: number }
   >({
     mutationFn: ({ ni, anos }) => fetchContribuintes(ni, anos),
     onSuccess: data => {
-      setNfseData(data);
+      setNfseData(data); // data aqui é do tipo Consulta (NfseData[])
     },
     onError: error => {
       console.error(error);
@@ -65,7 +54,7 @@ export const FormConsultas = () => {
 
   const onSubmit = async (FormData: z.infer<typeof FormSchema>) => {
     // Limpa os dados da consulta
-    setNfseData({ consulta: [] });
+    setNfseData([]); // Alterado: Limpar com um array vazio
 
     // Se não for passado anos, pega os anos de 2022 ate o corrente ano
     const anos =
@@ -73,7 +62,6 @@ export const FormConsultas = () => {
 
     try {
       if (FormData.ni) {
-        console.log(FormData);
         setFormData({ ni: FormData.ni, anos: anos });
         mutate({ ni: FormData.ni, anos: anos }); // Se ano foi selecionado o ano, passa todos os anos de 2022 ate agora
       } else {
@@ -167,7 +155,7 @@ export const FormConsultas = () => {
               type="button"
               onClick={() => {
                 form.reset;
-                setNfseData({ consulta: [] });
+                setNfseData([]); // Alterado: Limpar com um array vazio
                 setFormData({ ni: "", anos: [] });
                 form.setValue("ni", "");
                 form.setValue("anos", []);

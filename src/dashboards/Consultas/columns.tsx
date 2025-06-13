@@ -4,13 +4,18 @@ import BasicTooltip from "@/components/BasicTooltip";
 import { formataCNPJ } from "@/lib/utils";
 
 const formataTextoLongo = (info: CellContext<NfseData, unknown>) => {
-  const text = String(info.getValue());
+  const text = String(info.getValue() ?? ""); // Garante que text seja sempre uma string
+
+  // Define o label a ser exibido: texto truncado com "..." se maior que 10 chars, senão o texto completo.
+  const displayLabel = text.length > 10 ? text.slice(0, 10) + "..." : text;
 
   return (
+    // A classe truncate no div ajudará se o displayLabel ainda for muito longo
+    // para uma célula extremamente estreita, ou se BasicTooltip renderizar o label em um elemento inline.
     <div className="truncate">
       <BasicTooltip
-        label={text.slice(0, 10) + (text ? "..." : "")}
-        content={text}
+        label={displayLabel}
+        content={text} // Tooltip sempre mostra o texto completo
       />
     </div>
   );
@@ -92,7 +97,7 @@ export const nfseColumns: ColumnDef<NfseData, any>[] = [
   {
     header: () => formataHeader("Descricao Servico"),
     accessorKey: "descricao_servico",
-    cell: formataTextoLongo,
+    cell: formataTextoLongo, // Reverte para usar formataTextoLongo
   },
   {
     header: () => formataHeader("Municipio Tomador"),
