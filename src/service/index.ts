@@ -16,24 +16,6 @@ export const fecthMunicipioByUf = async (uf: string) => {
 
 export type formType<T> = T;
 
-export const pushFormData = async <T>(data: formType<T>) => {
-  const response = await fetch(
-    "https://localhost:8443/ctx/once/PainelNFSe/push_data",
-    {
-      method: "POST",
-      mode: "cors",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    }
-  );
-  if (!response.ok) {
-    throw new Error("Network response was not ok");
-  }
-  return await response.json();
-};
-
 export const getDadosUsuarioAutenticado =
   async (): Promise<DadosUsuarioAutenticado> => {
     const win = window as unknown as Window & {
@@ -62,7 +44,6 @@ export const fetchContribuintes = async (
 
   const response = await win.runScript!("", "consulta_nfse_por_cnpj", ni, anos);
 
-  console.log("Response from consulta_nfse_por_cnpj:", response);
   return response as Consulta;
 };
 // Notas Fiscais //
@@ -74,44 +55,59 @@ type NFSeFiltro = {
   municipio: string | null;
   uf: string | null;
 };
-export const fetchNotasFiscais = async ({
-  filtro,
-  anos,
-  regiao,
-  municipio,
-  uf,
-}: NFSeFiltro) => {
-  const url = `https://localhost:8443/ctx/once/PainelNFSe/get_totais_nfse_com_filtro?filtro=${filtro}&anos=${anos.join(
-    ","
-  )}&regiao=${regiao}&municipio=${municipio}&uf=${uf}`;
 
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error("Erro ao buscar notas fiscais");
-  }
-  return (await response.json()) as TConsultaNFSeTotais;
+export const fetchNotasFiscais = async (
+  params: NFSeFiltro
+): Promise<TConsultaNFSeTotais> => {
+  const win = window as Window & {
+    runScript?: (
+      scriptName: string,
+      functionName: string,
+      params: NFSeFiltro
+    ) => Promise<TConsultaNFSeTotais>;
+  };
+
+  const response = await win.runScript!(
+    "", // Script name, assuming empty
+    "get_totais_nfse_com_filtro", // Function name
+    params // Passa o objeto params diretamente
+  );
+
+  return response as TConsultaNFSeTotais;
 };
 
-export const fetchNotasFiscaisMeiAmbiente = async ({
-  filtro,
-  anos,
-  regiao,
-  municipio,
-  uf,
-}: NFSeFiltro) => {
-  const url = `https://localhost:8443/ctx/once/PainelNFSe/get_totais_ambiente_nfse_mei_com_filtro?filtro=${filtro}&anos=${anos.join(
-    ","
-  )}&regiao=${regiao}&municipio=${municipio}&uf=${uf}`;
-
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error("Erro ao buscar notas fiscais");
-  }
-  return (await response.json()) as Array<{
+export const fetchNotasFiscaisMeiAmbiente = async (
+  params: NFSeFiltro
+): Promise<
+  Array<{
     year: string;
     app: number;
     web: number;
     webservice: number;
     proprio: number;
-  }>;
+  }>
+> => {
+  const win = window as Window & {
+    runScript?: (
+      scriptName: string,
+      functionName: string,
+      params: NFSeFiltro
+    ) => Promise<
+      Array<{
+        year: string;
+        app: number;
+        web: number;
+        webservice: number;
+        proprio: number;
+      }>
+    >;
+  };
+
+  const response = await win.runScript!(
+    "", // Script name, assuming empty
+    "get_totais_ambiente_nfse_mei_com_filtro", // Function name
+    params // Passa o objeto params diretamente
+  );
+
+  return response;
 };
