@@ -1,181 +1,183 @@
-# Painel NFSe Frontend
+Com base em uma análise completa do repositório no GitHub e dos arquivos fornecidos, preparei um diagnóstico detalhado e um plano de reestruturação para o seu projeto **Painel NFSe**.
 
-Este projeto é o frontend para o Painel NFSe, uma aplicação web desenvolvida para visualização, consulta e gerenciamento de dados relacionados a Notas Fiscais de Serviço eletrônicas (NFSe).
+[cite_start]A aplicação possui uma base tecnológica moderna e bem escolhida, com **React 19**, **Vite**, **TailwindCSS** e a biblioteca de componentes **Shadcn UI**[cite: 11], o que é um excelente ponto de partida. A estrutura de pastas já segue um padrão de organização por features (dashboards, forms, components), o que facilita a localização do código.
 
-## Objetivos Principais
+O plano a seguir foca em aprimorar a estrutura existente para aumentar a manutenibilidade, escalabilidade e performance da aplicação.
 
-- **Visualização Centralizada:** Oferecer um dashboard centralizado para monitorar e analisar dados de NFSe.
-- **Análise Detalhada:** Permitir a exploração de dados através de diferentes seções como Visão Geral, Contribuintes, Notas Fiscais e Consultas específicas.
-- **Interface Intuitiva:** Prover uma interface de usuário clara e intuitiva para facilitar a navegação e o entendimento dos dados.
-- **Suporte à Decisão:** Auxiliar na tomada de decisões ao apresentar informações consolidadas e visualizações gráficas (barras, pizza, linhas) sobre as NFSe.
-- **Filtragem e Consultas:** Capacitar os usuários a realizar consultas e aplicar filtros para encontrar informações específicas de forma eficiente.
+### ## Diagnóstico e Análise
 
-## MVP (Produto Mínimo Viável) Sugerido: O Dashboard de "Visão Geral" Interativo
+#### 1. Tecnologias e Dependências (`package.json`)
 
-O objetivo principal do MVP é consolidar e dar vida à aba **`VisaoGeral`**, tornando-a o centro da experiência inicial. Ele responderá à pergunta fundamental: "Qual é o panorama da arrecadação de serviços na minha região de interesse?".
+[cite_start]O projeto utiliza um conjunto de tecnologias robusto e atual[cite: 6].
 
-### 1. Funcionalidades Essenciais do MVP
+- **Core:** React 19, Vite, TypeScript.
+- **UI e Estilo:** TailwindCSS, Shadcn UI e `lucide-react` para ícones.
+- **Gerenciamento de Estado:** Zustand para estados globais e TanStack Query (React Query) para o gerenciamento de estado do servidor (caching, re-fetching de dados da API).
+- [cite_start]**Tabelas e Gráficos:** TanStack Table para tabelas de dados e Recharts para gráficos[cite: 11].
+- **Formulários:** React Hook Form e Zod para validação de esquemas.
 
-**a) KPIs (Indicadores-Chave de Performance) Principais**  
-No topo da `VisaoGeral.tsx`, exibir 3 a 4 `DashCard.tsx` com as métricas mais críticas, que são calculadas no backend e atualizadas com base nos filtros.
+**Avaliação:** A escolha das tecnologias é excelente e alinhada com as melhores práticas atuais do ecossistema React. A combinação de Zustand para estado de UI e TanStack Query para estado de servidor é uma abordagem poderosa e eficiente.
 
-- **Valor Total dos Serviços:** Soma de `fl010_vservdouble`.
-- **Total de Notas Emitidas:** Contagem de `fa001_numeronfse`.
-- **Ticket Médio de Serviço:** (Valor Total / Total de Notas).
-- **Total de Contribuintes Ativos:** Contagem distinta de `fc001_ni`.
+---
 
-**b) Visualização de Tendência Temporal**  
-Logo abaixo dos KPIs, um gráfico de linha (`BasicLineChart.tsx`) para mostrar a evolução ao longo do tempo.
+#### 2. Estrutura de Pastas e Diretórios
 
-- **Gráfico Principal:** "Valor dos Serviços por Mês" para o ano selecionado.
-  - **Eixo X:** Meses do ano.
-  - **Eixo Y:** Soma do valor dos serviços.
+A estrutura de pastas é bem organizada e segmentada:
 
-**c) Ranking Principal**  
-Uma tabela simples (`BasicTable.tsx`) mostrando um "Top 10".
+- `src/components`: Contém componentes de UI reutilizáveis (genéricos e da Shadcn).
+- `src/dashboards`: Separa cada "página" ou "aba" da aplicação em seu próprio módulo, o que é ótimo para a organização.
+- `src/forms`: Isola a lógica e a estrutura dos formulários de filtro, tornando-os independentes e reutilizáveis.
+- `src/state`: Centraliza a lógica de gerenciamento de estado com Zustand, com um arquivo para cada "slice" do estado global.
+- `src/service`: Contém a camada de serviço responsável por fazer as chamadas à API (simuladas atualmente), o que é uma ótima prática para isolar a lógica de comunicação com o backend.
 
-- **Tabela Principal:** "Top 10 Municípios por Valor de Serviço" dentro da UF/Região selecionada.
-  - Colunas: Posição, Município (`fa001_codmunicipio_descricaostring`), Valor Total.
+**Avaliação:** A estrutura é boa, mas pode ser aprimorada para agrupar funcionalidades relacionadas, facilitando a manutenção à medida que o projeto cresce.
 
-**d) Filtros Essenciais e Interativos**  
-A funcionalidade de filtro (`SidebarFilters.tsx`) é o coração da interatividade do MVP.
+---
 
-- **Filtro de Período:**
-  - **Ano:** Um `select` para escolher o ano (`anosmallint`).
-  - **Mês:** (Opcional no MVP, mas útil) Um `select` para escolher o mês (`mestinyint`).
-- **Filtro de Localização (em cascata):**
-  - **UF:** Um `select` para o estado (`fc010_uf_descricaostring`).
-  - **Município:** Um `select` que é populado com os municípios (`fa001_codmunicipio_descricaostring`) **depois** que a UF é selecionada.
+#### 3. Navegação e Roteamento (`App.tsx` e `TabsNav.tsx`)
 
-### 2. O Que Fica de Fora do MVP (Escopo para o Futuro)
+[cite_start]A navegação principal é controlada por um componente de Abas (`Tabs`) da Shadcn UI, gerenciado no `App.tsx`[cite: 7]. Cada aba corresponde a um "dashboard" específico:
 
-- **Outros Dashboards:** As abas `Contribuintes`, `Notas Fiscais` e `Consultas` ficam desativadas ou com uma mensagem de "Em breve".
-- **Tabela de Dados Brutos:** A `data-table.tsx` completa com 262 colunas, paginação complexa, virtualização e seleção de colunas **não faz parte do MVP**.
-- **Filtros Avançados:** Filtros por CNAE, status da nota, tipo de contribuinte, etc.
-- **Exportação de Dados:** Funcionalidade de exportar para CSV/Excel.
-- **Análise Geográfica (Mapas).**
+- Visão Geral
+- Notas Fiscais
+- Contribuintes
+- Ambiente (atualmente vazio)
+- Consultas
 
-### 3. Escopo Técnico do MVP
+**Avaliação:** A navegação por abas é simples e funcional para o escopo atual. No entanto, ela não utiliza um sistema de roteamento baseado em URL (como o React Router). Isso significa que o estado da aba ativa é perdido ao recarregar a página e não é possível compartilhar um link direto para uma aba específica.
 
-- **Frontend:**
-  - Focar o desenvolvimento em `dashboards/VisaoGeral/VisaoGeral.tsx`.
-  - Configurar os componentes `DashCard`, `BasicLineChart` e uma versão simplificada de `BasicTable`.
-  - Implementar a lógica de filtros em cascata no `components/sidebar/SidebarFilters.tsx`.
-  - Utilizar o `state/dashboardState.tsx` (Zustand) para gerenciar o estado dos filtros (ano, UF, município selecionados) e os dados recebidos da API.
-  - Garantir que os estados de _loading_ (`BasicLoading.tsx`) sejam exibidos enquanto os dados são buscados após a aplicação de um filtro.
-- **Backend / API (Pressuposto Crítico):**
-  - O MVP exige um backend que faça o trabalho pesado. O frontend **não deve** receber dados brutos para agregar.
-  - Criar endpoints de API que recebam os filtros como parâmetros e retornem os dados já agregados.
-    - `GET /api/kpis?ano=2024&uf=SP`: Retorna um JSON com os 4 KPIs principais.
-    - `GET /api/servicos-por-mes?ano=2024&uf=SP`: Retorna um JSON pronto para o gráfico de linha.
-    - `GET /api/top-10-municipios?ano=2024&uf=SP`: Retorna um JSON com o ranking para a tabela.
+---
 
-### Por que este MVP é uma boa escolha?
+#### 4. Gerenciamento de Estado (Zustand e TanStack Query)
 
-- **Entrega de Valor Imediata:** Responde às perguntas mais críticas de negócio sem sobrecarregar o usuário.
-- **Validação da Hipótese Central:** Prova que é possível transformar a base de dados complexa em insights visuais e acionáveis.
-- **Coleta de Feedback Direcionado:** Os usuários usarão os filtros e o dashboard, e o feedback será sobre a principal funcionalidade, guiando os próximos passos.
-- **Risco Técnico Reduzido:** Evita os desafios de performance de tabelas massivas e a complexidade de funcionalidades avançadas.
+O projeto utiliza o **Zustand** para gerenciar o estado dos filtros da aplicação (`useDashboardState`, `useNotasFiscaisState` etc.) e o **TanStack Query** para buscar os dados dos dashboards (`useQuery`).
 
-## Tecnologias Utilizadas
+**Avaliação:** Esta é uma abordagem excelente. No entanto, há uma sobreposição de responsabilidades. Os filtros (UF, município, ano), que são parâmetros para as queries da API, estão sendo armazenados em stores separados do Zustand. O TanStack Query pode gerenciar o estado dos filtros diretamente através da `queryKey`, simplificando o fluxo de dados.
 
-### Core
+---
 
-- **React 19:** Biblioteca JavaScript para construção da interface de usuário.
-- **Vite:** Ferramenta de build e desenvolvimento frontend de alta performance.
-- **TypeScript:** Superset do JavaScript que adiciona tipagem estática.
+#### 5. Responsividade
 
-### UI & Styling
+A aplicação utiliza as classes utilitárias do **TailwindCSS** e um hook customizado `useIsMobile` para adaptar a UI a diferentes tamanhos de tela. [cite_start]Isso é visível no componente `Sidebar`[cite: 1], que se transforma em um menu "gaveta" (sheet) em dispositivos móveis.
 
-- **Tailwind CSS:** Framework CSS utility-first para estilização rápida e customizável.
-- **shadcn/ui & Radix UI:** Coleção de componentes de UI acessíveis e customizáveis.
-- **Lucide React:** Biblioteca de ícones.
+**Avaliação:** A base para a responsividade é sólida. A abordagem é moderna e eficiente. A análise indica que a aplicação se adapta bem a diferentes dispositivos.
 
-### Gerenciamento de Estado
+---
 
-- **Zustand:** Solução leve e flexível para gerenciamento de estado global.
+#### 6. Análise do `README.md`
 
-### Formulários
+O `README.md` descreve bem o objetivo do projeto: ser um painel para visualização, consulta e gerenciamento de dados de NFSe. [cite_start]Ele já aponta para futuras implementações, como dashboards de análise geográfica, análise por atividade (CNAE) e uma funcionalidade de "Saúde do Contribuinte"[cite: 8].
 
-- **React Hook Form:** Biblioteca para gerenciamento de formulários.
-- **Zod:** Biblioteca para validação de schemas e tipos.
+**Avaliação:** O `README.md` é claro e oferece um roteiro valioso para a evolução do projeto, que deve guiar a reestruturação para suportar essas futuras funcionalidades.
 
-### Visualização de Dados
+### ## Plano de Reestruturação Proposto
 
-- **Recharts:** Biblioteca para criação de gráficos.
-- **TanStack Table (React Table):** Biblioteca para construção de tabelas e data grids complexos.
+Com base na análise, o plano a seguir está organizado em três pilares principais: **Estrutura de Arquivos**, **Gerenciamento de Estado e Dados**, e **Melhorias de Funcionalidade e UI/UX**.
 
-### Data Fetching & Cache
+#### ### 1. Reestruturação de Pastas e Arquivos (Escalabilidade)
 
-- **TanStack Query (React Query):** Biblioteca para data fetching, caching, e sincronização de estado do servidor.
+O objetivo é agrupar os arquivos por _feature_ (funcionalidade) em vez de por tipo, facilitando a manutenção e a localização de código relacionado.
 
-### Utilitários
+- **Estrutura Atual (Exemplo: `VisaoGeral`):**
 
-- **clsx & tailwind-merge:** Utilitários para mesclar classes CSS de forma condicional.
-- **react-papaparse:** Para parsing de arquivos CSV.
-- **xlsx:** Para manipulação de arquivos Excel.
+  - `src/dashboards/VisaoGeral/VisaoGeral.tsx`
+  - `src/dashboards/VisaoGeral/columns.tsx`
+  - `src/dashboards/VisaoGeral/data-table.tsx`
+  - `src/forms/form-visao-geral/FormVisaoGeral.tsx`
+  - `src/state/dashboardState.tsx`
 
-### Linting & Formatação
+- **Estrutura Proposta (Feature-based):**
+  ```
+  src/
+  ├── features/
+  │   ├── visao-geral/
+  │   │   ├── components/
+  │   │   │   ├── VisaoGeralDashboard.tsx  (conteúdo da aba)
+  │   │   │   ├── VisaoGeralFilters.tsx    (formulário de filtro)
+  │   │   │   ├── VisaoGeralTable.tsx      (componente da tabela)
+  │   │   │   └── VisaoGeralColumns.ts     (definições de coluna)
+  │   │   ├── hooks/
+  │   │   │   └── useVisaoGeral.ts         (hook com a lógica do TanStack Query)
+  │   │   └── index.ts                     (exporta o componente principal do dashboard)
+  │   │
+  │   ├── notas-fiscais/
+  │   │   └── ... (estrutura similar)
+  │   │
+  │   └── consultas/
+  │       └── ... (estrutura similar)
+  │
+  ├── components/ (apenas componentes 100% reutilizáveis e genéricos)
+  │   └── ui/ (componentes da Shadcn)
+  │
+  ├── hooks/ (apenas hooks genéricos, como use-mobile.tsx)
+  │
+  ├── lib/
+  │
+  └── services/
+  ```
 
-- **ESLint:** Ferramenta para identificar e corrigir problemas no código JavaScript/TypeScript.
+**Vantagens:**
 
-## Estrutura do Projeto (Frontend)
+- **Co-localização:** Todo o código relacionado a uma feature (ex: Visão Geral) fica no mesmo lugar.
+- **Manutenibilidade:** Fica muito mais fácil modificar ou corrigir uma feature sem ter que navegar por várias pastas.
+- **Escalabilidade:** Adicionar uma nova feature se resume a criar uma nova pasta dentro de `features`, sem poluir a raiz do `src`.
 
-O frontend está organizado da seguinte forma:
+---
 
-- **`public/`**: Contém os assets estáticos da aplicação.
-- **`src/`**: Código fonte da aplicação.
-  - **`@types/`**: Definições de tipos TypeScript globais ou específicos.
-  - **`assets/`**: Imagens e outros arquivos de mídia.
-  - **`components/`**: Componentes React reutilizáveis.
-    - **`ui/`**: Componentes de UI básicos (provavelmente de shadcn/ui).
-    - **`sidebar/`**: Componentes relacionados à barra lateral de navegação/filtros.
-    - **`tabs-navigation/`**: Componentes para navegação por abas.
-  - **`dashboards/`**: Componentes que representam as diferentes seções/dashboards da aplicação.
-  - **`forms/`**: Componentes de formulário e seus schemas de validação (Zod).
-  - **`hooks/`**: Hooks customizados do React.
-  - **`lib/`**: Funções utilitárias.
-  - **`service/`**: Lógica de chamada a APIs e serviços externos.
-  - **`state/`**: Configuração e lógica do gerenciador de estado (Zustand).
-  - **`App.tsx`**: Componente raiz da aplicação.
-  - **`main.tsx`**: Ponto de entrada da aplicação React.
-  - **`index.css`**: Estilos globais ou base.
-- **`vite.config.ts`**: Configuração do Vite.
-- **`tailwind.config.js`**: Configuração do Tailwind CSS.
-- **`tsconfig.json`**: Configuração do TypeScript.
-- **`package.json`**: Define os metadados do projeto, scripts e dependências.
+#### ### 2. Otimização do Gerenciamento de Estado e Dados
 
-## Recomendações de Evolução do Projeto
+O objetivo é simplificar o fluxo de dados, tornando o **TanStack Query** a única fonte da verdade para os dados do servidor e seus filtros.
 
-Com base na análise detalhada, as seguintes recomendações visam fortalecer a base do projeto, otimizar a performance e enriquecer a experiência do usuário final.
+- **Remover Stores Zustand para Filtros:** Migrar o estado dos formulários (anos, UF, município, etc.) dos stores do Zustand para um estado local gerenciado pelos próprios componentes de dashboard ou formulário.
+- **Passar Filtros via `queryKey`:** A `queryKey` do TanStack Query deve conter os filtros. Quando um filtro muda, a `queryKey` muda, e o TanStack Query automaticamente refaz a busca com os novos parâmetros.
 
-### 1. Arquitetura e Estrutura do Código
+  **Exemplo (`useVisaoGeral.ts`):**
 
-- **Centralização da Lógica de Negócio em Hooks:** Extrair a lógica de busca, filtragem e transformação de dados da NFSe para hooks customizados (ex: `useNFSeData(filters)`). Isso encapsularia a chamada ao serviço, gerenciamento de estado de loading/erro e transformação dos dados, tornando os componentes de dashboard mais limpos.
-- **Camada de Serviço (API Layer) mais Robusta:** Expandir `src/service/index.ts` para lidar com a construção de queries dinâmicas, traduzindo filtros do Zustand em parâmetros de consulta para a API de backend.
-- **Otimização do Gerenciamento de Estado (Zustand):**
-  - **Modularização dos Stores:** Manter a granularidade atual (`dashboardState`, `consultasState`, `notasFiscaisState`) e considerar novas divisões conforme a complexidade aumenta.
-  - **Seletores Otimizados:** Utilizar seletores para componentes que consomem pequenas partes de um store, evitando re-renderizações desnecessárias. Exemplo: `const totalNotas = useDashboardStore(state => state.summary.totalNotas);`
-- **Escalabilidade dos Dashboards:** Garantir que cada nova pasta de dashboard (e.g., `src/dashboards/NovaAnalise/`) seja autocontida, com seus próprios sub-componentes, types e hooks específicos.
+  ```typescript
+  import { useQuery } from "@tanstack/react-query";
+  import { getTotaisPorFiltro } from "@/services"; // Função que chama sua API
 
-### 2. Usabilidade e Experiência do Usuário (UX)
+  export const useVisaoGeral = filtros => {
+    return useQuery({
+      // A queryKey agora inclui os filtros.
+      queryKey: ["visaoGeral", filtros],
+      // A função da query recebe os filtros para a chamada da API.
+      queryFn: () => getTotaisPorFiltro(filtros),
+      // Manter os dados em cache enquanto o usuário navega.
+      staleTime: 1000 * 60 * 5, // 5 minutos
+    });
+  };
+  ```
 
-- **Filtros Inteligentes e Interativos:**
-  - **Contextualização (Filtros em Cascata):** Implementar filtros dependentes (ex: selecionar UF "SP" popula o seletor de "Município" apenas com cidades de São Paulo).
-  - **Filtro Global vs. Filtro de Dashboard:** Considerar a possibilidade de filtros globais e filtros específicos por dashboard.
-- **Feedback Visual Imediato:** Utilizar `BasicLoading.tsx` e outros indicadores visuais para confirmar ações do usuário e durante o carregamento de dados.
-- **Visualização de Dados Aprimorada:**
-  - **Hierarquia da Informação:** Apresentar KPIs mais importantes no topo, seguidos por gráficos de tendência.
-  - **Gráficos Interativos (Drill-Down):** Permitir que o usuário clique em elementos do gráfico (barras, fatias) para explorar dados mais detalhados.
-  - **Contexto é Rei:** Sempre exibir os filtros ativos que governam a visualização atual e fornecer títulos descritivos para gráficos e tabelas.
-- **Tabelas de Dados Brutos (`BasicTable.tsx`):**
-  - **Performance com Virtualização:** Para tabelas com grande volume de dados (como a de 262 colunas), utilizar virtualização (e.g., TanStack Table com modo virtual).
-  - **Seleção e Customização de Colunas:** Permitir que o usuário escolha quais colunas exibir e salve suas preferências.
-  - **Exportação de Dados:** Implementar funcionalidade de exportar dados filtrados para CSV/Excel.
+- **Centralizar a Lógica de Fetching:** Cada feature terá seu próprio hook (ex: `useVisaoGeral`, `useNotasFiscais`) que encapsula a chamada `useQuery`, mantendo a lógica de busca de dados isolada e reutilizável.
 
-### 3. Novos Insights e Implementações (Pós-MVP)
+**Vantagens:**
 
-- **Dashboard de Análise Geográfica:** Utilizar campos como `fc010_cmun_codigo`, `fc010_uf_descricaostring` para criar mapas interativos (Leaflet, Mapbox) que visualizem dados por estado/município.
-- **Análise de Atividades (CNAE/NBS):** Criar dashboards para analisar os serviços mais prestados, valor movimentado por setor (usando `fb001_xnbs`, `fh001_cnaonif_descricaostring`).
-- **Análise de Retenções e Tributos:** Desenvolver visualizações focadas em tributação, utilizando campos do bloco `fl` (ex: `fl060_vretcp`, `fl060_vretirrf`).
-- **Feature de "Saúde do Contribuinte":** Analisar `fb001_cstat_descricaostring` e `fg001_xmotivostring` para identificar principais motivos de cancelamento e contribuintes com alto índice de notas canceladas.
+- **Fluxo de Dados Simplificado:** Elimina a necessidade de sincronizar o estado do Zustand com os parâmetros da query.
+- **Aproveitamento do Cache:** Aproveita ao máximo o poder do TanStack Query para gerenciar o cache, evitando novas chamadas à API para filtros idênticos.
+- **Código Mais Limpo:** Reduz a complexidade dos componentes, que agora apenas consomem o hook customizado.
+
+---
+
+#### ### 3. Melhorias de Funcionalidade e UI/UX
+
+[cite_start]Com a base reestruturada, as seguintes melhorias se tornam mais fáceis de implementar, alinhadas aos objetivos do `README.md`[cite: 12].
+
+- **Implementar Roteamento:** Adicionar o **React Router** (`react-router-dom`) para gerenciar a navegação.
+
+  - Cada aba se tornaria uma rota (ex: `/`, `/notas-fiscais`, `/consultas`).
+  - **Benefícios:** URLs compartilháveis, melhor histórico de navegação e uma base para futuras páginas mais complexas.
+  - O componente `App.tsx` passaria a conter a definição das rotas, e o `TabsNav.tsx` seria modificado para usar componentes como `Link` ou `NavLink` do React Router.
+
+- [cite_start]**Melhorar a Tabela de Consultas:** A tabela em `src/dashboards/Consultas/data-table.tsx` [cite: 5] é o ponto central para dados detalhados.
+
+  - **Virtualização:** Para lidar com a grande quantidade de dados da NFSe (262 colunas), é crucial implementar a **virtualização de linhas e colunas** usando o TanStack Table. Isso garante alta performance, renderizando apenas os itens visíveis na tela.
+  - **Seleção e Customização de Colunas:** Adicionar um componente (ex: um `Dropdown` ou `Popover`) que permita ao usuário escolher quais das 262 colunas ele deseja ver na tabela.
+  - [cite_start]**Exportação de Dados:** Integrar bibliotecas como `xlsx` e `react-papaparse` (já presentes no `package.json` [cite: 13]) para criar uma funcionalidade de exportação dos dados filtrados para Excel ou CSV.
+
+- **Novos Dashboards (Pós-MVP):** A estrutura de features proposta facilita a criação de novos dashboards.
+  - **Análise Geográfica:** Criar um novo dashboard em `src/features/analise-geografica/` que utilize os dados de `fc010_uf_codigo` e `fc010_cmun_codigo` para alimentar um mapa interativo (usando uma biblioteca como a Leaflet).
+  - **Análise de Atividade Econômica:** Criar um dashboard em `src/features/analise-atividades/` para visualizar os serviços mais prestados com base nos campos `fb001_xnbs` e `fk015_xdescserv`.
+  - [cite_start]**Análise de Tributos:** Um dashboard focado em tributação (`src/features/analise-tributos/`) pode usar os campos do bloco `fl` (ex: `fl010_vserv`, `fd001_vliq`, `fl060_vretirrf`) para criar visualizações detalhadas sobre valores e retenções[cite: 12].
+
+Este plano de reestruturação visa transformar o seu projeto em uma aplicação mais robusta, escalável e performática, preparada para as futuras funcionalidades descritas no seu `README.md` e pronta para lidar com a complexidade dos dados da NFSe.

@@ -24,7 +24,7 @@ const SidebarFilters = () => {
           className="text-green"
         />
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="px-4">
         {/* TODO: Implementar grupo 2 de item aqui */}
         <SidebarMenuItems />
       </SidebarContent>

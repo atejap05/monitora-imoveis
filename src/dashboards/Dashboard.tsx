@@ -2,30 +2,27 @@ import Ambiente from "./Ambiente";
 import Consultas from "./Consultas/Consultas";
 import Contribuintes from "./Contribuintes";
 import NotasFiscais from "./NotasFiscais/NotasFiscais";
-import VisaoGeral from "./VisaoGeral/VisaoGeral";
+import { VisaoGeralDashboard } from "@/features/visao-geral/components";
 
 type DashboardProps = {
   tabValue: string;
 };
 const Dashboard = ({ tabValue }: DashboardProps) => {
-  const renderComponent = () => {
-    switch (tabValue) {
-      case "visao-geral":
-        return <VisaoGeral />;
-      case "nfse":
-        return <NotasFiscais />;
-      case "contribuintes":
-        return <Contribuintes />;
-      case "ambiente":
-        return <Ambiente />;
-      case "consultas":
-        return <Consultas />;
-      default:
-        return <VisaoGeral />;
-    }
-  };
-
-  return <>{renderComponent()}</>;
+  // Apenas renderiza o conteúdo principal da tab
+  switch (tabValue) {
+    case "visao-geral":
+      return <VisaoGeralDashboard />;
+    case "nfse":
+      return <NotasFiscais />;
+    case "contribuintes":
+      return <Contribuintes />;
+    case "ambiente":
+      return <Ambiente />;
+    case "consultas":
+      return <Consultas />;
+    default:
+      return <VisaoGeralDashboard />;
+  }
 };
 
 export default Dashboard;
