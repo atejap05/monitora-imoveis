@@ -11,8 +11,8 @@ import { VisaoGeralTable } from "./VisaoGeralTable";
 import { distFreqColumns } from "./VisaoGeralColumns.tsx";
 import { useVisaoGeralData } from "../hooks/useVisaoGeralData"; // Still used for distFreqData
 import { useVisaoGeralFilters } from "../hooks/useVisaoGeralFilters"; // Import the new hook
-import { formatNumber } from "@/lib/utils";
 import BasicLoading from "@/components/BasicLoading";
+import { formatNumber } from "@/lib/utils";
 
 const VisaoGeralDashboard = () => {
   // Log para depuração do ciclo de vida e dados recebidos
@@ -49,7 +49,7 @@ const VisaoGeralDashboard = () => {
   let returnedYears: string[] = [];
   if (nfseTotaisData) {
     returnedYears = Object.keys(nfseTotaisData);
-    Object.values(nfseTotaisData).forEach((yearData, idx) => {
+    Object.values(nfseTotaisData).forEach(yearData => {
       aggregatedTotals.total += yearData.total || 0;
       aggregatedTotals.mei += yearData.mei || 0;
       aggregatedTotals.me_epp += yearData.me_epp || 0;
@@ -102,7 +102,7 @@ const VisaoGeralDashboard = () => {
             </CardHeader>
             <CardContent>
               <span className="text-2xl font-semibold text-gray-800">
-                {aggregatedTotals.total}
+                {formatNumber(aggregatedTotals.total)}
               </span>
             </CardContent>
           </Card>
@@ -113,7 +113,7 @@ const VisaoGeralDashboard = () => {
             </CardHeader>
             <CardContent>
               <span className="text-2xl font-semibold text-gray-800">
-                {aggregatedTotals.mei}
+                {formatNumber(aggregatedTotals.mei)}
               </span>
             </CardContent>
           </Card>
@@ -124,7 +124,7 @@ const VisaoGeralDashboard = () => {
             </CardHeader>
             <CardContent>
               <span className="text-2xl font-semibold text-gray-800">
-                {aggregatedTotals.me_epp}
+                {formatNumber(aggregatedTotals.me_epp)}
               </span>
             </CardContent>
           </Card>
@@ -137,7 +137,7 @@ const VisaoGeralDashboard = () => {
             </CardHeader>
             <CardContent>
               <span className="text-2xl font-semibold text-gray-800">
-                {aggregatedTotals.nao_optante}
+                {formatNumber(aggregatedTotals.nao_optante)}
               </span>
             </CardContent>
           </Card>
@@ -168,7 +168,7 @@ const VisaoGeralDashboard = () => {
             </CardHeader>
             <CardContent>
               <span className="text-2xl font-semibold text-gray-800">
-                5.000
+                {formatNumber(5000)}
               </span>
             </CardContent>
           </Card>
@@ -183,7 +183,7 @@ const VisaoGeralDashboard = () => {
             </CardHeader>
             <CardContent>
               <span className="text-2xl font-semibold text-gray-800">
-                5.000
+                {formatNumber(5000)}
               </span>
             </CardContent>
           </Card>
@@ -196,7 +196,7 @@ const VisaoGeralDashboard = () => {
             </CardHeader>
             <CardContent>
               <span className="text-2xl font-semibold text-gray-800">
-                5.000
+                {formatNumber(5000)}
               </span>
             </CardContent>
           </Card>
@@ -209,7 +209,7 @@ const VisaoGeralDashboard = () => {
             </CardHeader>
             <CardContent>
               <span className="text-2xl font-semibold text-gray-800">
-                5.000
+                {formatNumber(5000)}
               </span>
             </CardContent>
           </Card>

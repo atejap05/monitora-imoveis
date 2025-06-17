@@ -2,11 +2,7 @@ import Ambiente from "./Ambiente";
 import Consultas from "./Consultas/Consultas";
 import Contribuintes from "./Contribuintes";
 import NotasFiscais from "./NotasFiscais/NotasFiscais";
-import {
-  VisaoGeralDashboard,
-  VisaoGeralFilters,
-} from "@/features/visao-geral/components";
-import { VisaoGeralFiltersProvider } from "@/features/visao-geral/hooks/useVisaoGeralFilters";
+import { VisaoGeralDashboard } from "@/features/visao-geral/components";
 
 type DashboardProps = {
   tabValue: string;

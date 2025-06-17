@@ -13,7 +13,6 @@ export const VisaoGeralFilters = () => {
   const {
     selectedOption,
     setSelectedOption,
-    selectedMunicipio,
     setSelectedMunicipio,
     handleSubmitFilters,
     isLoading,
@@ -30,8 +29,6 @@ export const VisaoGeralFilters = () => {
         {selectedOption === "uf" && (
           <>
             <FormUF isFormPending={isLoading} onSubmit={handleSubmitFilters} />
-            {/* Renderiza resultado bruto para debug */}
-            <DebugNFSeResponse />
           </>
         )}
         {selectedOption === "municipio" && (
@@ -52,33 +49,5 @@ export const VisaoGeralFilters = () => {
         )}
       </div>
     </>
-  );
-};
-
-// Componente para debug visual da resposta do servidor
-const DebugNFSeResponse = () => {
-  const { nfseTotaisData, meiAmbienteData } = useVisaoGeralFilters();
-  return (
-    <div
-      style={{
-        marginTop: 16,
-        background: "#f8f8f8",
-        padding: 8,
-        borderRadius: 4,
-      }}
-    >
-      <div>
-        <b>nfseTotaisData:</b>
-      </div>
-      <pre style={{ fontSize: 12, color: "#333" }}>
-        {JSON.stringify(nfseTotaisData, null, 2)}
-      </pre>
-      <div>
-        <b>meiAmbienteData:</b>
-      </div>
-      <pre style={{ fontSize: 12, color: "#333" }}>
-        {JSON.stringify(meiAmbienteData, null, 2)}
-      </pre>
-    </div>
   );
 };

@@ -13,7 +13,7 @@ import type {
   TFormData,
   TConsultaNFSeTotaisMeiAmbiente,
 } from "@/@types";
-import { setFormData, STALE_TIME, YEARS } from "@/lib/utils";
+import { setFormData, YEARS } from "@/lib/utils";
 
 // Contexto
 interface VisaoGeralFiltersContextType {
