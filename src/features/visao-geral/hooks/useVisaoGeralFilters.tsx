@@ -21,6 +21,8 @@ interface VisaoGeralFiltersContextType {
   setSelectedOption: (v: string) => void;
   selectedMunicipio: string | null;
   setSelectedMunicipio: (v: string | null) => void;
+  selectedUF: string | null;
+  selectedRegiao: string | null;
   handleSubmitFilters: (formDataFromFilterComponent: any) => void;
   nfseTotaisData: TConsultaNFSeTotais | undefined;
   meiAmbienteData: TConsultaNFSeTotaisMeiAmbiente | undefined;
@@ -43,6 +45,8 @@ export const VisaoGeralFiltersProvider = ({
     null
   );
   const [formData, setFormDataState] = useState<TFormData | null>(null);
+  const [selectedUF, setSelectedUF] = useState<string | null>(null);
+  const [selectedRegiao, setSelectedRegiao] = useState<string | null>(null);
 
   const handleSubmitFilters = useCallback(
     (formDataFromFilterComponent: any) => {
@@ -58,6 +62,15 @@ export const VisaoGeralFiltersProvider = ({
             : processedFormData.municipio,
       };
       setFormDataState(finalFormData);
+      // Atualiza UF e Região para o dashboard
+      if (selectedOption === "uf") {
+        setSelectedUF(formDataFromFilterComponent.uf || null);
+      } else if (selectedOption === "regiao") {
+        setSelectedRegiao(formDataFromFilterComponent.regiao || null);
+      } else {
+        setSelectedUF(null);
+        setSelectedRegiao(null);
+      }
     },
     [selectedOption, selectedMunicipio]
   );
@@ -123,6 +136,8 @@ export const VisaoGeralFiltersProvider = ({
         setSelectedOption,
         selectedMunicipio,
         setSelectedMunicipio,
+        selectedUF,
+        selectedRegiao,
         handleSubmitFilters,
         nfseTotaisData,
         meiAmbienteData,

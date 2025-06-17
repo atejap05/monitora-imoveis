@@ -12,7 +12,47 @@ import { distFreqColumns } from "./VisaoGeralColumns.tsx";
 import { useVisaoGeralData } from "../hooks/useVisaoGeralData"; // Still used for distFreqData
 import { useVisaoGeralFilters } from "../hooks/useVisaoGeralFilters"; // Import the new hook
 import BasicLoading from "@/components/BasicLoading";
-import { formatNumber } from "@/lib/utils";
+import { formatNumber, UFS } from "@/lib/utils";
+
+function getFiltroHeader({
+  selectedOption,
+  selectedMunicipio,
+  selectedUF,
+  selectedRegiao,
+  returnedYears,
+}: {
+  selectedOption: string;
+  selectedMunicipio?: string | null;
+  selectedUF?: string | null;
+  selectedRegiao?: string | null;
+  returnedYears: string[];
+}) {
+  let filtroInfo = "";
+  if (selectedOption === "todos") {
+    filtroInfo = "Dados para todo o Brasil";
+  } else if (selectedOption === "uf" && selectedUF) {
+    const ufName = UFS.find(u => u.uf === selectedUF)?.name || selectedUF;
+    filtroInfo = `Dados para o estado: ${ufName}`;
+  } else if (selectedOption === "municipio" && selectedMunicipio) {
+    filtroInfo = `Dados para o município: ${selectedMunicipio}`;
+  } else if (selectedOption === "regiao" && selectedRegiao) {
+    filtroInfo = `Dados para a região: ${selectedRegiao}`;
+  }
+  return (
+    <div className="mb-2 text-sm text-gray-500">
+      <strong>Anos retornados:</strong>{" "}
+      {returnedYears.length > 0
+        ? returnedYears.join(", ")
+        : "Nenhum ano retornado"}
+      {filtroInfo && (
+        <>
+          <br />
+          <span>{filtroInfo}</span>
+        </>
+      )}
+    </div>
+  );
+}
 
 const VisaoGeralDashboard = () => {
   // Log para depuração do ciclo de vida e dados recebidos
@@ -22,7 +62,10 @@ const VisaoGeralDashboard = () => {
     isLoading: isLoadingFilters,
     errorNfseTotais,
     errorMeiAmbiente,
-    // We'll need handleSubmitFilters, setSelectedOption etc. when adding the UI form
+    selectedOption,
+    selectedMunicipio,
+    selectedUF,
+    selectedRegiao,
   } = useVisaoGeralFilters();
 
   // Continue to use useVisaoGeralData for distFreqData for now
@@ -85,13 +128,13 @@ const VisaoGeralDashboard = () => {
       <h1 className="text-2xl font-semibold text-gray-800 mb-4 md:mb-6 lg:mb-8">
         Visão Geral da Base NFSe
       </h1>
-      {/* Exibe os anos retornados pelo backend para depuração/clareza */}
-      <div className="mb-2 text-sm text-gray-500">
-        <strong>Anos retornados:</strong>{" "}
-        {returnedYears.length > 0
-          ? returnedYears.join(", ")
-          : "Nenhum ano retornado"}
-      </div>
+      {getFiltroHeader({
+        selectedOption,
+        selectedMunicipio,
+        selectedUF,
+        selectedRegiao,
+        returnedYears,
+      })}
 
       <div className="flex flex-col gap-4 md:gap-6 lg:gap-8">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
