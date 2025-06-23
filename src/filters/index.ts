@@ -3,3 +3,4 @@ export * from "./FormMunicipio";
 export * from "./FormOptions";
 export * from "./FormRegiao";
 export * from "./FormUf";
+export * from "./FormContribuinteValor";

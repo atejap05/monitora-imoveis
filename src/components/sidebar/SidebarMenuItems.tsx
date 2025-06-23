@@ -1,17 +1,10 @@
 import { useDashboardState } from "@/state/dashboardState";
-import { VisaoGeralFilters } from "@/features/visao-geral/components";
-import { FormContribuintes, FormConsultas, FormNotasFiscais } from "@/forms";
+import { VisaoGeralFilters } from "@/pages/VisaoGeral/components";
 
 export const SidebarMenuItems = () => {
   const { tabValue } = useDashboardState();
 
   switch (tabValue) {
-    case "contribuintes":
-      return <FormContribuintes />;
-    case "consultas":
-      return <FormConsultas />;
-    case "nfse":
-      return <FormNotasFiscais />;
     case "visao-geral":
       return <VisaoGeralFilters />;
     default:
