@@ -72,6 +72,7 @@ export const fetchNotasFiscais = async (
     "get_totais_nfse_com_filtro", // Function name
     params // Passa o objeto params diretamente
   );
+
   return response as TConsultaNFSeTotais;
 };
 
@@ -107,5 +108,25 @@ export const fetchNotasFiscaisMeiAmbiente = async (
     "get_totais_ambiente_nfse_mei_com_filtro", // Function name
     params // Passa o objeto params diretamente
   );
+  return response;
+};
+
+export const fetchDistribuicaoFrequencia = async (
+  params: NFSeFiltro
+): Promise<any> => {
+  const win = window as Window & {
+    runScript?: (
+      scriptName: string,
+      functionName: string,
+      params: NFSeFiltro
+    ) => Promise<any>;
+  };
+
+  const response = await win.runScript!(
+    "", // Script name, assuming empty
+    "get_distribuicao_freq_nfse_com_filtro", // Function name
+    params // Passa o objeto params diretamente
+  );
+
   return response;
 };

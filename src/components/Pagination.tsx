@@ -61,8 +61,8 @@ export const Pagination = ({ table, slice }: { table: any; slice: number }) => {
           </span>
         </div>
         <div className="flex-between gap-3">
-          <p className="flex-between gap-1">
-            <span>Ir para página:</span>
+          <p className="flex-between">
+            <span className="w-32 mr-0">Ir para página:</span>
             <Input
               type="number"
               min="1"

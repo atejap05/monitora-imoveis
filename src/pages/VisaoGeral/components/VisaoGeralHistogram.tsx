@@ -85,7 +85,7 @@ export function VisaoGeralHistogram({ data }: VisaoGeralHistogramProps) {
             />
             <Bar
               dataKey="frequencia"
-              fill="var(--color-frequencia)"
+              fill="hsl(var(--primary))"
               radius={[4, 4, 0, 0]}
             />
           </BarChart>

@@ -63,6 +63,8 @@ const VisaoGeral: React.FC = () => {
     distFreqData,
     isLoading: isLoadingDistFreq,
     error: errorDistFreq,
+    estatisticas,
+    metodoCalculo,
   } = useVisaoGeralData();
 
   const isLoading = isLoadingFilters || isLoadingDistFreq;
@@ -149,17 +151,27 @@ const VisaoGeral: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 lg:gap-8">
-          {/* O VisaoGeralHistogram agora usa dados mockados internamente */}
-          <VisaoGeralHistogram />
+          <VisaoGeralHistogram
+            data={distFreqData?.map(
+              (item: { faixa: string; frequencia: number }) => ({
+                faixa: item.faixa,
+                frequencia: item.frequencia,
+              })
+            )}
+          />
+        </div>
 
-          {/* A tabela de distribuição de frequência será integrada com o backend */}
+        {/* A tabela de distribuição de frequência agora volta ao modo padrão (cada faixa em uma linha) */}
+        <div className="w-full">
           <VisaoGeralTable
             title="Distribuição de Frequência"
             subtitle="Distribuição de frequência das notas fiscais por valor"
-            data={distFreqData} // TODO: Integrar com filtros e backend
+            data={distFreqData}
             columns={distFreqColumns}
-            isLoading={isLoadingDistFreq} // Use specific loading state
+            isLoading={isLoadingDistFreq}
             Loader={() => <div>Carregando tabela...</div>}
+            estatisticas={estatisticas}
+            metodoCalculo={metodoCalculo}
           />
         </div>
 
