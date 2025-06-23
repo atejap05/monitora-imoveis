@@ -11,6 +11,7 @@ import Contribuintes from "./pages/Contribuintes/Contribuintes";
 import Ambiente from "./pages/Ambiente/Ambiente";
 import Consultas from "./pages/Consultas/Consultas";
 import NotasFiscais from "./pages/NotasFiscais/NotasFiscais";
+import Convenios from "./pages/Convenios/Convenios";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
               <Route path="/ambiente" element={<Ambiente />} />
               <Route path="/consultas" element={<Consultas />} />
               <Route path="/notas-fiscais" element={<NotasFiscais />} />
+              <Route path="/convenios" element={<Convenios />} />
             </Routes>
           </MainLayout>
         </VisaoGeralFiltersProvider>

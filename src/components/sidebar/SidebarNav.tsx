@@ -8,6 +8,7 @@ import {
   Settings,
   Menu,
   X,
+  Handshake,
 } from "lucide-react";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
@@ -19,13 +20,14 @@ const navItems = [
   { label: "Consultas", to: "/consultas", icon: <FileText /> },
   { label: "Notas Fiscais", to: "/notas-fiscais", icon: <FileBarChart2 /> },
   { label: "Ambiente", to: "/ambiente", icon: <Settings /> },
+  { label: "Convênios", to: "/convenios", icon: <Handshake /> },
 ];
 
 const SidebarNav: React.FC = () => {
   const { open, toggleSidebar } = useSidebar();
   return (
     <nav className="flex flex-row w-full px-2 sm:px-4 py-2 border-t border-b border-green-100 bg-green items-center relative shadow-md">
-      <div className="flex flex-1">
+      <div>
         <Button
           onClick={toggleSidebar}
           className="text-white hover:text-green p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-300 bg-green"
@@ -39,7 +41,7 @@ const SidebarNav: React.FC = () => {
           />
         </Button>
       </div>
-      <div className="flex flex-row gap-1 sm:gap-2 flex-[5] justify-center">
+      <div className="flex flex-row gap-1 sm:gap-2 flex-1 justify-center">
         {navItems.map(item => (
           <NavLink
             key={item.to}
