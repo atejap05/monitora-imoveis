@@ -83,6 +83,7 @@ export function FormContribuinteValor() {
                     placeholder="Valor mín."
                     className="bg-white no-spinner"
                     {...field}
+                    value={field.value ?? ""}
                   />
                 </FormControl>
                 <FormMessage />
@@ -101,6 +102,7 @@ export function FormContribuinteValor() {
                     placeholder="Valor máx."
                     className="bg-white no-spinner"
                     {...field}
+                    value={field.value ?? ""} // Garante string vazia se null
                   />
                 </FormControl>
                 <FormMessage />

@@ -18,11 +18,11 @@ import { Button } from "@/components/ui/button";
 const FiltrosSchema = z.object({
   anos: z.array(z.string()).optional(),
   contribuintes: z.array(z.string()).optional(),
-  valorMin: z.string().optional(),
-  valorMax: z.string().optional(),
-  uf: z.string().optional(),
-  municipio: z.string().optional(),
-  regiao: z.string().optional(),
+  valorMin: z.string().nullable().optional(),
+  valorMax: z.string().nullable().optional(),
+  uf: z.string().nullable().optional(),
+  municipio: z.string().nullable().optional(),
+  regiao: z.string().nullable().optional(),
 });
 
 export const VisaoGeralFilters = () => {
@@ -33,17 +33,27 @@ export const VisaoGeralFilters = () => {
     resolver: zodResolver(FiltrosSchema),
     defaultValues: {
       anos: [],
-      contribuintes: ["1", "2", "3"], // Todas as opções selecionadas por padrão
-      valorMin: undefined,
-      valorMax: undefined,
-      uf: undefined,
-      municipio: undefined,
-      regiao: undefined,
+      contribuintes: ["1", "2", "3"],
+      valorMin: "", // string vazia para campos opcionais de input number
+      valorMax: "",
+      uf: null,
+      municipio: null,
+      regiao: null,
     },
   });
 
   function onSubmit(data: any) {
-    handleSubmitFilters(data);
+    const payload = {
+      ...data,
+      valorMin: data.valorMin ? data.valorMin : null,
+      valorMax: data.valorMax ? data.valorMax : null,
+      contribuintes: data.contribuintes ?? ["1", "2", "3"],
+      uf: data.uf ? data.uf : null,
+      municipio: data.municipio ? data.municipio : null,
+      regiao: data.regiao ? data.regiao : null,
+    };
+    console.log("[VisaoGeral] Filtros enviados ao backend (submit):", payload);
+    handleSubmitFilters(payload);
   }
 
   return (

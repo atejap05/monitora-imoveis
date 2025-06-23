@@ -49,10 +49,13 @@ export type Municipio = {
 
 export type TFormData = {
   filtro: string;
-  uf: string;
-  municipio: string;
-  regiao: string;
+  uf: string | null;
+  municipio: string | null;
+  regiao: string | null;
   anos: string[];
+  contribuintes?: string[] | null;
+  valorMin?: string | null;
+  valorMax?: string | null;
 };
 
 export type TConsultaNFSeTotais = {

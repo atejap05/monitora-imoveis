@@ -33,7 +33,8 @@ const SidebarNav: React.FC = () => {
           aria-label={open ? "Fechar menu lateral" : "Abrir menu lateral"}
         >
           <BasicTooltip
-            label={open ? <X size={22} /> : <Menu size={22} />}
+            asChild
+            label={<span>{open ? <X size={22} /> : <Menu size={22} />}</span>}
             content={open ? "Fechar menu lateral" : "Abrir menu lateral"}
           />
         </Button>

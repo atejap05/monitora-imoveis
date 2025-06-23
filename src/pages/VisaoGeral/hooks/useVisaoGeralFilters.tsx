@@ -84,6 +84,9 @@ export const VisaoGeralFiltersProvider = ({
       regiao: null,
       municipio: null,
       uf: null,
+      contribuintes: ["1", "2", "3"],
+      valorMin: null,
+      valorMax: null,
     };
     console.log(
       "[VisaoGeral] Filtros enviados ao backend (React Query):",
@@ -103,6 +106,9 @@ export const VisaoGeralFiltersProvider = ({
       formData?.regiao ?? null,
       formData?.municipio ?? null,
       formData?.uf ?? null,
+      formData?.contribuintes ?? ["1", "2", "3"],
+      formData?.valorMin ?? null,
+      formData?.valorMax ?? null,
     ],
     queryFn: () => {
       const params = formData ?? {
@@ -111,6 +117,9 @@ export const VisaoGeralFiltersProvider = ({
         regiao: null,
         municipio: null,
         uf: null,
+        contribuintes: ["1", "2", "3"],
+        valorMin: null,
+        valorMax: null,
       };
       return fetchNotasFiscais(params);
     },
@@ -130,6 +139,9 @@ export const VisaoGeralFiltersProvider = ({
       formData?.regiao ?? null,
       formData?.municipio ?? null,
       formData?.uf ?? null,
+      formData?.contribuintes ?? ["1", "2", "3"],
+      formData?.valorMin ?? null,
+      formData?.valorMax ?? null,
     ],
     queryFn: () => {
       const params = formData ?? {
@@ -138,6 +150,9 @@ export const VisaoGeralFiltersProvider = ({
         regiao: null,
         municipio: null,
         uf: null,
+        contribuintes: ["1", "2", "3"],
+        valorMin: null,
+        valorMax: null,
       };
       return fetchNotasFiscaisMeiAmbiente(params);
     },

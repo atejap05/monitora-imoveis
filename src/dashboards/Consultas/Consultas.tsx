@@ -83,6 +83,7 @@ const Consultas = () => {
                         className="shadow-sm"
                       >
                         <BasicTooltip
+                          asChild
                           content="Exportar CSV"
                           label={
                             <img src={csv_icon} alt="csv" className="w-6 h-6" />
@@ -93,6 +94,7 @@ const Consultas = () => {
                   </span>
                   <span>
                     <BasicTooltip
+                      asChild
                       content="Exportar XLSX"
                       label={
                         <Button
