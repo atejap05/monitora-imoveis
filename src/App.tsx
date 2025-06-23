@@ -7,10 +7,10 @@ import {
 import { MainLayout } from "@/components/MainLayout";
 import { VisaoGeralFiltersProvider } from "@/pages/VisaoGeral/hooks/useVisaoGeralFilters";
 import VisaoGeral from "./pages/VisaoGeral/VisaoGeral";
-import Contribuintes from "./pages/Contribuintes";
-import Ambiente from "./pages/Ambiente";
-import Consultas from "./pages/Consultas";
-import NotasFiscais from "./pages/NotasFiscais";
+import Contribuintes from "./pages/Contribuintes/Contribuintes";
+import Ambiente from "./pages/Ambiente/Ambiente";
+import Consultas from "./pages/Consultas/Consultas";
+import NotasFiscais from "./pages/NotasFiscais/NotasFiscais";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
 function App() {

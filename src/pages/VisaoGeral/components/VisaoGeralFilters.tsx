@@ -26,13 +26,8 @@ const FiltrosSchema = z.object({
 });
 
 export const VisaoGeralFilters = () => {
-  const {
-    selectedOption,
-    setSelectedOption,
-    setSelectedMunicipio,
-    handleSubmitFilters,
-    isLoading,
-  } = useVisaoGeralFilters();
+  const { selectedOption, setSelectedOption, handleSubmitFilters, isLoading } =
+    useVisaoGeralFilters();
 
   const form = useForm({
     resolver: zodResolver(FiltrosSchema),
@@ -61,26 +56,19 @@ export const VisaoGeralFilters = () => {
           selectedOption={selectedOption}
           setSelectedOption={setSelectedOption}
         />
+        {/* Filtros geográficos e de ano condicionais */}
+        {selectedOption === "uf" && <FormUF />}
+        {selectedOption === "municipio" && (
+          <>
+            <FormUF />
+            <FormMunicipio />
+          </>
+        )}
+        {selectedOption === "regiao" && <FormRegiao />}
+        {selectedOption === "todos" && <FormAno />}
         <Separator />
         {/* Filtros globais sempre visíveis */}
         <FormContribuinteValor />
-        {/* Filtros geográficos e de ano condicionais */}
-        <div className="mt-4">
-          {selectedOption === "uf" && (
-            <FormUF isFormPending={isLoading} onSubmit={onSubmit} />
-          )}
-          {selectedOption === "municipio" && (
-            <FormMunicipio
-              isFormPending={isLoading}
-              onSubmit={onSubmit}
-              getSelectedMunicipio={setSelectedMunicipio}
-            />
-          )}
-          {selectedOption === "regiao" && (
-            <FormRegiao isFormPending={isLoading} onSubmit={onSubmit} />
-          )}
-          {selectedOption === "todos" && <FormAno />}
-        </div>
         <div className="flex justify-center mt-2">
           <Button type="submit" disabled={isLoading}>
             {isLoading ? "Aplicando..." : "Aplicar"}

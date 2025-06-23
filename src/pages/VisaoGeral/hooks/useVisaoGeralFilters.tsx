@@ -61,6 +61,7 @@ export const VisaoGeralFiltersProvider = ({
             ? formDataFromFilterComponent.municipio || selectedMunicipio
             : processedFormData.municipio,
       };
+      console.log("[VisaoGeral] Filtros enviados ao aplicar:", finalFormData);
       setFormDataState(finalFormData);
       // Atualiza UF e Região para o dashboard
       if (selectedOption === "uf") {
@@ -74,6 +75,21 @@ export const VisaoGeralFiltersProvider = ({
     },
     [selectedOption, selectedMunicipio]
   );
+
+  // Log dos filtros enviados ao backend na montagem e a cada mudança
+  React.useEffect(() => {
+    const params = formData ?? {
+      filtro: "todos",
+      anos: YEARS,
+      regiao: null,
+      municipio: null,
+      uf: null,
+    };
+    console.log(
+      "[VisaoGeral] Filtros enviados ao backend (React Query):",
+      params
+    );
+  }, [formData]);
 
   const {
     data: nfseTotaisData,
