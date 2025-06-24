@@ -77,22 +77,24 @@ const Consultas = () => {
                         formData?.anos ?? []
                       )}
                     >
-                      <BasicTooltip
-                        content="Exportar CSV"
-                        label={
-                          <Button
-                            variant={"outline"}
-                            size={"icon"}
-                            className="shadow-sm"
-                          >
+                      <Button
+                        variant={"outline"}
+                        size={"icon"}
+                        className="shadow-sm"
+                      >
+                        <BasicTooltip
+                          asChild
+                          content="Exportar CSV"
+                          label={
                             <img src={csv_icon} alt="csv" className="w-6 h-6" />
-                          </Button>
-                        }
-                      />
+                          }
+                        />
+                      </Button>
                     </CSVDownloader>
                   </span>
                   <span>
                     <BasicTooltip
+                      asChild
                       content="Exportar XLSX"
                       label={
                         <Button

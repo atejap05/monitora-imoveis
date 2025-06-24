@@ -1,0 +1,60 @@
+import { useFormContext, useWatch } from "react-hook-form";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useQuery } from "@tanstack/react-query";
+import { fecthMunicipioByUf } from "@/service";
+
+export const FormMunicipio = () => {
+  const { control } = useFormContext();
+  const uf = useWatch({ control, name: "uf" });
+  const { data, isPending } = useQuery({
+    queryKey: ["fecth-municipios", uf],
+    queryFn: () => fecthMunicipioByUf(uf),
+    enabled: !!uf,
+  });
+
+  return (
+    <FormField
+      control={control}
+      name="municipio"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel className="text-green font-bold">Município</FormLabel>
+          <Select
+            disabled={!uf}
+            onValueChange={field.onChange}
+            value={field.value}
+          >
+            <SelectTrigger className="bg-white">
+              <SelectValue placeholder="Selecione o Município">
+                {isPending
+                  ? "Carregando..."
+                  : data?.find((m: any) => m.id === Number(field.value))
+                      ?.nome || "Selecione o Município"}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {data?.map((municipio: any) => (
+                <SelectItem key={municipio.id} value={municipio.id.toString()}>
+                  {municipio.nome}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+};

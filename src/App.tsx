@@ -1,16 +1,41 @@
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { MainLayout } from "@/components/MainLayout";
-import { VisaoGeralFiltersProvider } from "@/features/visao-geral/hooks/useVisaoGeralFilters";
-import Dashboard from "./dashboards/Dashboard";
-import { useDashboardState } from "./state/dashboardState";
+import { VisaoGeralFiltersProvider } from "@/pages/VisaoGeral/hooks/useVisaoGeralFilters";
+import VisaoGeral from "./pages/VisaoGeral/VisaoGeral";
+import Contribuintes from "./pages/Contribuintes/Contribuintes";
+import Ambiente from "./pages/Ambiente/Ambiente";
+import Consultas from "./pages/Consultas/Consultas";
+import NotasFiscais from "./pages/NotasFiscais/NotasFiscais";
+import Convenios from "./pages/Convenios/Convenios";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 function App() {
-  const { tabValue } = useDashboardState();
   return (
-    <VisaoGeralFiltersProvider>
-      <MainLayout>
-        <Dashboard tabValue={tabValue} />
-      </MainLayout>
-    </VisaoGeralFiltersProvider>
+    <SidebarProvider>
+      <Router>
+        <VisaoGeralFiltersProvider>
+          <MainLayout>
+            <Routes>
+              <Route
+                path="/"
+                element={<Navigate to="/visao-geral" replace />}
+              />
+              <Route path="/visao-geral" element={<VisaoGeral />} />
+              <Route path="/contribuintes" element={<Contribuintes />} />
+              <Route path="/ambiente" element={<Ambiente />} />
+              <Route path="/consultas" element={<Consultas />} />
+              <Route path="/notas-fiscais" element={<NotasFiscais />} />
+              <Route path="/convenios" element={<Convenios />} />
+            </Routes>
+          </MainLayout>
+        </VisaoGeralFiltersProvider>
+      </Router>
+    </SidebarProvider>
   );
 }
 
