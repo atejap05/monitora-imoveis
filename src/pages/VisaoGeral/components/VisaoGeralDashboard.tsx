@@ -3,8 +3,10 @@ import { distFreqColumns } from "./VisaoGeralColumns.tsx";
 import { useVisaoGeralFiltersState } from "@/state/visaoGeralFiltersState.ts";
 import BasicLoading from "@/components/BasicLoading";
 import { UFS } from "@/lib/utils";
-import { CardValor } from "@/components/CardValor";
 import { TFilter } from "@/@types/index.ts";
+import LocalEtlSection from "./LocalEtlSection";
+import { FileText, User, Building2, Factory } from "lucide-react";
+import DashCard from "@/components/DashCard";
 
 const contribuinteOptions = [
   { label: "Não Optante", value: 1 },
@@ -64,23 +66,25 @@ function getFiltroHeader({
       </h3>
       <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-600">
         <div className="flex items-baseline gap-2">
-          <strong className="font-medium text-gray-900">Anos:</strong>
+          <strong className="font-semibold text-gray-900">Anos:</strong>
           <span>
             {returnedYears.length > 0 ? returnedYears.join(", ") : "N/A"}
           </span>
         </div>
         {filtroInfo && (
           <div className="flex items-baseline gap-2">
-            <strong className="font-medium text-gray-900">Local:</strong>
+            <strong className="font-semibold text-gray-900">Local:</strong>
             <span>{filtroInfo}</span>
           </div>
         )}
         <div className="flex items-baseline gap-2">
-          <strong className="font-medium text-gray-900">Contribuintes:</strong>
+          <strong className="font-semibold text-gray-900">
+            Contribuintes:
+          </strong>
           <span>{getContribuintesText()}</span>
         </div>
         <div className="flex items-baseline gap-2">
-          <strong className="font-medium text-gray-900">Valor:</strong>
+          <strong className="font-semibold text-gray-900">Valor:</strong>
           <span>{getValorText()}</span>
         </div>
       </div>
@@ -151,25 +155,29 @@ const VisaoGeralDashboard = () => {
 
       <div className="flex flex-col gap-4 md:gap-6 lg:gap-8">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <CardValor
+          <DashCard
             title="Total de NFSe"
             description="Total de NFSe emitidas"
-            value={aggregatedTotals.total}
+            value={aggregatedTotals.total.toLocaleString()}
+            icon={<FileText size={18} />}
           />
-          <CardValor
+          <DashCard
             title="MEI"
             description="Total de NFSe MEI"
-            value={aggregatedTotals.mei}
+            value={aggregatedTotals.mei.toLocaleString()}
+            icon={<User size={18} />}
           />
-          <CardValor
+          <DashCard
             title="ME/EPP"
             description="Total de NFSe ME/EPP"
-            value={aggregatedTotals.me_epp}
+            value={aggregatedTotals.me_epp.toLocaleString()}
+            icon={<Building2 size={18} />}
           />
-          <CardValor
+          <DashCard
             title="Não Optantes"
             description="Total de NFSe de Não Optantes"
-            value={aggregatedTotals.nao_optante}
+            value={aggregatedTotals.nao_optante.toLocaleString()}
+            icon={<Factory size={18} />}
           />
         </div>
 
@@ -187,7 +195,8 @@ const VisaoGeralDashboard = () => {
           />
         </div>
 
-        {/* Grafico sobre as ETL no Banco de dados. */}
+        {/* Gráfico sobre as ETL no Banco de dados. */}
+        <LocalEtlSection />
       </div>
     </div>
   );
