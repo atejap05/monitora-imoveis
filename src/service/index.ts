@@ -48,12 +48,16 @@ export const fetchContribuintes = async (
 };
 // Notas Fiscais //
 
-type NFSeFiltro = {
-  filtro: string | null;
-  anos: Array<number | string>;
-  regiao: string | null;
-  municipio: string | null;
+// Ajuste: municipio deve ser number | null para alinhar com TFilter
+export type NFSeFiltro = {
+  filtro: string;
+  anos: number[];
+  contribuintes: number[];
+  valorMin: number | null;
+  valorMax: number | null;
   uf: string | null;
+  municipio: number | null;
+  regiao: string | null;
 };
 
 export const fetchNotasFiscais = async (

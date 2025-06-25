@@ -15,10 +15,11 @@ import { Button } from "@/components/ui/button";
 import { TFilter } from "@/@types";
 import { Separator } from "@/components/ui/separator";
 
+// Schema mais estrito para os dados do formulário (majoritariamente strings)
 const FiltrosSchema = z.object({
   filtro: z.string(),
-  anos: z.array(z.union([z.string(), z.number()])).optional(),
-  contribuintes: z.array(z.union([z.string(), z.number()])).optional(),
+  anos: z.array(z.string()).optional(),
+  contribuintes: z.array(z.string()).optional(),
   valorMin: z.string().nullable().optional(),
   valorMax: z.string().nullable().optional(),
   uf: z.string().nullable().optional(),
@@ -26,38 +27,37 @@ const FiltrosSchema = z.object({
   regiao: z.string().nullable().optional(),
 });
 
-// Tipo intermediário para o formulário
-interface TFilterForm {
-  filtro: string;
-  anos?: (string | number)[];
-  contribuintes?: (string | number)[];
-  valorMin?: string | null;
-  valorMax?: string | null;
-  uf?: string | null;
-  municipio?: string | null;
-  regiao?: string | null;
-}
+// O tipo do formulário é inferido diretamente do schema Zod.
+// Isso garante que o formulário e a validação estejam sempre sincronizados.
+type TFilterForm = z.infer<typeof FiltrosSchema>;
 
 export const VisaoGeralFilters = () => {
   const { filters, submitFilters, isLoading } = useVisaoGeralFiltersState();
 
   const form = useForm<TFilterForm>({
     resolver: zodResolver(FiltrosSchema),
+    // Mapeamento explícito e seguro dos valores do estado global (TFilter)
+    // para os valores do formulário (TFilterForm), garantindo a conversão para string.
     defaultValues: {
-      ...filters,
-      // Converte os valores do estado para os tipos esperados pelo formulário
-      anos: filters?.anos?.map(String) ?? [],
-      valorMin: filters?.valorMin?.toString() ?? null,
-      valorMax: filters?.valorMax?.toString() ?? null,
+      filtro: filters.filtro,
+      anos: filters.anos.map(String),
+      valorMin: filters.valorMin?.toString() ?? null,
+      valorMax: filters.valorMax?.toString() ?? null,
+      uf: filters.uf,
+      municipio: filters.municipio?.toString() ?? null,
+      regiao: filters.regiao,
       // Mantém o padrão de ter todos os contribuintes selecionados ao iniciar
-      contribuintes: ["1", "2", "3"], // sempre todas marcadas por padrão (como string)
+      contribuintes: ["1", "2", "3"],
     },
   });
 
   const selectedOption = form.watch("filtro");
 
   function onSubmit(data: TFilterForm) {
-    console.log("Formulário submetido com os seguintes dados:", data);
+    console.log(
+      "[VisaoGeralFilters] Formulário submetido (dados do formulário):",
+      data
+    );
     const payload: TFilter = {
       ...data,
       anos: Array.isArray(data.anos)
@@ -86,10 +86,14 @@ export const VisaoGeralFilters = () => {
         : [],
       valorMin: data.valorMin ? Number(data.valorMin) : null,
       valorMax: data.valorMax ? Number(data.valorMax) : null,
-      uf: data.uf || null,
-      municipio: data.municipio || null,
-      regiao: data.regiao || null,
+      uf: data.uf || null, // Mantido como string
+      municipio: data.municipio ? Number(data.municipio) : null, // Convertido para número
+      regiao: data.regiao || null, // Mantido como string
     };
+    console.log(
+      "[VisaoGeralFilters] Payload submetido para o backend:",
+      payload
+    );
     submitFilters(payload);
   }
 

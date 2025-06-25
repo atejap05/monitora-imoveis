@@ -82,7 +82,7 @@ export type TFilter = {
   valorMin: number | null;
   valorMax: number | null;
   uf: string | null;
-  municipio: string | null;
+  municipio: number | null;
   regiao: string | null;
 };
 
