@@ -25,7 +25,9 @@ export const FormUF = () => {
           <FormLabel className="text-green font-bold">UF</FormLabel>
           <Select onValueChange={field.onChange} value={field.value}>
             <SelectTrigger className="bg-white">
-              <SelectValue placeholder="Selecione um Estado" />
+              <SelectValue placeholder="Selecione um Estado">
+                {field.value ? field.value : "Selecione um Estado"}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {selectUFOptions.map(option => (

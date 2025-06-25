@@ -1,12 +1,6 @@
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
@@ -48,12 +42,6 @@ export function VisaoGeralHistogram({ data }: VisaoGeralHistogramProps) {
 
   return (
     <Card className="container mx-auto flex-1">
-      <CardHeader>
-        <CardTitle>Distribuição de Frequência por Valor da Nota</CardTitle>
-        <CardDescription>
-          Histograma da quantidade de notas fiscais por faixa de valor.
-        </CardDescription>
-      </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
           <BarChart

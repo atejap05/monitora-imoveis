@@ -1,4 +1,4 @@
-import {useState } from "react";
+import { useState } from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -12,7 +12,7 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpIcon, ArrowDownIcon } from "lucide-react";
+import { ArrowUpIcon, ArrowDownIcon, BarChart3 } from "lucide-react";
 
 import {
   Table,
@@ -32,6 +32,15 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MetricasEstatisticas } from "./VisaoGeralColumns";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { VisaoGeralHistogram } from "./VisaoGeralHistogram";
 
 interface DataTableProps<TData> {
   columns: ColumnDef<TData>[];
@@ -94,50 +103,67 @@ export function VisaoGeralTable<TData>({
   return (
     <Card className="container w-full mx-auto">
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        <CardDescription className="pb-4">{subtitle}</CardDescription>
-        {estatisticas ? (
-          <div className="flex flex-wrap items-center gap-3">
-            <Badge className="px-3 py-2 tracking-wide" variant={"outline"}>
-              Média: {formatCurrency(estatisticas.media)}
-            </Badge>
-            <Badge className="px-3 py-2 tracking-wide" variant={"outline"}>
-              Mediana:{" "}
-              {typeof estatisticas.mediana === "number"
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>{title}</CardTitle>
+            <CardDescription className="pb-4">{subtitle}</CardDescription>
+          </div>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant={"default"} size="sm">
+                <BarChart3 />
+                Histograma
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl w-full">
+              <DialogHeader>
+                <DialogTitle>
+                  Histograma da Distribuição de Frequência
+                </DialogTitle>
+                <span
+                  id="histograma-desc"
+                  className="text-muted-foreground text-sm"
+                >
+                  Gráfico de barras mostrando a quantidade de notas fiscais por
+                  faixa de valor.
+                </span>
+              </DialogHeader>
+              <VisaoGeralHistogram data={data as any} />
+            </DialogContent>
+          </Dialog>
+        </div>
+        <div className="flex flex-wrap items-center gap-3 mt-4">
+          <Badge className="px-3 py-2 tracking-wide" variant={"outline"}>
+            Média:{" "}
+            {estatisticas?.media !== undefined
+              ? formatCurrency(estatisticas.media)
+              : "--"}
+          </Badge>
+          <Badge className="px-3 py-2 tracking-wide" variant={"outline"}>
+            Mediana:{" "}
+            {estatisticas?.mediana !== undefined
+              ? typeof estatisticas.mediana === "number"
                 ? formatCurrency(estatisticas.mediana)
-                : estatisticas.mediana}
-            </Badge>
-            <Badge className="px-3 py-2 tracking-wide" variant={"outline"}>
-              Moda: {estatisticas.moda}
-            </Badge>
-            <Badge className="px-3 py-2 tracking-wide" variant={"outline"}>
-              Desvio Padrão:{" "}
-              {typeof estatisticas.desvio_padrao === "number"
+                : estatisticas.mediana
+              : "--"}
+          </Badge>
+          <Badge className="px-3 py-2 tracking-wide" variant={"outline"}>
+            Moda: {estatisticas?.moda ?? "--"}
+          </Badge>
+          <Badge className="px-3 py-2 tracking-wide" variant={"outline"}>
+            Desvio Padrão:{" "}
+            {estatisticas?.desvio_padrao !== undefined
+              ? typeof estatisticas.desvio_padrao === "number"
                 ? formatCurrency(estatisticas.desvio_padrao)
-                : estatisticas.desvio_padrao}
+                : estatisticas.desvio_padrao
+              : "--"}
+          </Badge>
+          {metodoCalculo && (
+            <Badge className="px-3 py-2 tracking-wide" variant="secondary">
+              {metodoCalculo}
             </Badge>
-            {metodoCalculo && (
-              <Badge className="px-3 py-2 tracking-wide" variant="secondary">
-                {metodoCalculo}
-              </Badge>
-            )}
-          </div>
-        ) : (
-          <div className="flex justify-start gap-3">
-            <Badge className="px-3 py-2 tracking-wide" variant={"outline"}>
-              Média: 1000
-            </Badge>
-            <Badge className="px-3 py-2 tracking-wide" variant={"outline"}>
-              Mediana: 500
-            </Badge>
-            <Badge className="px-3 py-2 tracking-wide" variant={"outline"}>
-              Moda: 200
-            </Badge>
-            <Badge className="px-3 py-2 tracking-wide" variant={"outline"}>
-              Desvio Padrão: 300
-            </Badge>
-          </div>
-        )}
+          )}
+        </div>
       </CardHeader>
       <CardContent>
         {isLoading && Loader ? (
@@ -253,4 +279,3 @@ declare module "@tanstack/react-table" {
     filterVariant?: "text" | "number";
   }
 }
-

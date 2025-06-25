@@ -6,7 +6,6 @@ import {
   SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
-import SidebarMenuItems from "./SidebarMenuItems";
 import { Separator } from "@/components/ui/separator";
 import { FilterIcon } from "lucide-react";
 import logonfse from "../../assets/logo-nfse-horizontal-removebg.png";
@@ -45,11 +44,7 @@ const Sidebar: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
               className="text-green"
             />
           </SidebarHeader>
-          <SidebarContent className="px-4">
-            {/* Apenas filtros globais da página ativa */}
-            <SidebarMenuItems />
-            {children}
-          </SidebarContent>
+          <SidebarContent className="px-4">{children}</SidebarContent>
           <SidebarFooter />
         </>
       )}

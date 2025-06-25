@@ -1,12 +1,15 @@
-import { useDashboardState } from "@/state/dashboardState";
 import { VisaoGeralFilters } from "@/pages/VisaoGeral/components";
+import { useLocation } from "react-router-dom";
 
 export const SidebarMenuItems = () => {
-  const { tabValue } = useDashboardState();
+  const location = useLocation();
 
-  switch (tabValue) {
-    case "visao-geral":
+  switch (location.pathname) {
+    case "/visao-geral":
       return <VisaoGeralFilters />;
+    // Adicione outros cases conforme necessário, por exemplo:
+    // case "/outra-pagina":
+    //   return <OutroComponente />;
     default:
       return null;
   }

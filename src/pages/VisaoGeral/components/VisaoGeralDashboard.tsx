@@ -1,76 +1,99 @@
-import { TabsContent } from "@/components/ui/tabs";
-import { VisaoGeralHistogram } from "./VisaoGeralHistogram.tsx";
 import { VisaoGeralTable } from "./VisaoGeralTable.tsx";
 import { distFreqColumns } from "./VisaoGeralColumns.tsx";
-import { useVisaoGeralData } from "../hooks/useVisaoGeralData.tsx";
-import { useVisaoGeralFilters } from "../hooks/useVisaoGeralFilters.tsx";
+import { useVisaoGeralFiltersState } from "@/state/visaoGeralFiltersState.ts";
 import BasicLoading from "@/components/BasicLoading";
 import { UFS } from "@/lib/utils";
 import { CardValor } from "@/components/CardValor";
+import { TFilter } from "@/@types/index.ts";
+
+const contribuinteOptions = [
+  { label: "Não Optante", value: 1 },
+  { label: "MEI", value: 2 },
+  { label: "ME/EPP", value: 3 },
+];
 
 function getFiltroHeader({
-  selectedOption,
-  selectedMunicipio,
-  selectedUF,
-  selectedRegiao,
+  submittedFilters,
   returnedYears,
 }: {
-  selectedOption: string;
-  selectedMunicipio?: string | null;
-  selectedUF?: string | null;
-  selectedRegiao?: string | null;
+  submittedFilters: TFilter | null;
   returnedYears: string[];
 }) {
-  let filtroInfo = "";
-  if (selectedOption === "todos") {
-    filtroInfo = "Dados para todo o Brasil";
-  } else if (selectedOption === "uf" && selectedUF) {
-    const ufName = UFS.find(u => u.uf === selectedUF)?.name || selectedUF;
-    filtroInfo = `Dados para o estado: ${ufName}`;
-  } else if (selectedOption === "municipio" && selectedMunicipio) {
-    filtroInfo = `Dados para o município: ${selectedMunicipio}`;
-  } else if (selectedOption === "regiao" && selectedRegiao) {
-    filtroInfo = `Dados para a região: ${selectedRegiao}`;
+  if (!submittedFilters) {
+    return (
+      <div className="mb-4 text-sm text-gray-500">
+        <strong>Filtros não aplicados.</strong>
+      </div>
+    );
   }
+
+  const { filtro, municipio, uf, regiao, contribuintes, valorMin, valorMax } =
+    submittedFilters;
+
+  let filtroInfo = "";
+  if (filtro === "todos") {
+    filtroInfo = "Brasil";
+  } else if (filtro === "uf" && uf) {
+    filtroInfo = UFS.find(u => u.uf === uf)?.name || uf;
+  } else if (filtro === "municipio" && municipio) {
+    filtroInfo = municipio;
+  } else if (filtro === "regiao" && regiao) {
+    filtroInfo = regiao;
+  }
+
+  const getContribuintesText = () => {
+    if (!contribuintes || contribuintes.length === 0) return "Nenhum";
+    if (contribuintes.length === contribuinteOptions.length) return "Todos";
+    return contribuinteOptions
+      .filter(opt => contribuintes.includes(opt.value))
+      .map(opt => opt.label)
+      .join(", ");
+  };
+
+  const getValorText = () => {
+    if (valorMin && valorMax) return `entre R$ ${valorMin} e R$ ${valorMax}`;
+    if (valorMin) return `a partir de R$ ${valorMin}`;
+    if (valorMax) return `até R$ ${valorMax}`;
+    return "Qualquer valor";
+  };
+
   return (
-    <div className="mb-2 text-sm text-gray-500">
-      <strong>Anos retornados:</strong>{" "}
-      {returnedYears.length > 0
-        ? returnedYears.join(", ")
-        : "Nenhum ano retornado"}
-      {filtroInfo && (
-        <>
-          <br />
-          <span>{filtroInfo}</span>
-        </>
-      )}
+    <div className="mb-4 p-3 bg-gray-50 border rounded-lg">
+      <h3 className="text-md font-semibold text-gray-800 mb-2">
+        Filtros Aplicados
+      </h3>
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-600">
+        <div className="flex items-baseline gap-2">
+          <strong className="font-medium text-gray-900">Anos:</strong>
+          <span>
+            {returnedYears.length > 0 ? returnedYears.join(", ") : "N/A"}
+          </span>
+        </div>
+        {filtroInfo && (
+          <div className="flex items-baseline gap-2">
+            <strong className="font-medium text-gray-900">Local:</strong>
+            <span>{filtroInfo}</span>
+          </div>
+        )}
+        <div className="flex items-baseline gap-2">
+          <strong className="font-medium text-gray-900">Contribuintes:</strong>
+          <span>{getContribuintesText()}</span>
+        </div>
+        <div className="flex items-baseline gap-2">
+          <strong className="font-medium text-gray-900">Valor:</strong>
+          <span>{getValorText()}</span>
+        </div>
+      </div>
     </div>
   );
 }
 
 const VisaoGeralDashboard = () => {
-  const {
-    nfseTotaisData,
-    isLoading: isLoadingFilters,
-    errorNfseTotais,
-    selectedOption,
-    selectedMunicipio,
-    selectedUF,
-    selectedRegiao,
-  } = useVisaoGeralFilters();
+  const { data, isLoading, error, submittedFilters } =
+    useVisaoGeralFiltersState();
 
-  const {
-    distFreqData,
-    isLoading: isLoadingDistFreq,
-    error: errorDistFreq,
-  } = useVisaoGeralData();
-
-  const isLoading = isLoadingFilters || isLoadingDistFreq;
-
-  const errors: (Error | null)[] = [
-    errorNfseTotais,
-    errorDistFreq ? (errorDistFreq as Error) : null,
-  ].filter(Boolean);
+  const nfseTotaisData = data?.nfseTotais;
+  const distFreqData = data?.distribuicaoFrequencia;
 
   let aggregatedTotals = { total: 0, mei: 0, me_epp: 0, nao_optante: 0 };
   let returnedYears: string[] = [];
@@ -94,29 +117,35 @@ const VisaoGeralDashboard = () => {
     );
   }
 
-  if (errors.length > 0) {
+  if (error) {
     return (
       <div>
         Error loading data:
         <ul>
-          {errors.map((err, index) => (
-            <li key={index}>{err?.message}</li>
-          ))}
+          <li>{error?.message}</li>
         </ul>
       </div>
     );
   }
 
+  if (!submittedFilters) {
+    return (
+      <div className="flex items-center justify-center h-full p-8">
+        <p className="text-center text-gray-500">
+          Selecione os filtros desejados e clique em "Aplicar Filtros" para
+          visualizar os dados.
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <TabsContent className="px-4 py-8" value="visao-geral">
-      <h1 className="text-2xl font-semibold text-gray-800 mb-4 md:mb-6 lg:mb-8">
+    <div className="px-4 py-4">
+      <h1 className="text-2xl text-center font-semibold text-gray-800 mb-4 md:mb-6 lg:mb-8">
         Visão Geral da Base NFSe
       </h1>
       {getFiltroHeader({
-        selectedOption,
-        selectedMunicipio,
-        selectedUF,
-        selectedRegiao,
+        submittedFilters,
         returnedYears,
       })}
 
@@ -124,38 +153,37 @@ const VisaoGeralDashboard = () => {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           <CardValor
             title="Total de NFSe"
-            description="Total de notas fiscais emitidas"
+            description="Total de NFSe emitidas"
             value={aggregatedTotals.total}
           />
           <CardValor
             title="MEI"
-            description="Total de notas fiscais MEI"
+            description="Total de NFSe MEI"
             value={aggregatedTotals.mei}
           />
           <CardValor
             title="ME/EPP"
-            description="Total de notas fiscais ME/EPP"
+            description="Total de NFSe ME/EPP"
             value={aggregatedTotals.me_epp}
           />
           <CardValor
-            title="Grandes Empresas"
-            description="Total de nfse de grandes empresas"
+            title="Não Optantes"
+            description="Total de NFSe de Não Optantes"
             value={aggregatedTotals.nao_optante}
           />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 lg:gap-8">
-          {/* O VisaoGeralHistogram agora usa dados mockados internamente */}
-          <VisaoGeralHistogram />
-
-          {/* A tabela de distribuição de frequência será integrada com o backend */}
+        {/* Tabela de distribuição de frequência abaixo do histograma */}
+        <div className="w-full">
           <VisaoGeralTable
             title="Distribuição de Frequência"
             subtitle="Distribuição de frequência das notas fiscais por valor"
-            data={distFreqData} // TODO: Integrar com filtros e backend
+            data={distFreqData?.tabela_frequencias || []}
             columns={distFreqColumns}
-            isLoading={isLoadingDistFreq} // Use specific loading state
+            isLoading={isLoading}
             Loader={() => <div>Carregando tabela...</div>}
+            estatisticas={distFreqData?.estatisticas}
+            metodoCalculo={distFreqData?.metodo_calculo}
           />
         </div>
 
@@ -182,7 +210,7 @@ const VisaoGeralDashboard = () => {
           />
         </div>
       </div>
-    </TabsContent>
+    </div>
   );
 };
 

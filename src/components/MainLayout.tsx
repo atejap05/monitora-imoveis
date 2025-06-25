@@ -1,8 +1,9 @@
 import { useSidebar } from "@/components/ui/sidebar";
-import SidebarFilters from "./Sidebar/Sidebar";
+import Sidebar from "./Sidebar/Sidebar";
 import Header from "@/components/Header/Header";
 import SidebarNav from "./Sidebar/SidebarNav";
 import React, { useState, useRef } from "react";
+import SidebarMenuItems from "./Sidebar/SidebarMenuItems";
 
 const HEADER_HEIGHT = 94; // unificado com Header
 
@@ -18,7 +19,9 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
           open ? "w-64 min-w-[16rem]" : "w-0 min-w-0 overflow-hidden"
         }`}
       >
-        <SidebarFilters />
+        <Sidebar>
+          <SidebarMenuItems />
+        </Sidebar>
       </div>
 
       <div className="flex flex-col flex-1 min-w-0">

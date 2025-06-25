@@ -37,8 +37,12 @@ export const FormMunicipio = () => {
             value={field.value}
           >
             <SelectTrigger className="bg-white">
-              <SelectValue placeholder="Selecione o Município">
-                {isPending
+              <SelectValue
+                placeholder={!uf ? "Aguardando UF" : "Selecione o Município"}
+              >
+                {!uf
+                  ? "Aguardando UF"
+                  : isPending
                   ? "Carregando..."
                   : data?.find((m: any) => m.id === Number(field.value))
                       ?.nome || "Selecione o Município"}

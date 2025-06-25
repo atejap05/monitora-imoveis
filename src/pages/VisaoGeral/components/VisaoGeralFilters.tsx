@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
-import { Separator } from "@/components/ui/separator";
 import {
   FormMunicipio,
   FormRegiao,
@@ -10,14 +9,16 @@ import {
   FormAno,
   FormOptions,
   FormContribuinteValor,
-} from "../../../filters";
-import { useVisaoGeralFilters } from "../hooks/useVisaoGeralFilters";
-import { Form } from "@/components/ui/form";
+} from "@/filters";
+import { useVisaoGeralFiltersState } from "@/state/visaoGeralFiltersState";
 import { Button } from "@/components/ui/button";
+import { TFilter } from "@/@types";
+import { Separator } from "@/components/ui/separator";
 
 const FiltrosSchema = z.object({
-  anos: z.array(z.string()).optional(),
-  contribuintes: z.array(z.string()).optional(),
+  filtro: z.string(),
+  anos: z.array(z.union([z.string(), z.number()])).optional(),
+  contribuintes: z.array(z.union([z.string(), z.number()])).optional(),
   valorMin: z.string().nullable().optional(),
   valorMax: z.string().nullable().optional(),
   uf: z.string().nullable().optional(),
@@ -25,46 +26,86 @@ const FiltrosSchema = z.object({
   regiao: z.string().nullable().optional(),
 });
 
-export const VisaoGeralFilters = () => {
-  const { selectedOption, setSelectedOption, handleSubmitFilters, isLoading } =
-    useVisaoGeralFilters();
+// Tipo intermediário para o formulário
+interface TFilterForm {
+  filtro: string;
+  anos?: (string | number)[];
+  contribuintes?: (string | number)[];
+  valorMin?: string | null;
+  valorMax?: string | null;
+  uf?: string | null;
+  municipio?: string | null;
+  regiao?: string | null;
+}
 
-  const form = useForm({
+export const VisaoGeralFilters = () => {
+  const { filters, submitFilters, isLoading } = useVisaoGeralFiltersState();
+
+  const form = useForm<TFilterForm>({
     resolver: zodResolver(FiltrosSchema),
     defaultValues: {
-      anos: [],
-      contribuintes: ["1", "2", "3"],
-      valorMin: "", // string vazia para campos opcionais de input number
-      valorMax: "",
-      uf: null,
-      municipio: null,
-      regiao: null,
+      ...filters,
+      // Converte os valores do estado para os tipos esperados pelo formulário
+      anos: filters?.anos?.map(String) ?? [],
+      valorMin: filters?.valorMin?.toString() ?? null,
+      valorMax: filters?.valorMax?.toString() ?? null,
+      // Mantém o padrão de ter todos os contribuintes selecionados ao iniciar
+      contribuintes: ["1", "2", "3"], // sempre todas marcadas por padrão (como string)
     },
   });
 
-  function onSubmit(data: any) {
-    const payload = {
+  const selectedOption = form.watch("filtro");
+
+  function onSubmit(data: TFilterForm) {
+    console.log("Formulário submetido com os seguintes dados:", data);
+    const payload: TFilter = {
       ...data,
-      valorMin: data.valorMin ? data.valorMin : null,
-      valorMax: data.valorMax ? data.valorMax : null,
-      contribuintes: data.contribuintes ?? ["1", "2", "3"],
-      uf: data.uf ? data.uf : null,
-      municipio: data.municipio ? data.municipio : null,
-      regiao: data.regiao ? data.regiao : null,
+      anos: Array.isArray(data.anos)
+        ? data.anos
+            .filter(
+              a =>
+                a !== undefined &&
+                a !== null &&
+                (typeof a !== "string" || a !== "")
+            )
+            .map(Number)
+        : [],
+      contribuintes: Array.isArray(data.contribuintes)
+        ? Array.from(
+            new Set(
+              data.contribuintes
+                .filter(
+                  c =>
+                    c !== undefined &&
+                    c !== null &&
+                    (typeof c !== "string" || c !== "")
+                )
+                .map(Number)
+            )
+          )
+        : [],
+      valorMin: data.valorMin ? Number(data.valorMin) : null,
+      valorMax: data.valorMax ? Number(data.valorMax) : null,
+      uf: data.uf || null,
+      municipio: data.municipio || null,
+      regiao: data.regiao || null,
     };
-    console.log("[VisaoGeral] Filtros enviados ao backend (submit):", payload);
-    handleSubmitFilters(payload);
+    submitFilters(payload);
   }
 
   return (
-    <Form {...form}>
+    <FormProvider {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-3"
       >
         <FormOptions
           selectedOption={selectedOption}
-          setSelectedOption={setSelectedOption}
+          setSelectedOption={(value: string | null) => {
+            if (value) {
+              form.setValue("filtro", value);
+            }
+          }}
         />
         {/* Filtros geográficos e de ano condicionais */}
         {selectedOption === "uf" && <FormUF />}
@@ -75,7 +116,10 @@ export const VisaoGeralFilters = () => {
           </>
         )}
         {selectedOption === "regiao" && <FormRegiao />}
-        {selectedOption === "todos" && <FormAno />}
+
+        {/* O filtro de ano agora é sempre visível, desde que uma opção de filtro esteja selecionada */}
+        {selectedOption && <FormAno />}
+
         <Separator />
         {/* Filtros globais sempre visíveis */}
         <FormContribuinteValor />
@@ -85,6 +129,6 @@ export const VisaoGeralFilters = () => {
           </Button>
         </div>
       </form>
-    </Form>
+    </FormProvider>
   );
 };

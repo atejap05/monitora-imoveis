@@ -134,9 +134,9 @@ export function setFormData(
   return {
     ...data,
     filtro: selectedOption,
-    uf: selectedOption === "uf" ? data.uf : "",
-    municipio: selectedOption === "municipio" ? data.municipio : "",
-    regiao: selectedOption === "regiao" ? data.regiao : "",
+    uf: selectedOption === "uf" ? data.uf || null : null,
+    municipio: selectedOption === "municipio" ? data.municipio || null : null,
+    regiao: selectedOption === "regiao" ? data.regiao || null : null,
     anos: data.anos.length === 0 ? YEARS : data.anos, // se não tiver anos selecionados, seleciona todos
   };
 }

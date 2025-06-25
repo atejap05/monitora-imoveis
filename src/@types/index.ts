@@ -74,3 +74,19 @@ export type TConsultaNFSeTotaisMeiAmbiente = {
   webservice: number;
   proprio: number;
 }[];
+
+export type TFilter = {
+  filtro: string;
+  anos: number[];
+  contribuintes: number[];
+  valorMin: number | null;
+  valorMax: number | null;
+  uf: string | null;
+  municipio: string | null;
+  regiao: string | null;
+};
+
+export type TVisaoGeral = {
+  nfseTotais: TConsultaNFSeTotais;
+  distribuicaoFrequencia: any; // Defina um tipo mais específico se souber a estrutura
+};
