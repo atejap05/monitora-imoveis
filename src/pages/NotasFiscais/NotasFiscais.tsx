@@ -1,3 +1,4 @@
+import { CardValor } from "@/components/CardValor";
 import React from "react";
 
 const NotasFiscais: React.FC = () => {
@@ -19,6 +20,28 @@ const NotasFiscais: React.FC = () => {
           <li>Gráficos de barras/pizza para motivos de cancelamento</li>
           <li>Filtros por status, valor, data</li>
         </ul>
+      </div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <CardValor
+          title="Cancelamento por Substituição"
+          description="Total de notas fiscais canceladas"
+          value={5000}
+        />
+        <CardValor
+          title="Cancelamento por Deferido por Análise Fiscal"
+          description="Total de notas fiscais canceladas"
+          value={5000}
+        />
+        <CardValor
+          title="Cancelamento por Ofício"
+          description="Total de notas fiscais canceladas"
+          value={5000}
+        />
+        <CardValor
+          title="Cancelamento - Outros"
+          description="Total de notas fiscais canceladas"
+          value={5000}
+        />
       </div>
     </div>
   );

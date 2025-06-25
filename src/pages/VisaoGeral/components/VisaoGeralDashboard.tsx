@@ -36,7 +36,7 @@ function getFiltroHeader({
   } else if (filtro === "uf" && uf) {
     filtroInfo = UFS.find(u => u.uf === uf)?.name || uf;
   } else if (filtro === "municipio" && municipio) {
-    filtroInfo = municipio;
+    filtroInfo = String(municipio); // Garante que sempre será string
   } else if (filtro === "regiao" && regiao) {
     filtroInfo = regiao;
   }
@@ -187,28 +187,7 @@ const VisaoGeralDashboard = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <CardValor
-            title="Cancelamento por Substituição"
-            description="Total de notas fiscais canceladas"
-            value={5000}
-          />
-          <CardValor
-            title="Cancelamento por Deferido por Análise Fiscal"
-            description="Total de notas fiscais canceladas"
-            value={5000}
-          />
-          <CardValor
-            title="Cancelamento por Ofício"
-            description="Total de notas fiscais canceladas"
-            value={5000}
-          />
-          <CardValor
-            title="Cancelamento - Outros"
-            description="Total de notas fiscais canceladas"
-            value={5000}
-          />
-        </div>
+        {/* Grafico sobre as ETL no Banco de dados. */}
       </div>
     </div>
   );
