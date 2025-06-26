@@ -1,8 +1,7 @@
 import { VisaoGeralTable } from "./VisaoGeralTable.tsx";
 import { distFreqColumns } from "./VisaoGeralColumns.tsx";
 import { useVisaoGeralFiltersState } from "@/state/visaoGeralFiltersState.ts";
-import BasicLoading from "@/components/BasicLoading";
-import { UFS } from "@/lib/utils";
+import { UFS, formatNumber } from "@/lib/utils";
 import { TFilter } from "@/@types/index.ts";
 import LocalEtlSection from "./LocalEtlSection";
 import { FileText, User, Building2, Factory } from "lucide-react";
@@ -111,16 +110,6 @@ const VisaoGeralDashboard = () => {
     });
   }
 
-  if (isLoading) {
-    return (
-      <BasicLoading
-        loading={true}
-        label="Carregando dados da Visão Geral..."
-        Loader={() => <div>Carregando...</div>}
-      />
-    );
-  }
-
   if (error) {
     return (
       <div>
@@ -155,30 +144,41 @@ const VisaoGeralDashboard = () => {
 
       <div className="flex flex-col gap-4 md:gap-6 lg:gap-8">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <DashCard
-            title="Total de NFSe"
-            description="Total de NFSe emitidas"
-            value={aggregatedTotals.total.toLocaleString()}
-            icon={<FileText size={18} />}
-          />
-          <DashCard
-            title="MEI"
-            description="Total de NFSe MEI"
-            value={aggregatedTotals.mei.toLocaleString()}
-            icon={<User size={18} />}
-          />
-          <DashCard
-            title="ME/EPP"
-            description="Total de NFSe ME/EPP"
-            value={aggregatedTotals.me_epp.toLocaleString()}
-            icon={<Building2 size={18} />}
-          />
-          <DashCard
-            title="Não Optantes"
-            description="Total de NFSe de Não Optantes"
-            value={aggregatedTotals.nao_optante.toLocaleString()}
-            icon={<Factory size={18} />}
-          />
+          {isLoading ? (
+            <>
+              <DashCard isPending title="" value="" description="" />
+              <DashCard isPending title="" value="" description="" />
+              <DashCard isPending title="" value="" description="" />
+              <DashCard isPending title="" value="" description="" />
+            </>
+          ) : (
+            <>
+              <DashCard
+                title="Total de NFSe"
+                description="Total de NFSe emitidas"
+                value={formatNumber(aggregatedTotals.total)}
+                icon={<FileText size={18} />}
+              />
+              <DashCard
+                title="MEI"
+                description="Total de NFSe MEI"
+                value={formatNumber(aggregatedTotals.mei)}
+                icon={<User size={18} />}
+              />
+              <DashCard
+                title="ME/EPP"
+                description="Total de NFSe ME/EPP"
+                value={formatNumber(aggregatedTotals.me_epp)}
+                icon={<Building2 size={18} />}
+              />
+              <DashCard
+                title="Não Optantes"
+                description="Total de NFSe de Não Optantes"
+                value={formatNumber(aggregatedTotals.nao_optante)}
+                icon={<Factory size={18} />}
+              />
+            </>
+          )}
         </div>
 
         {/* Tabela de distribuição de frequência abaixo do histograma */}
@@ -189,7 +189,11 @@ const VisaoGeralDashboard = () => {
             data={distFreqData?.tabela_frequencias || []}
             columns={distFreqColumns}
             isLoading={isLoading}
-            Loader={() => <div>Carregando tabela...</div>}
+            Loader={() => (
+              <div className="text-green animate-pulse">
+                Carregando tabela...
+              </div>
+            )}
             estatisticas={distFreqData?.estatisticas}
             metodoCalculo={distFreqData?.metodo_calculo}
           />

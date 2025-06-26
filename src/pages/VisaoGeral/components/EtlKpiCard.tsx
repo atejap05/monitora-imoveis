@@ -3,6 +3,7 @@ import { Sparkline } from "./Sparkline";
 import { EtlData } from "../hooks/useEtlData";
 import { ReactNode } from "react";
 import { formatNumber } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface EtlKpiCardProps {
   title: string;
@@ -35,6 +36,22 @@ export function EtlKpiCard({
       )}
       <div className="w-full h-8">
         <Sparkline data={sparkData} color="#709f77" />
+      </div>
+    </Card>
+  );
+}
+
+export function EtlKpiCardSkeleton() {
+  return (
+    <Card className="flex flex-col items-start p-4 gap-2 min-w-[180px]">
+      <div className="flex items-center gap-2 w-full">
+        <Skeleton className="h-4 w-24" />
+      </div>
+      <span className="text-2xl font-bold text-gray-900">
+        <Skeleton className="h-6 w-24" />
+      </span>
+      <div className="w-full h-8">
+        <Skeleton className="h-2 w-32" />
       </div>
     </Card>
   );

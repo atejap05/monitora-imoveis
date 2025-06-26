@@ -1,16 +1,36 @@
 import { useEtlData } from "../hooks/useEtlData";
 import { EtlKpiCard } from "./EtlKpiCard";
+import { EtlKpiCardSkeleton } from "./EtlKpiCard";
 import { EtlLineChart } from "./EtlLineChart";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CalendarCheck, BarChart2, TrendingUp, Sigma } from "lucide-react";
+import { BarLoader } from "react-spinners";
 
 const LocalEtlSection = () => {
   const { data: etlData, loading: loadingEtl } = useEtlData();
   const [period, setPeriod] = useState<"7d" | "30d" | "all">("30d");
 
   if (loadingEtl) {
-    return <div>Carregando gráfico ETL...</div>;
+    return (
+      <div className="w-full mt-6 flex flex-col gap-6">
+        <h1>
+          <span className="text-2xl font-bold">Volumetria</span>
+        </h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <EtlKpiCardSkeleton />
+          <EtlKpiCardSkeleton />
+          <EtlKpiCardSkeleton />
+          <EtlKpiCardSkeleton />
+        </div>
+        <div className="flex flex-col justify-center items-center h-80 gap-3">
+          <BarLoader color="#709f77" />
+          <span className="text-green text-lg font-semibold ml-4 animate-pulse">
+            Carregando dados do ETL...
+          </span>
+        </div>
+      </div>
+    );
   }
 
   if (!etlData || etlData.length === 0) {
