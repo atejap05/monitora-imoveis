@@ -134,3 +134,18 @@ export const fetchDistribuicaoFrequencia = async (
 
   return response;
 };
+
+export const fetchDadosETL = async (): Promise<any> => {
+  const win = window as Window & {
+    runScript?: (scriptName: string, functionName: string) => Promise<any>;
+  };
+
+  const response = await win.runScript!(
+    "", // Script name, assuming empty
+    "get_dados_etl_nfse" // Function name
+  );
+
+  console.table(response); // Log the response for debugging
+
+  return response;
+};
