@@ -1,8 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
-  Column,
   ColumnDef,
-  ColumnFiltersState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -13,7 +11,7 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpIcon, ArrowDownIcon, SearchIcon } from "lucide-react";
+import { ArrowUpIcon, ArrowDownIcon } from "lucide-react";
 
 import {
   Table,
@@ -27,6 +25,13 @@ import { Separator } from "@/components/ui/separator";
 import { Pagination } from "@/components/Pagination";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ChevronDown } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -43,8 +48,7 @@ export function DataTable<TData, TValue>({
   });
 
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [idsInputFilter, setIdsInputFilter] = useState<Array<string>>([]);
+  const [globalFilter, setGlobalFilter] = useState("");
 
   const table = useReactTable({
     data,
@@ -55,50 +59,66 @@ export function DataTable<TData, TValue>({
     onPaginationChange: setPagination,
     getSortedRowModel: getSortedRowModel(),
     onSortingChange: setSorting,
-
-    onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
-
     state: {
       pagination,
       sorting,
-      columnFilters,
+      globalFilter,
     },
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: "includesString",
   });
 
   return (
-    <div>
-      <Table>
+    <div className="w-full overflow-x-auto transition-all duration-300">
+      <div className="flex items-center justify-between mb-2 gap-2">
+        <div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2">
+                Colunas <ChevronDown size={16} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              {table.getAllLeafColumns().map(column => {
+                const headerObj = table
+                  .getHeaderGroups()
+                  .flatMap(group => group.headers)
+                  .find(h => h.column.id === column.id);
+                return (
+                  <DropdownMenuCheckboxItem
+                    key={column.id}
+                    checked={column.getIsVisible()}
+                    onCheckedChange={value => column.toggleVisibility(!!value)}
+                    className="h-7 flex justify-between items-center text-primary"
+                  >
+                    {column.columnDef.header &&
+                    typeof column.columnDef.header === "function"
+                      ? headerObj
+                        ? column.columnDef.header(headerObj.getContext())
+                        : column.id
+                      : String(column.columnDef.header)}
+                  </DropdownMenuCheckboxItem>
+                );
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        <Input
+          placeholder="Pesquisar em todas as colunas..."
+          value={globalFilter}
+          onChange={e => setGlobalFilter(e.target.value)}
+          className="w-80 border shadow rounded"
+        />
+      </div>
+      <Table className="min-w-[900px] w-full">
         <TableHeader>
           {table.getHeaderGroups().map(headerGroup => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map(header => {
                 return (
                   <TableHead key={header.id} colSpan={header.colSpan}>
-                    <div className="flex items-center justify-start gap-1">
-                      {header.column.getCanFilter() && (
-                        <Button
-                          variant={"ghost"}
-                          size={"icon"}
-                          className="ml-2 rounded-full"
-                          onClick={() => {
-                            if (idsInputFilter.includes(header.column.id)) {
-                              setIdsInputFilter(
-                                idsInputFilter.filter(
-                                  id => id !== header.column.id
-                                )
-                              );
-                            } else {
-                              setIdsInputFilter([
-                                ...idsInputFilter,
-                                header.column.id,
-                              ]);
-                            }
-                          }}
-                        >
-                          <SearchIcon size={24} className="text-green" />
-                        </Button>
-                      )}
+                    <div className="flex items-center justify-center gap-1">
                       {header.isPlaceholder ? null : (
                         <div
                           className={
@@ -137,12 +157,6 @@ export function DataTable<TData, TValue>({
                         </div>
                       )}
                     </div>
-                    <div>
-                      {idsInputFilter.includes(header.column.id) &&
-                      header.column.getCanFilter() ? (
-                        <Filter column={header.column} />
-                      ) : null}
-                    </div>
                   </TableHead>
                 );
               })}
@@ -157,7 +171,7 @@ export function DataTable<TData, TValue>({
                 data-state={row.getIsSelected() && "selected"}
               >
                 {row.getVisibleCells().map(cell => (
-                  <TableCell key={cell.id}>
+                  <TableCell key={cell.id} className="text-center align-middle">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
@@ -184,62 +198,4 @@ declare module "@tanstack/react-table" {
   interface ColumnMeta<TData extends RowData, TValue> {
     filterVariant?: "text" | "number";
   }
-}
-
-function Filter({ column }: { column: Column<any, unknown> }) {
-  const columnFilterValue = column.getFilterValue();
-  const { filterVariant } = column.columnDef.meta ?? {};
-
-  return filterVariant === "number" ? (
-    <DebouncedInput
-      type="number"
-      value={(columnFilterValue ?? "") as string}
-      onChange={value => column.setFilterValue(value)}
-      placeholder={`Pesquisar...`}
-      className="w-36 border shadow rounded"
-    />
-  ) : (
-    <DebouncedInput
-      type="text"
-      value={(columnFilterValue ?? "") as string}
-      onChange={value => column.setFilterValue(value)}
-      placeholder={`Pesquisar...`}
-      className="w-36 border shadow rounded"
-    />
-  );
-}
-
-// A typical debounced input react component
-function DebouncedInput({
-  value: initialValue,
-  onChange,
-  debounce = 500,
-  ...props
-}: {
-  value: string | number;
-  onChange: (value: string | number) => void;
-  debounce?: number;
-} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange">) {
-  const [value, setValue] = useState(initialValue);
-
-  useEffect(() => {
-    setValue(initialValue);
-  }, [initialValue]);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      onChange(value);
-    }, debounce);
-
-    return () => clearTimeout(timeout);
-  }, [value]);
-
-  return (
-    <Input
-      {...props}
-      value={value}
-      onChange={e => setValue(e.target.value)}
-      className="bg-white py-2"
-    />
-  );
 }

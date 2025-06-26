@@ -1,24 +1,13 @@
 import { CellContext, ColumnDef } from "@tanstack/react-table";
-import { type NfseData } from "./@types";
+import { type NfseData } from "../@types";
 import BasicTooltip from "@/components/BasicTooltip";
 import { formataCNPJ } from "@/lib/utils";
+import { Copy } from "lucide-react";
+import { copyToClipboard } from "@/lib/copyToClipboard";
 
 const formataTextoLongo = (info: CellContext<NfseData, unknown>) => {
-  const text = String(info.getValue() ?? ""); // Garante que text seja sempre uma string
-
-  // Define o label a ser exibido: texto truncado com "..." se maior que 10 chars, senão o texto completo.
-  const displayLabel = text.length > 10 ? text.slice(0, 10) + "..." : text;
-
-  return (
-    // A classe truncate no div ajudará se o displayLabel ainda for muito longo
-    // para uma célula extremamente estreita, ou se BasicTooltip renderizar o label em um elemento inline.
-    <div className="truncate">
-      <BasicTooltip
-        label={displayLabel}
-        content={text} // Tooltip sempre mostra o texto completo
-      />
-    </div>
-  );
+  const text = String(info.getValue() ?? "");
+  return <BasicTooltip label={text} content={text} />;
 };
 
 const formataHeader = (text: string) => (
@@ -36,16 +25,51 @@ export const nfseColumns: ColumnDef<NfseData, any>[] = [
   {
     header: () => formataHeader("Chave Acesso"),
     accessorKey: "chave_acesso",
+    cell: info => {
+      const chave = String(info.getValue() ?? "");
+      return (
+        <div className="flex items-center gap-2 whitespace-nowrap">
+          <a
+            href="https://www.nfse.gov.br/consultapublica"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-700 hover:text-blue-900"
+            title="Consultar chave de acesso na NFSe.gov.br"
+          >
+            {chave}
+          </a>
+          <button
+            type="button"
+            onClick={e => {
+              e.preventDefault();
+              copyToClipboard(chave);
+            }}
+            className="ml-1 p-1 rounded hover:bg-gray-100"
+            title="Copiar chave de acesso"
+          >
+            <Copy size={16} className="text-primary hover:text-primary/90" />
+          </button>
+        </div>
+      );
+    },
   },
   {
     header: () => formataHeader("CNPJ Prestador"),
     accessorKey: "ni_prestador",
-    cell: info => formataCNPJ(info.getValue()),
+    cell: info => (
+      <span className="truncate max-w-[140px] inline-block">
+        {formataCNPJ(info.getValue())}
+      </span>
+    ),
   },
   {
     header: () => formataHeader("CNPJ Tomador"),
     accessorKey: "ni_tomador",
-    cell: info => formataCNPJ(info.getValue()),
+    cell: info => (
+      <span className="truncate max-w-[140px] inline-block">
+        {formataCNPJ(info.getValue())}
+      </span>
+    ),
   },
   {
     header: () => formataHeader("Valor Servico"),
@@ -74,7 +98,6 @@ export const nfseColumns: ColumnDef<NfseData, any>[] = [
   {
     header: () => formataHeader("Tomador"),
     accessorKey: "tomador",
-
     cell: info => {
       const text = String(info.getValue());
       return (
@@ -87,17 +110,23 @@ export const nfseColumns: ColumnDef<NfseData, any>[] = [
   {
     header: () => formataHeader("Servico Nacional"),
     accessorKey: "servico_nacional",
-    cell: formataTextoLongo,
+    cell: info => (
+      <div className="truncate max-w-[120px]">{formataTextoLongo(info)}</div>
+    ),
   },
   {
     header: () => formataHeader("NBS"),
     accessorKey: "nbs",
-    cell: formataTextoLongo,
+    cell: info => (
+      <div className="truncate max-w-[100px]">{formataTextoLongo(info)}</div>
+    ),
   },
   {
     header: () => formataHeader("Descricao Servico"),
     accessorKey: "descricao_servico",
-    cell: formataTextoLongo, // Reverte para usar formataTextoLongo
+    cell: info => (
+      <div className="truncate max-w-[220px]">{formataTextoLongo(info)}</div>
+    ),
   },
   {
     header: () => formataHeader("Municipio Tomador"),
