@@ -4,7 +4,7 @@ import type {
   Municipio,
   TConsultaNFSeTotais,
 } from "@/@types";
-import { Consulta } from "@/dashboards/Consultas/@types";
+import { Consulta } from "@/pages/Consultas/@types";
 
 export const fecthMunicipioByUf = async (uf: string) => {
   const ufCodigo = await findUFCodigo(uf);
@@ -29,22 +29,32 @@ export const getDadosUsuarioAutenticado =
     return resposta as DadosUsuarioAutenticado;
   };
 
-export const fetchContribuintes = async (
-  ni: string,
-  anos: Array<string>
-): Promise<Consulta> => {
+export const fetchContribuintes = async (params: {
+  ni: string;
+  anos: number[];
+}): Promise<Consulta> => {
+  console.log("[fetchContribuintes] chamada com:", params);
   const win = window as Window & {
     runScript?: (
       a: string,
       b: string,
-      c: string,
-      d: Array<string>
+      c: { ni: string; anos: number[] }
     ) => Promise<Consulta>;
   };
 
-  const response = await win.runScript!("", "consulta_nfse_por_cnpj", ni, anos);
+  if (!win.runScript) {
+    console.error("[fetchContribuintes] window.runScript não está disponível!");
+    throw new Error("window.runScript não está disponível");
+  }
 
-  return response as Consulta;
+  try {
+    const response = await win.runScript!("", "consulta_nfse_por_cnpj", params);
+    console.log("[fetchContribuintes] resposta:", response);
+    return response as Consulta;
+  } catch (err) {
+    console.error("[fetchContribuintes] erro:", err);
+    throw err;
+  }
 };
 // Notas Fiscais //
 

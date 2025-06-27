@@ -12,6 +12,7 @@ import Consultas from "./pages/Consultas/Consultas";
 import NotasFiscais from "./pages/NotasFiscais/NotasFiscais";
 import Convenios from "./pages/Convenios/Convenios";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { Toaster } from "@/components/ui/sonner";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
             <Route path="/notas-fiscais" element={<NotasFiscais />} />
             <Route path="/convenios" element={<Convenios />} />
           </Routes>
+          <Toaster />
         </MainLayout>
       </Router>
     </SidebarProvider>
