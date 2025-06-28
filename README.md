@@ -1,61 +1,30 @@
 # Painel NFSe
 
-## Estrutura Atualizada do Projeto
+## Visão Geral do Projeto
 
-A estrutura do projeto foi reorganizada para maior escalabilidade, reutilização e clareza. Agora, cada grande funcionalidade (feature) possui seu próprio diretório em `src/pages`, e os filtros globais ficam em `src/filters`, podendo ser reutilizados em qualquer página.
+O Painel NFSe é um dashboard interativo para visualização e análise de dados de Notas Fiscais de Serviço Eletrônicas (NFSe). O projeto visa fornecer insights sobre a arrecadação, identificar tendências e padrões, e facilitar a consulta de dados para os municípios conveniados.
 
-### Estrutura de Diretórios
+## Features Implementadas
 
-```
-src/
-  assets/                # Imagens e arquivos estáticos
-  components/            # Componentes de UI reutilizáveis (Header, Sidebar, etc)
-  dashboards/            # Dashboards antigos (em migração)
-  filters/               # Filtros globais reutilizáveis (FormAno, FormUf, etc)
-  hooks/                 # Hooks genéricos
-  lib/                   # Utilitários e helpers
-  pages/
-    Ambiente.tsx
-    Consultas.tsx
-    Contribuintes.tsx
-    NotasFiscais.tsx
-    VisaoGeral/
-      VisaoGeral.tsx
-      components/        # Componentes específicos da Visão Geral
-      hooks/             # Hooks específicos da Visão Geral
-      index.ts
-  service/               # Serviços de API
-  state/                 # Zustand stores (em revisão)
-```
-
-### Padrão de Organização
-
-- **src/pages/VisaoGeral/**: Contém toda a lógica, componentes e hooks específicos da feature Visão Geral.
-- **src/filters/**: Todos os componentes de filtro (ex: `FormAno`, `FormUf`, `FormContribuinteValor`) são globais e podem ser usados em qualquer página, evitando duplicidade de código.
-- **src/components/**: Apenas componentes de UI realmente genéricos e reutilizáveis.
-- **src/dashboards/**: Estrutura antiga, em processo de migração para o padrão por feature em `pages/`.
-
-### Benefícios
-
-- **Reutilização**: Filtros globais podem ser usados em qualquer dashboard/página.
-- **Escalabilidade**: Novas features podem ser criadas facilmente em `pages/`, cada uma com sua própria estrutura interna.
-- **Manutenção**: Código de cada feature fica isolado, facilitando evolução e correção de bugs.
-- **Clareza**: Fica fácil localizar onde está cada parte da aplicação.
-
----
-
-## Dashboard: Visão Geral e Próximas Páginas
-
-O Painel NFSe é um dashboard interativo para visualização e análise de dados de Notas Fiscais de Serviço Eletrônicas (NFSe) em diferentes níveis e recortes. A seguir, as páginas planejadas e os dados/funcionalidades previstos para cada uma:
+Atualmente, as seguintes features estão implementadas e funcionais:
 
 ### Visão Geral
 
-- Resumo estatístico da base de NFSe (total, MEI, ME/EPP, grandes empresas)
-- Filtros globais (ano, UF, município, região, tipo de contribuinte, valor)
-- Distribuição de frequência (tabela e histograma)
-- Métricas estatísticas (média, mediana, moda, desvio padrão)
-- Destaques visuais para outliers e modas
-- Logs e integração com backend
+- **Dashboard Interativo**: Apresenta um resumo estatístico da base de NFSe.
+- **Filtros Globais**: Permite a filtragem dos dados por ano, UF, município, região, tipo de contribuinte e valor.
+- **Análise de Distribuição**: Exibe a distribuição de frequência dos dados em formato de tabela e histograma.
+- **Métricas Estatísticas**: Calcula e exibe métricas como média, mediana, moda e desvio padrão.
+- **Destaques Visuais**: Facilita a identificação de outliers e modas.
+
+### Consultas
+
+- **Busca Detalhada**: Permite a consulta detalhada de NFSe por contribuinte.
+- **Tabela de Dados**: Exibe os resultados da consulta em uma tabela paginada.
+- **Exportação de Dados**: Permite a exportação dos dados da consulta para os formatos CSV e XLSX.
+
+## Roadmap de Desenvolvimento
+
+As seguintes páginas e funcionalidades estão planejadas para futuras versões:
 
 ### Ambiente
 
@@ -64,14 +33,6 @@ O Painel NFSe é um dashboard interativo para visualização e análise de dados
 - Ranking de municípios/UFs por emissão
 - Indicadores de crescimento/queda
 - Filtros por período, UF, município, porte
-
-### Consultas
-
-- Listagem detalhada de NFSe (com paginação e busca avançada)
-- Exportação de dados (CSV/XLSX)
-- Filtros combinados (data, valor, contribuinte, status)
-- Visualização de documentos e detalhes
-- Integração com APIs externas para validação
 
 ### Contribuintes
 
@@ -100,6 +61,49 @@ O Painel NFSe é um dashboard interativo para visualização e análise de dados
 
 ---
 
+## Estrutura do Projeto
+
+A estrutura do projeto foi organizada para maior escalabilidade, reutilização e clareza. Agora, cada grande funcionalidade (feature) possui seu próprio diretório em `src/pages`, e os filtros globais ficam em `src/filters`, podendo ser reutilizados em qualquer página.
+
+### Estrutura de Diretórios
+
+```
+src/
+  assets/                # Imagens e arquivos estáticos
+  components/            # Componentes de UI reutilizáveis (Header, Sidebar, etc)
+  dashboards/            # Dashboards antigos (em migração)
+  filters/               # Filtros globais reutilizáveis (FormAno, FormUf, etc)
+  hooks/                 # Hooks genéricos
+  lib/                   # Utilitários e helpers
+  pages/
+    Ambiente/
+      Ambiente.tsx
+    Consultas/
+      Consultas.tsx
+      components/
+      hooks/
+    Contribuintes/
+      Contribuintes.tsx
+    Convenios/
+      Convenios.tsx
+    NotasFiscais/
+      NotasFiscais.tsx
+    VisaoGeral/
+      VisaoGeral.tsx
+      components/        # Componentes específicos da Visão Geral
+      hooks/             # Hooks específicos da Visão Geral
+  service/               # Serviços de API
+  state/                 # Zustand stores (em revisão)
+```
+
+### Padrão de Organização
+
+- **src/pages/Feature/**: Cada página/feature principal da aplicação reside em seu próprio diretório, contendo seus componentes, hooks e lógica específica.
+- **src/filters/**: Componentes de filtro globais que podem ser reutilizados em múltiplas páginas.
+- **src/components/**: Componentes de UI genéricos e reutilizáveis em toda a aplicação.
+
+---
+
 ## Tecnologias Utilizadas
 
 - React 18
@@ -114,17 +118,4 @@ O Painel NFSe é um dashboard interativo para visualização e análise de dados
 
 ---
 
-## Próximas Features
-
-- Implementação das páginas Ambiente, Consultas, Contribuintes e Notas Fiscais
-- Integração dos filtros globais em todas as páginas
-- Novos tipos de visualização (mapas, heatmaps, gráficos avançados)
-- Exportação e compartilhamento de relatórios
-- Tooltips, legendas e destaques UX
-- Detalhamento e drill-down de dados
-- Integração com novas APIs e fontes de dados
-- Melhorias de performance e responsividade
-
----
-
-> Estrutura e README atualizados em junho/2025 para refletir a nova arquitetura baseada em features, filtros globais e roadmap do produto.
+> README atualizado para refletir o estado atual do desenvolvimento do projeto.

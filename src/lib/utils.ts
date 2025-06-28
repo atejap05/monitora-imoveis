@@ -200,3 +200,8 @@ export const dashboardDisplayTitle = (
       REGIONS.find(r => r.abbr === regiao)?.name
     } em ${anos}`;
 };
+
+export const corrigeCodificacao = (texto: string | null): string => {
+  if (!texto) return "";
+  return texto.replace(/Ã£o/g, "ão");
+};

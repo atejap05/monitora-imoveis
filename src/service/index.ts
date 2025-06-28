@@ -2,6 +2,8 @@ import { findUFCodigo } from "@/lib/utils";
 import type {
   DadosUsuarioAutenticado,
   Municipio,
+  MunicipioStatus,
+  RelatorioStatus,
   TConsultaNFSeTotais,
 } from "@/@types";
 import { Consulta } from "@/pages/Consultas/@types";
@@ -155,7 +157,43 @@ export const fetchDadosETL = async (): Promise<any> => {
     "get_dados_etl_nfse" // Function name
   );
 
-  console.table(response); // Log the response for debugging
-
   return response;
+};
+
+export const fetchRelatrioConvenios = async (): Promise<MunicipioStatus[]> => {
+  console.log(`[fetchRelatrioConvenios] Buscando relatório...`);
+  try {
+    const win = window as Window & {
+      runScript?: (
+        scriptName: string,
+        functionName: string
+      ) => Promise<MunicipioStatus[]>;
+    };
+
+    if (!win.runScript) {
+      console.error(
+        "[fetchRelatrioConvenios] window.runScript não disponível."
+      );
+      throw new Error(
+        "A função 'runScript' não foi encontrada no objeto window."
+      );
+    }
+
+    const response = await win.runScript(
+      "", // Script name, assuming empty
+      "gerar_relatorio_conveniados"
+    );
+
+    console.log("[fetchRelatrioConvenios] Dados recebidos:", response);
+
+    if (!Array.isArray(response)) {
+       console.error("[fetchRelatrioConvenios] A resposta não é um array:", response);
+       throw new Error("Formato de resposta inesperado do backend.");
+    }
+
+    return response;
+  } catch (err) {
+    console.error("[fetchRelatrioConvenios] Erro ao buscar relatório:", err);
+    throw err; // Re-throw para que o React Query possa capturá-lo
+  }
 };

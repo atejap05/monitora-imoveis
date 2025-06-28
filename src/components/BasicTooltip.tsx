@@ -4,25 +4,25 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { JSX } from "react";
+import { ReactNode } from "react";
 
 // Adiciona suporte a asChild
 
 type BasicTooltipProps = {
-  label: string | JSX.Element;
-  content: string | JSX.Element;
+  children: ReactNode;
+  content: string | ReactNode;
   asChild?: boolean;
 };
 
 const BasicTooltip = ({
-  label,
+  children,
   content,
   asChild = false,
 }: BasicTooltipProps) => {
   return (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger asChild={asChild}>{label}</TooltipTrigger>
+        <TooltipTrigger asChild={asChild}>{children}</TooltipTrigger>
         <TooltipContent>
           <p className="max-w-56 tracking-wide">{content}</p>
         </TooltipContent>

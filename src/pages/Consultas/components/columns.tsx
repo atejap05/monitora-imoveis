@@ -4,6 +4,7 @@ import BasicTooltip from "@/components/BasicTooltip";
 import { formataCNPJ } from "@/lib/utils";
 import { Copy } from "lucide-react";
 import { copyToClipboard } from "@/lib/copyToClipboard";
+import { Button } from "@/components/ui/button";
 
 const formataTextoLongo = (info: CellContext<NfseData, unknown>) => {
   const text = String(info.getValue() ?? "");
@@ -38,17 +39,19 @@ export const nfseColumns: ColumnDef<NfseData, any>[] = [
           >
             {chave}
           </a>
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={e => {
               e.preventDefault();
               copyToClipboard(chave);
             }}
             className="ml-1 p-1 rounded hover:bg-gray-100"
+            aria-label="Copiar chave de acesso"
             title="Copiar chave de acesso"
           >
             <Copy size={16} className="text-primary hover:text-primary/90" />
-          </button>
+          </Button>
         </div>
       );
     },

@@ -1,5 +1,5 @@
 import { nfseColumns } from "./components/columns";
-import { DataTable } from "./components/data-table";
+import { DataTable } from "@/components/DataTable";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formataCNPJ } from "@/lib/utils";
@@ -13,10 +13,45 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useConsultasState } from "./hooks/useConsultasState";
 import { toast } from "sonner";
+import {
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  SortingState,
+  useReactTable,
+} from "@tanstack/react-table";
+import { useState } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ChevronDown } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 const Consultas = () => {
   const { consulta, formData, isPending } = useConsultasState();
   const { CSVDownloader, Type } = useCSVDownloader();
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [globalFilter, setGlobalFilter] = useState("");
+
+  const table = useReactTable({
+    data: consulta,
+    columns: nfseColumns,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: "includesString",
+    state: {
+      sorting,
+      globalFilter,
+    },
+  });
 
   return (
     <div className="flex w-full flex-col gap-4 p-4">
@@ -33,7 +68,6 @@ const Consultas = () => {
           </div>
         ) : (
           <Card className="w-full max-w-7xl shadow-md">
-            {/* TODO: Separar CardHeader em arquivo  */}
             <CardHeader className="flex flex-row justify-between items-center ">
               <div>
                 {consulta.length > 0 ? (
@@ -50,8 +84,8 @@ const Consultas = () => {
                     <div className="flex flex-row gap-2">
                       {consulta.length > 0
                         ? Array.from(
-                            new Set(consulta.map(item => String(item.ano)))
-                          ).map(ano => <Badge key={ano}>{ano}</Badge>)
+                          new Set(consulta.map(item => String(item.ano)))
+                        ).map(ano => <Badge key={ano}>{ano}</Badge>)
                         : null}
                     </div>
                   </div>
@@ -125,7 +159,41 @@ const Consultas = () => {
               )}
             </CardHeader>
             <CardContent>
-              <DataTable columns={nfseColumns} data={consulta} />
+              <div className="flex items-center justify-between mb-4">
+                <Input
+                  placeholder="Pesquisar em todas as colunas..."
+                  value={globalFilter}
+                  onChange={(e) => setGlobalFilter(e.target.value)}
+                  className="max-w-sm"
+                />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="ml-auto">
+                      Colunas <ChevronDown className="ml-2 h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {table
+                      .getAllColumns()
+                      .filter((column) => column.getCanHide())
+                      .map((column) => {
+                        return (
+                          <DropdownMenuCheckboxItem
+                            key={column.id}
+                            className="capitalize"
+                            checked={column.getIsVisible()}
+                            onCheckedChange={(value) =>
+                              column.toggleVisibility(!!value)
+                            }
+                          >
+                            {column.id}
+                          </DropdownMenuCheckboxItem>
+                        );
+                      })}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+              <DataTable table={table} />
             </CardContent>
           </Card>
         )}

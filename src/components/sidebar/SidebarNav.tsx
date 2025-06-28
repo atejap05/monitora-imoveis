@@ -36,9 +36,10 @@ const SidebarNav: React.FC = () => {
         >
           <BasicTooltip
             asChild
-            label={<span>{open ? <X size={22} /> : <Menu size={22} />}</span>}
             content={open ? "Fechar menu lateral" : "Abrir menu lateral"}
-          />
+          >
+            <span>{open ? <X size={22} /> : <Menu size={22} />}</span>
+          </BasicTooltip>
         </Button>
       </div>
       <div className="flex flex-row gap-1 sm:gap-2 flex-1 justify-center">
@@ -47,10 +48,9 @@ const SidebarNav: React.FC = () => {
             key={item.to}
             to={item.to}
             className={({ isActive }) =>
-              `flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-md font-medium transition-colors text-white hover:bg-green-700 hover:text-white border-b-4 text-xs md:text-sm lg:text-base ${
-                isActive
-                  ? "bg-green-900 text-yellow-300 border-yellow-300 shadow-lg"
-                  : "border-transparent"
+              `flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-md font-medium transition-colors text-white hover:bg-green-700 hover:text-white border-b-4 text-xs md:text-sm lg:text-base ${isActive
+                ? "bg-green-900 text-yellow-300 border-yellow-300 shadow-lg"
+                : "border-transparent"
               }`
             }
           >
