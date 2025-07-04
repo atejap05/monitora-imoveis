@@ -1,8 +1,8 @@
 import { TabsContent } from "@/components/ui/tabs";
 import { useNotasFiscaisState } from "@/state/notasFiscaisState";
 import { HashLoader } from "react-spinners";
-import { PieChartNFSe } from "./PieChartNFSe";
-import { BarChartNFSe } from "./BarChartNFSe";
+import { PieChartNFSe } from "../../components/PieChartNFSe";
+import { BarChartNFSe } from "../../components/BarChartNFSe";
 import { dashboardDisplayTitle, prepareData } from "@/lib/utils";
 import BasicLoading from "@/components/BasicLoading";
 import { BasicTable } from "../../components/BasicTable";

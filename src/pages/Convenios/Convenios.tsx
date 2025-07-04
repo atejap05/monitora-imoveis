@@ -22,15 +22,24 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { BarChart3, Database } from "lucide-react";
-import BasicLoading from "@/components/BasicLoading";
-import { ClipLoader } from "react-spinners";
+import { ConveniosKpiCards } from "./components/ConveniosKpiCards";
+import { ConveniosChartsSection } from "./components/ConveniosChartsSection";
+import { useConveniosFiltersState } from "@/state/conveniosFiltersState";
+import { ConveniosSkeleton } from "./components/ConveniosSkeleton";
 
 const Convenios: React.FC = () => {
   const { status, data, error } = useConveniosData();
+  const {
+    globalFilter,
+    regiaoGeografica,
+    regiaoFiscal,
+    status: convenioStatus,
+    uf,
+    setGlobalFilter,
+  } = useConveniosFiltersState();
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState({});
-  const [globalFilter, setGlobalFilter] = useState("");
 
   const columns = useMemo<ColumnDef<MunicipioStatus>[]>(
     () => [
@@ -42,19 +51,17 @@ const Convenios: React.FC = () => {
               table.getIsAllPageRowsSelected()
                 ? true
                 : table.getIsSomePageRowsSelected()
-                  ? "indeterminate"
-                  : false
+                ? "indeterminate"
+                : false
             }
-            onCheckedChange={(value) =>
-              table.toggleAllPageRowsSelected(!!value)
-            }
+            onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
             aria-label="Select all"
           />
         ),
         cell: ({ row }) => (
           <Checkbox
             checked={row.getIsSelected()}
-            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            onCheckedChange={value => row.toggleSelected(!!value)}
             aria-label="Select row"
           />
         ),
@@ -88,7 +95,7 @@ const Convenios: React.FC = () => {
 
   const getExportData = () => {
     const formatDataForExport = (rows: MunicipioStatus[]) => {
-      return rows.map((row) => ({
+      return rows.map(row => ({
         ...row,
         UltimaAtividade: row.UltimaAtividade
           ? new Date(row.UltimaAtividade).toLocaleDateString("pt-BR")
@@ -98,23 +105,57 @@ const Convenios: React.FC = () => {
 
     const selectedRows = table.getFilteredSelectedRowModel().rows;
     if (selectedRows.length > 0) {
-      return formatDataForExport(selectedRows.map((row) => row.original));
+      return formatDataForExport(selectedRows.map(row => row.original));
     }
     return formatDataForExport(data ?? []);
   };
+
+  const filteredData = useMemo(() => {
+    let result = data ?? [];
+    // Região Geográfica: aceita tanto sigla quanto nome completo, ignorando case e espaços
+    if (regiaoGeografica) {
+      result = result.filter(m => {
+        if (!m.Regiao) return false;
+        // Normaliza para comparar sigla e nome
+        const regiaoNorm = m.Regiao.trim().toUpperCase();
+        const filtroNorm = regiaoGeografica.trim().toUpperCase();
+        // Aceita se for igual à sigla (N, NE, CO, SE, S) ou igual ao nome (NORTE, NORDESTE, ...)
+        return (
+          regiaoNorm === filtroNorm ||
+          (filtroNorm === "N" && regiaoNorm.startsWith("NORTE")) ||
+          (filtroNorm === "NE" && regiaoNorm.startsWith("NORDESTE")) ||
+          (filtroNorm === "CO" && regiaoNorm.startsWith("CENTRO")) ||
+          (filtroNorm === "SE" && regiaoNorm.startsWith("SUDESTE")) ||
+          (filtroNorm === "S" && regiaoNorm.startsWith("SUL"))
+        );
+      });
+    }
+    if (regiaoFiscal)
+      result = result.filter(m => m.RegiaoFiscal === regiaoFiscal);
+    if (convenioStatus)
+      result = result.filter(m => m.StatusConvenioSEFIN === convenioStatus);
+    if (uf) result = result.filter(m => m.UF === uf);
+    return result;
+  }, [data, regiaoGeografica, regiaoFiscal, convenioStatus, uf, table]);
 
   const hasData = !!(data && data.length > 0);
   const isLoading = status === "loading";
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6">
+    <div className="w-full flex-1 px-4 sm:px-6 md:px-8 py-6">
       <div className="flex flex-col items-center justify-between mb-8">
         <h1 className="text-2xl font-bold">Informações sobre Convênios</h1>
         <p className="text-sm text-gray-500">
-          Informações sobre os convênios celebrados entre municípios e a
-          Receita Federal do Brasil (RFB).
+          Informações sobre os convênios celebrados entre municípios e a Receita
+          Federal do Brasil (RFB).
         </p>
       </div>
+      {status === "success" && data && (
+        <>
+          <ConveniosKpiCards data={filteredData} />
+          <ConveniosChartsSection data={filteredData} />
+        </>
+      )}
       <Card>
         <CardHeader>
           <CardTitle>Relatório de Convênios</CardTitle>
@@ -133,23 +174,15 @@ const Convenios: React.FC = () => {
           <ConveniosTableToolbar
             table={table}
             getExportData={getExportData}
-            hasData={hasData && status === 'success'}
+            hasData={hasData && status === "success"}
             globalFilter={globalFilter}
             setGlobalFilter={setGlobalFilter}
           />
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="flex flex-col justify-center items-center h-80 gap-3">
-              <BasicLoading
-                Loader={ClipLoader}
-                loading={isLoading}
-                label="Carregando dados..."
-                size={50}
-                color="#3498db"
-              />
-            </div>
-          ) : status === 'error' ? (
+            <ConveniosSkeleton />
+          ) : status === "error" ? (
             <div className="text-red-500 text-center">
               Ocorreu um erro ao buscar os dados.
               {error && (
@@ -158,7 +191,7 @@ const Convenios: React.FC = () => {
                 </pre>
               )}
             </div>
-          ) : status === 'success' ? (
+          ) : status === "success" ? (
             <DataTable table={table} />
           ) : null}
         </CardContent>

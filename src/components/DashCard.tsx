@@ -8,6 +8,7 @@ type DashCardProps = {
   description: string;
   isPending?: boolean;
   icon?: ReactNode;
+  className?: string;
 };
 
 const DashCardSkeleton = () => {
@@ -32,13 +33,14 @@ const DashCard = ({
   description,
   isPending,
   icon,
+  className,
 }: DashCardProps) => {
   if (isPending) {
     return <DashCardSkeleton />;
   }
 
   return (
-    <Card className="flex flex-col items-start p-4 gap-2 min-w-[180px]">
+    <Card className={`flex flex-col items-start p-4 gap-2 min-w-[180px] ${className || ""}`}>
       <div className="flex items-center gap-2">
         {icon && <span style={{ color: "#709f77" }}>{icon}</span>}
         <span className="text-base font-semibold" style={{ color: "#709f77" }}>

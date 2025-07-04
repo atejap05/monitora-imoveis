@@ -3,7 +3,6 @@ import type {
   DadosUsuarioAutenticado,
   Municipio,
   MunicipioStatus,
-  RelatorioStatus,
   TConsultaNFSeTotais,
 } from "@/@types";
 import { Consulta } from "@/pages/Consultas/@types";
@@ -27,7 +26,8 @@ export const getDadosUsuarioAutenticado =
       ) => Promise<{ nome: string; cpf: string }>;
     };
 
-    const resposta = await win.runScript("", "get_dados_usuario_autenticado");
+    //@ts-ignore
+    const resposta = await win.get_dados_usuario_autenticado();
     return resposta as DadosUsuarioAutenticado;
   };
 
@@ -187,8 +187,11 @@ export const fetchRelatrioConvenios = async (): Promise<MunicipioStatus[]> => {
     console.log("[fetchRelatrioConvenios] Dados recebidos:", response);
 
     if (!Array.isArray(response)) {
-       console.error("[fetchRelatrioConvenios] A resposta não é um array:", response);
-       throw new Error("Formato de resposta inesperado do backend.");
+      console.error(
+        "[fetchRelatrioConvenios] A resposta não é um array:",
+        response
+      );
+      throw new Error("Formato de resposta inesperado do backend.");
     }
 
     return response;
