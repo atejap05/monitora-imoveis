@@ -4,9 +4,10 @@ import type {
   Municipio,
   MunicipioStatus,
   TConsultaNFSeTotais,
+  TTop100NFSe,
 } from "@/@types";
 import { Consulta } from "@/pages/Consultas/@types";
-
+//////////// Fetching Municipios IBGE //////////////
 export const fecthMunicipioByUf = async (uf: string) => {
   const ufCodigo = await findUFCodigo(uf);
   const url = `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${ufCodigo}/municipios`;
@@ -17,6 +18,7 @@ export const fecthMunicipioByUf = async (uf: string) => {
 
 export type formType<T> = T;
 
+//////////// Fetching Dados do Usuário Autenticado //////////
 export const getDadosUsuarioAutenticado =
   async (): Promise<DadosUsuarioAutenticado> => {
     const win = window as unknown as Window & {
@@ -31,6 +33,7 @@ export const getDadosUsuarioAutenticado =
     return resposta as DadosUsuarioAutenticado;
   };
 
+//////////// Fetching Contribuintes //////////////
 export const fetchContribuintes = async (params: {
   ni: string;
   anos: number[];
@@ -58,8 +61,8 @@ export const fetchContribuintes = async (params: {
     throw err;
   }
 };
-// Notas Fiscais //
 
+//////////////// Fetching Notas Fiscais //////////////
 // Ajuste: municipio deve ser number | null para alinhar com TFilter
 export type NFSeFiltro = {
   filtro: string;
@@ -90,6 +93,54 @@ export const fetchNotasFiscais = async (
   );
 
   return response as TConsultaNFSeTotais;
+};
+
+export const fetchNotasFiscaisCanceladas = async (
+  params: NFSeFiltro
+): Promise<
+  Array<{
+    cod_evento: string;
+    descr_evento: string;
+    total_notas: number;
+  }>
+> => {
+  const win = window as unknown as Window & {
+    runScript: (
+      scriptName: string,
+      functionName: string,
+      params: NFSeFiltro
+    ) => Promise<
+      Array<{
+        cod_evento: string;
+        descr_evento: string;
+        total_notas: number;
+      }>
+    >;
+  };
+
+  //@ts-ignore
+  const response = await win.consulta_nfse_canceladas(params);
+  return response as Array<{
+    cod_evento: string;
+    descr_evento: string;
+    total_notas: number;
+  }>;
+};
+
+export const fetchTop100NotasFiscais = async (
+  params: NFSeFiltro
+): Promise<TTop100NFSe> => {
+  const win = window as Window & {
+    runScript?: (
+      scriptName: string,
+      functionName: string,
+      params: NFSeFiltro
+    ) => Promise<TTop100NFSe>;
+  };
+  //@ts-ignore
+  const response = await win.consulta_top_100_valor(params);
+
+  return response;
 };
 
 export const fetchNotasFiscaisMeiAmbiente = async (

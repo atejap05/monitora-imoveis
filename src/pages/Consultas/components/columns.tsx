@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 
 const formataTextoLongo = (info: CellContext<NfseData, unknown>) => {
   const text = String(info.getValue() ?? "");
-  return <BasicTooltip label={text} content={text} />;
+  return <BasicTooltip content={text}>{text}</BasicTooltip>;
 };
 
 const formataHeader = (text: string) => (
@@ -105,7 +105,7 @@ export const nfseColumns: ColumnDef<NfseData, any>[] = [
       const text = String(info.getValue());
       return (
         <div className="text-nowrap">
-          <BasicTooltip label={text} content={text} />
+          <BasicTooltip content={text}>{text}</BasicTooltip>
         </div>
       );
     },

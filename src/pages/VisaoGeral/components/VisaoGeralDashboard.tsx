@@ -1,95 +1,12 @@
 import { VisaoGeralTable } from "./VisaoGeralTable.tsx";
 import { distFreqColumns } from "./VisaoGeralColumns.tsx";
 import { useVisaoGeralFiltersState } from "@/state/visaoGeralFiltersState.ts";
-import { UFS, formatNumber } from "@/lib/utils";
-import { TFilter } from "@/@types/index.ts";
+import { formatNumber } from "@/lib/utils";
+import { FiltroHeader } from "@/components/Layout/FiltroHeader";
+
 import LocalEtlSection from "./LocalEtlSection";
 import { FileText, User, Building2, Factory } from "lucide-react";
 import DashCard from "@/components/DashCard";
-
-const contribuinteOptions = [
-  { label: "Não Optante", value: 1 },
-  { label: "MEI", value: 2 },
-  { label: "ME/EPP", value: 3 },
-];
-
-function getFiltroHeader({
-  submittedFilters,
-  returnedYears,
-}: {
-  submittedFilters: TFilter | null;
-  returnedYears: string[];
-}) {
-  if (!submittedFilters) {
-    return (
-      <div className="mb-4 text-sm text-gray-500">
-        <strong>Filtros não aplicados.</strong>
-      </div>
-    );
-  }
-
-  const { filtro, municipio, uf, regiao, contribuintes, valorMin, valorMax } =
-    submittedFilters;
-
-  let filtroInfo = "";
-  if (filtro === "todos") {
-    filtroInfo = "Brasil";
-  } else if (filtro === "uf" && uf) {
-    filtroInfo = UFS.find(u => u.uf === uf)?.name || uf;
-  } else if (filtro === "municipio" && municipio) {
-    filtroInfo = String(municipio); // Garante que sempre será string
-  } else if (filtro === "regiao" && regiao) {
-    filtroInfo = regiao;
-  }
-
-  const getContribuintesText = () => {
-    if (!contribuintes || contribuintes.length === 0) return "Nenhum";
-    if (contribuintes.length === contribuinteOptions.length) return "Todos";
-    return contribuinteOptions
-      .filter(opt => contribuintes.includes(opt.value))
-      .map(opt => opt.label)
-      .join(", ");
-  };
-
-  const getValorText = () => {
-    if (valorMin && valorMax) return `entre R$ ${valorMin} e R$ ${valorMax}`;
-    if (valorMin) return `a partir de R$ ${valorMin}`;
-    if (valorMax) return `até R$ ${valorMax}`;
-    return "Qualquer valor";
-  };
-
-  return (
-    <div className="mb-4 p-3 bg-gray-50 border rounded-lg">
-      <h3 className="text-md font-semibold text-gray-800 mb-2">
-        Filtros Aplicados
-      </h3>
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-600">
-        <div className="flex items-baseline gap-2">
-          <strong className="font-semibold text-gray-900">Anos:</strong>
-          <span>
-            {returnedYears.length > 0 ? returnedYears.join(", ") : "N/A"}
-          </span>
-        </div>
-        {filtroInfo && (
-          <div className="flex items-baseline gap-2">
-            <strong className="font-semibold text-gray-900">Local:</strong>
-            <span>{filtroInfo}</span>
-          </div>
-        )}
-        <div className="flex items-baseline gap-2">
-          <strong className="font-semibold text-gray-900">
-            Contribuintes:
-          </strong>
-          <span>{getContribuintesText()}</span>
-        </div>
-        <div className="flex items-baseline gap-2">
-          <strong className="font-semibold text-gray-900">Valor:</strong>
-          <span>{getValorText()}</span>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 const VisaoGeralDashboard = () => {
   const { data, isLoading, error, submittedFilters } =
@@ -137,10 +54,10 @@ const VisaoGeralDashboard = () => {
       <h1 className="text-2xl text-center font-semibold text-gray-800 mb-4 md:mb-6 lg:mb-8">
         Visão Geral da Base NFSe
       </h1>
-      {getFiltroHeader({
-        submittedFilters,
-        returnedYears,
-      })}
+      <FiltroHeader
+        submittedFilters={submittedFilters}
+        returnedYears={returnedYears}
+      />
 
       <div className="flex flex-col gap-4 md:gap-6 lg:gap-8">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">

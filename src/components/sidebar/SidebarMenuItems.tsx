@@ -1,4 +1,5 @@
 import { VisaoGeralFilters } from "@/pages/VisaoGeral/components";
+import { NotasFiscaisFilters } from "@/pages/NotasFiscais/components/NotasFiscaisFilters";
 import { FormConsultas } from "@/pages/Consultas/components/FormConsultas";
 import { useConsultasState } from "@/pages/Consultas/hooks/useConsultasState";
 import { useLocation } from "react-router-dom";
@@ -20,6 +21,8 @@ export const SidebarMenuItems = () => {
       const isLoading = status !== "success";
       return <ConveniosFilters isLoading={isLoading} />;
     }
+    case "/notas-fiscais":
+      return <NotasFiscaisFilters />;
     default:
       return null;
   }
