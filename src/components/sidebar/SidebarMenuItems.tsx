@@ -5,6 +5,7 @@ import { useConsultasState } from "@/pages/Consultas/hooks/useConsultasState";
 import { useLocation } from "react-router-dom";
 import { ConveniosFilters } from "@/pages/Convenios/components/ConveniosFilters";
 import { useConveniosData } from "@/pages/Convenios/hooks/useConveniosData";
+import { AmbienteFilters } from "@/pages/Ambiente/components/AmbienteFilters";
 
 export const SidebarMenuItems = () => {
   const location = useLocation();
@@ -23,6 +24,8 @@ export const SidebarMenuItems = () => {
     }
     case "/notas-fiscais":
       return <NotasFiscaisFilters />;
+    case "/ambiente":
+      return <AmbienteFilters />;
     default:
       return null;
   }
