@@ -84,8 +84,8 @@ const Consultas = () => {
                     <div className="flex flex-row gap-2">
                       {consulta.length > 0
                         ? Array.from(
-                          new Set(consulta.map(item => String(item.ano)))
-                        ).map(ano => <Badge key={ano}>{ano}</Badge>)
+                            new Set(consulta.map(item => String(item.ano)))
+                          ).map(ano => <Badge key={ano}>{ano}</Badge>)
                         : null}
                     </div>
                   </div>
@@ -114,46 +114,38 @@ const Consultas = () => {
                         formData?.anos ?? []
                       )}
                     >
-                      <Button
-                        variant={"outline"}
-                        size={"icon"}
-                        className="shadow-sm"
-                        onClick={() =>
-                          toast.success("CSV exportado com sucesso!")
-                        }
-                      >
-                        <BasicTooltip
-                          asChild
-                          content="Exportar CSV"
-                          label={
-                            <img src={csv_icon} alt="csv" className="w-6 h-6" />
-                          }
-                        />
-                      </Button>
-                    </CSVDownloader>
-                  </span>
-                  <span>
-                    <BasicTooltip
-                      asChild
-                      content="Exportar XLSX"
-                      label={
+                      <BasicTooltip asChild content="Exportar CSV">
                         <Button
                           variant={"outline"}
                           size={"icon"}
-                          onClick={() => {
-                            exportXLSX(
-                              consulta,
-                              formData?.ni ?? "",
-                              formData?.anos ?? []
-                            );
-                            toast.success("XLSX exportado com sucesso!");
-                          }}
                           className="shadow-sm"
+                          onClick={() =>
+                            toast.success("CSV exportado com sucesso!")
+                          }
                         >
-                          <img src={xlsx_icon} alt="xlsx" className="w-6 h-6" />
+                          <img src={csv_icon} alt="csv" className="w-6 h-6" />
                         </Button>
-                      }
-                    />
+                      </BasicTooltip>
+                    </CSVDownloader>
+                  </span>
+                  <span>
+                    <BasicTooltip asChild content="Exportar XLSX">
+                      <Button
+                        variant={"outline"}
+                        size={"icon"}
+                        onClick={() => {
+                          exportXLSX(
+                            consulta,
+                            formData?.ni ?? "",
+                            formData?.anos ?? []
+                          );
+                          toast.success("XLSX exportado com sucesso!");
+                        }}
+                        className="shadow-sm"
+                      >
+                        <img src={xlsx_icon} alt="xlsx" className="w-6 h-6" />
+                      </Button>
+                    </BasicTooltip>
                   </span>
                 </div>
               )}
@@ -163,7 +155,7 @@ const Consultas = () => {
                 <Input
                   placeholder="Pesquisar em todas as colunas..."
                   value={globalFilter}
-                  onChange={(e) => setGlobalFilter(e.target.value)}
+                  onChange={e => setGlobalFilter(e.target.value)}
                   className="max-w-sm"
                 />
                 <DropdownMenu>
@@ -175,14 +167,14 @@ const Consultas = () => {
                   <DropdownMenuContent align="end">
                     {table
                       .getAllColumns()
-                      .filter((column) => column.getCanHide())
-                      .map((column) => {
+                      .filter(column => column.getCanHide())
+                      .map(column => {
                         return (
                           <DropdownMenuCheckboxItem
                             key={column.id}
                             className="capitalize"
                             checked={column.getIsVisible()}
-                            onCheckedChange={(value) =>
+                            onCheckedChange={value =>
                               column.toggleVisibility(!!value)
                             }
                           >
