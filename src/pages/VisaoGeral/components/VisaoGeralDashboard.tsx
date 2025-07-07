@@ -7,6 +7,7 @@ import { FiltroHeader } from "@/components/Layout/FiltroHeader";
 import LocalEtlSection from "./LocalEtlSection";
 import { FileText, User, Building2, Factory } from "lucide-react";
 import DashCard from "@/components/DashCard";
+import BarLoader from "react-spinners/BarLoader";
 
 const VisaoGeralDashboard = () => {
   const { data, isLoading, error, submittedFilters } =
@@ -107,8 +108,11 @@ const VisaoGeralDashboard = () => {
             columns={distFreqColumns}
             isLoading={isLoading}
             Loader={() => (
-              <div className="text-green animate-pulse">
-                Carregando tabela...
+              <div className="flex flex-col justify-center items-center h-40 gap-3">
+                <BarLoader color="#709f77" />
+                <div className="text-green text-lg font-semibold ml-4 animate-pulse">
+                  Carregando tabela...
+                </div>
               </div>
             )}
             estatisticas={distFreqData?.estatisticas}
@@ -119,7 +123,7 @@ const VisaoGeralDashboard = () => {
         {/* Gráfico sobre as ETL no Banco de dados. */}
         <LocalEtlSection />
       </div>
-    </div>
+    </div >
   );
 };
 
