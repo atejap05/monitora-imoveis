@@ -7,25 +7,19 @@ import {
   CardContent,
   CardDescription,
 } from "@/components/ui/card";
-
 import { PieChartNFSe } from "@/components/PieChartNFSe";
 import { BarChartNFSe } from "@/components/BarChartNFSe";
 import { LineChartNFSe } from "@/components/LineChartNFSe";
 import { FiltroHeader } from "@/components/Layout/FiltroHeader";
+import { useAmbienteFiltersState } from "@/state/ambienteFiltersSate";
 
 const Ambiente: React.FC = () => {
   const { data, isLoading, error } = useAmbienteEmissao();
-  // Recupera os filtros aplicados do Zustand
-  // submittedFilters: último filtro submetido, filters: filtro atual (antes do submit)
-  // Para Ambiente, usamos filters como referência para o header
-  // Se quiser usar submittedFilters, ajuste o Zustand e o hook para expor submittedFilters
-  // Aqui, para manter igual ao VisaoGeral, vamos usar filters
-  // Se preferir submittedFilters, basta trocar abaixo
-  // Importante: se submittedFilters não existir, o header mostra "Filtros não aplicados"
-  // Se quiser lógica diferente, ajuste conforme necessário
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { filters } =
-    require("@/state/ambienteFiltersSate").useAmbienteFiltersState.getState();
+
+  // Recupera os filtros aplicados do Zustand (padrão submittedFilters)
+  const submittedFilters = useAmbienteFiltersState(
+    state => state.submittedFilters
+  );
 
   // Dados para gráfico de barras empilhadas (evolução anual por processo)
   const barChartData =
@@ -78,7 +72,7 @@ const Ambiente: React.FC = () => {
       </h1>
       {/* Header de Filtros Aplicados */}
       <FiltroHeader
-        submittedFilters={filters}
+        submittedFilters={submittedFilters}
         returnedYears={data ? data.map((row: any) => row.ano.toString()) : []}
       />
 

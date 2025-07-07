@@ -23,8 +23,11 @@ const NotasFiscais: React.FC = () => {
   const submittedFilters = useNotasFiscaisFiltersState(
     state => state.submittedFilters
   );
-  // Simula anos retornados (ajuste conforme backend)
-  const returnedYears = (submittedFilters?.anos || []).map(String);
+  // Anos retornados do filtro submetido (padrão das demais páginas)
+  const returnedYears =
+    Array.isArray(submittedFilters?.anos) && submittedFilters.anos.length > 0
+      ? submittedFilters.anos.map(String)
+      : [];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6">

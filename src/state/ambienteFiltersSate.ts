@@ -12,7 +12,7 @@ interface AmbienteFiltersState {
 const defaultFilters: TFilter = {
   filtro: "todos",
   anos: [],
-  contribuintes: [],
+  contribuintes: [1, 2, 3],
   valorMin: null,
   valorMax: null,
   uf: null,
@@ -22,7 +22,7 @@ const defaultFilters: TFilter = {
 
 export const useAmbienteFiltersState = create<AmbienteFiltersState>(set => ({
   filters: defaultFilters,
-  submittedFilters: null,
+  submittedFilters: defaultFilters, // Inicializa igual ao padrão das outras páginas
   isLoading: false,
   submitFilters: f => set({ filters: f, submittedFilters: f }),
   setFilters: f => set({ filters: f }),

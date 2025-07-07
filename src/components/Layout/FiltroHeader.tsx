@@ -64,7 +64,9 @@ export const FiltroHeader: React.FC<FiltroHeaderProps> = ({
         <div className="flex items-baseline gap-2">
           <strong className="font-semibold text-gray-900">Anos:</strong>
           <span>
-            {returnedYears.length === 0 ? "Todos" : returnedYears.join(", ")}
+            {returnedYears.length === 0
+              ? "Qualquer ano"
+              : returnedYears.join(", ")}
           </span>
         </div>
         {filtroInfo && (

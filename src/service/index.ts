@@ -221,6 +221,13 @@ export const fetchRelatrioConvenios = async (): Promise<MunicipioStatus[]> => {
         scriptName: string,
         functionName: string
       ) => Promise<MunicipioStatus[]>;
+      atualizarProgresso?: (value: number) => void;
+    };
+
+    // Defina a função no window para que ela esteja disponível para o script.
+    win.atualizarProgresso = (value: number) => {
+      console.log(`Progresso da busca de convênios: ${value * 100}%`);
+      // Aqui você pode, por exemplo, atualizar um estado global para mostrar o progresso na UI.
     };
 
     if (!win.runScript) {

@@ -9,16 +9,19 @@ import { AmbienteFilters } from "@/pages/Ambiente/components/AmbienteFilters";
 
 export const SidebarMenuItems = () => {
   const location = useLocation();
+  // Chame todos os hooks no topo, SEM condicional
+  const consultasState = useConsultasState();
+  const conveniosData = useConveniosData();
 
   switch (location.pathname) {
     case "/visao-geral":
       return <VisaoGeralFilters />;
     case "/consultas": {
-      const { isPending, submitConsulta } = useConsultasState();
+      const { isPending, submitConsulta } = consultasState;
       return <FormConsultas onSubmit={submitConsulta} isPending={isPending} />;
     }
     case "/convenios": {
-      const { status } = useConveniosData();
+      const { status } = conveniosData;
       const isLoading = status !== "success";
       return <ConveniosFilters isLoading={isLoading} />;
     }

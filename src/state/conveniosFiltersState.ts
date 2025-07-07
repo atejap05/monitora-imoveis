@@ -6,18 +6,13 @@ interface ConveniosFiltersState {
   regiaoFiscal: string | null;
   status: string | null;
   uf: string | null;
+  progress: number;
   setGlobalFilter: (value: string) => void;
   setRegiaoGeografica: (value: string | null) => void;
   setRegiaoFiscal: (value: string | null) => void;
   setStatus: (value: string | null) => void;
   setUf: (value: string | null) => void;
-  // Filtros avançados podem ser adicionados futuramente
-  // uf?: string;
-  // municipio?: string;
-  // regiao?: string;
-  // setUf?: (uf: string) => void;
-  // setMunicipio?: (municipio: string) => void;
-  // setRegiao?: (regiao: string) => void;
+  setProgress: (value: number) => void;
 }
 
 export const useConveniosFiltersState = create<ConveniosFiltersState>(set => ({
@@ -26,12 +21,11 @@ export const useConveniosFiltersState = create<ConveniosFiltersState>(set => ({
   regiaoFiscal: null,
   status: null,
   uf: null,
-  setGlobalFilter: (value: string) => set({ globalFilter: value }),
-  setRegiaoGeografica: (value: string | null) => set({ regiaoGeografica: value }),
-  setRegiaoFiscal: (value: string | null) => set({ regiaoFiscal: value }),
-  setStatus: (value: string | null) => set({ status: value }),
-  setUf: (value: string | null) => set({ uf: value }),
-  // setUf: (uf: string) => set({ uf }),
-  // setMunicipio: (municipio: string) => set({ municipio }),
-  // setRegiao: (regiao: string) => set({ regiao }),
-})); 
+  progress: 0,
+  setGlobalFilter: value => set({ globalFilter: value }),
+  setRegiaoGeografica: value => set({ regiaoGeografica: value }),
+  setRegiaoFiscal: value => set({ regiaoFiscal: value }),
+  setStatus: value => set({ status: value }),
+  setUf: value => set({ uf: value }),
+  setProgress: value => set({ progress: value }),
+}));

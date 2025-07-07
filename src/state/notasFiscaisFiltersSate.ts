@@ -12,11 +12,11 @@ interface NotasFiscaisFiltersState {
   setError: (error: Error | null) => void;
 }
 
-// Valores padrão para os filtros de notas fiscais
+// Valores padrão para os filtros de notas fiscais (padronizado com VisaoGeral)
 const defaultFilters: TFilter = {
   filtro: "todos",
   anos: [],
-  contribuintes: [],
+  contribuintes: [1, 2, 3],
   valorMin: null,
   valorMax: null,
   uf: null,
