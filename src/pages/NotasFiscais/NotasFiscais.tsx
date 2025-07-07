@@ -1,5 +1,5 @@
 import { CardValor } from "@/components/CardValor";
-import React, { useEffect } from "react";
+import React from "react";
 import { useNotasFiscaisCanceladas } from "./hooks/useNotasFiscaisCanceladas";
 import { NotasFiscaisKpiCardSkeleton } from "./components/NotasFiscaisKpiCardSkeleton";
 import { FiltroHeader } from "@/components/Layout/FiltroHeader";
@@ -9,16 +9,15 @@ import { Top100NotasFiscaisTable } from "./components/Top100NotasFiscaisTable";
 import { BarLoader } from "react-spinners";
 import { Separator } from "@/components/ui/separator";
 import { NotasFiscaisWelcome } from "./components/NotasFiscaisWelcome";
+import {
+  FileCheck,
+  FileSignature,
+  FileText,
+  FileX2,
+} from "lucide-react";
 
 const NotasFiscais: React.FC = () => {
-  // Reset do estado quando o componente for montado
-  const reset = useNotasFiscaisFiltersState(state => state.reset);
 
-  useEffect(() => {
-    reset();
-  }, [reset]);
-
-  // Se já houver dados carregados, consultaIniciada deve ser true
   const {
     kpis,
     isLoading: isLoadingKpis,
@@ -79,38 +78,51 @@ const NotasFiscais: React.FC = () => {
           />
 
           {/* Cards de resumo de cancelamentos */}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
+          <div className="mb-6">
             {isLoadingKpis ? (
-              <>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <NotasFiscaisKpiCardSkeleton />
                 <NotasFiscaisKpiCardSkeleton />
                 <NotasFiscaisKpiCardSkeleton />
                 <NotasFiscaisKpiCardSkeleton />
-              </>
+              </div>
             ) : (
               kpis && (
-                <>
-                  <CardValor
-                    title="Cancelamento por Substituição"
-                    description="Total de notas fiscais canceladas"
-                    value={kpis.substituicao}
-                  />
-                  <CardValor
-                    title="Cancelamento por Deferido por Análise Fiscal"
-                    description="Total de notas fiscais canceladas"
-                    value={kpis.deferidoAnaliseFiscal}
-                  />
-                  <CardValor
-                    title="Cancelamento por Ofício"
-                    description="Total de notas fiscais canceladas"
-                    value={kpis.oficio}
-                  />
-                  <CardValor
-                    title="Cancelamento - Outros"
-                    description="Total de notas fiscais canceladas"
-                    value={kpis.outros}
-                  />
-                </>
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-700 mb-4">
+                    Cancelamentos por Tipo
+                  </h2>
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <CardValor
+                      icon={<FileText className="text-green h-5 w-5" />}
+                      title={<span className="text-green">Substituição</span>}
+                      description="Total de notas fiscais canceladas"
+                      value={kpis.substituicao}
+                    />
+                    <CardValor
+                      icon={<FileCheck className="text-yellow-600 h-5 w-5" />}
+                      title={
+                        <span className="text-yellow-600">
+                          Deferido por Análise Fiscal
+                        </span>
+                      }
+                      description="Total de notas fiscais canceladas"
+                      value={kpis.deferidoAnaliseFiscal}
+                    />
+                    <CardValor
+                      icon={<FileSignature className="text-blue-600 h-5 w-5" />}
+                      title={<span className="text-blue-600">De Ofício</span>}
+                      description="Total de notas fiscais canceladas"
+                      value={kpis.oficio}
+                    />
+                    <CardValor
+                      icon={<FileX2 className="text-purple-600 h-5 w-5" />}
+                      title={<span className="text-purple-600">Outros</span>}
+                      description="Total de notas fiscais canceladas"
+                      value={kpis.outros}
+                    />
+                  </div>
+                </div>
               )
             )}
           </div>
