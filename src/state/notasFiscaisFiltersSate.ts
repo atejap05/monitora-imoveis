@@ -14,7 +14,7 @@ interface NotasFiscaisFiltersState {
 
 // Valores padrão para os filtros de notas fiscais
 const defaultFilters: TFilter = {
-  filtro: "uf",
+  filtro: "todos",
   anos: [],
   contribuintes: [],
   valorMin: null,

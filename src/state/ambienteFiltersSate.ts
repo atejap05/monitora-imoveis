@@ -3,13 +3,14 @@ import { create } from "zustand";
 
 interface AmbienteFiltersState {
   filters: TFilter;
+  submittedFilters: TFilter | null;
   isLoading: boolean;
   submitFilters: (f: TFilter) => void;
   setFilters: (f: TFilter) => void;
 }
 
 const defaultFilters: TFilter = {
-  filtro: "",
+  filtro: "todos",
   anos: [],
   contribuintes: [],
   valorMin: null,
@@ -21,7 +22,8 @@ const defaultFilters: TFilter = {
 
 export const useAmbienteFiltersState = create<AmbienteFiltersState>(set => ({
   filters: defaultFilters,
+  submittedFilters: null,
   isLoading: false,
-  submitFilters: f => set({ filters: f }),
+  submitFilters: f => set({ filters: f, submittedFilters: f }),
   setFilters: f => set({ filters: f }),
 }));

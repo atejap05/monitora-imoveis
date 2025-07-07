@@ -38,7 +38,7 @@ export const NotasFiscaisFilters = () => {
   const form = useForm<TFilterForm>({
     resolver: zodResolver(FiltrosSchema),
     defaultValues: {
-      filtro: filters.filtro,
+      filtro: filters.filtro || "todos",
       anos: filters.anos.map(String),
       valorMin: filters.valorMin?.toString() ?? null,
       valorMax: filters.valorMax?.toString() ?? null,
@@ -52,7 +52,7 @@ export const NotasFiscaisFilters = () => {
   // Sempre que os filtros globais mudarem, reseta o formulário
   useEffect(() => {
     form.reset({
-      filtro: filters.filtro,
+      filtro: filters.filtro || "todos",
       anos: filters.anos.map(String),
       valorMin: filters.valorMin?.toString() ?? null,
       valorMax: filters.valorMax?.toString() ?? null,

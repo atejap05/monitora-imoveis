@@ -7,12 +7,25 @@ import {
   CardContent,
   CardDescription,
 } from "@/components/ui/card";
+
 import { PieChartNFSe } from "@/components/PieChartNFSe";
 import { BarChartNFSe } from "@/components/BarChartNFSe";
 import { LineChartNFSe } from "@/components/LineChartNFSe";
+import { FiltroHeader } from "@/components/Layout/FiltroHeader";
 
 const Ambiente: React.FC = () => {
   const { data, isLoading, error } = useAmbienteEmissao();
+  // Recupera os filtros aplicados do Zustand
+  // submittedFilters: último filtro submetido, filters: filtro atual (antes do submit)
+  // Para Ambiente, usamos filters como referência para o header
+  // Se quiser usar submittedFilters, ajuste o Zustand e o hook para expor submittedFilters
+  // Aqui, para manter igual ao VisaoGeral, vamos usar filters
+  // Se preferir submittedFilters, basta trocar abaixo
+  // Importante: se submittedFilters não existir, o header mostra "Filtros não aplicados"
+  // Se quiser lógica diferente, ajuste conforme necessário
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { filters } =
+    require("@/state/ambienteFiltersSate").useAmbienteFiltersState.getState();
 
   // Dados para gráfico de barras empilhadas (evolução anual por processo)
   const barChartData =
@@ -60,12 +73,14 @@ const Ambiente: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6">
-      <h1 className="text-2xl font-semibold text-gray-800 mb-4">Ambiente</h1>
-      <p className="mb-4 text-gray-600">
-        Em breve: evolução temporal do volume de NFSe, mapa de calor por
-        UF/município, ranking de municípios/UFs por emissão, indicadores de
-        crescimento/queda e filtros por período, UF, município e porte.
-      </p>
+      <h1 className="text-2xl text-center font-semibold text-gray-800 mb-4">
+        Ambiente
+      </h1>
+      {/* Header de Filtros Aplicados */}
+      <FiltroHeader
+        submittedFilters={filters}
+        returnedYears={data ? data.map((row: any) => row.ano.toString()) : []}
+      />
 
       {/* KPIs em Cards Shadcn UI */}
       {data && data.length > 0 && (
