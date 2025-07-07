@@ -1,25 +1,49 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useAmbienteEmissao } from "./hooks/useAmbienteEmissao";
+import { AmbienteWelcome } from "./components/AmbienteWelcome";
+
+import { AmbienteKpiCards } from "./components/AmbienteKpiCards";
+import { AmbientePieCharts } from "./components/AmbientePieCharts";
+import { AmbienteBarChartBlock } from "./components/AmbienteBarChartBlock";
+import { AmbienteLineChartBlock } from "./components/AmbienteLineChartBlock";
+import { AmbienteDataTable } from "./components/AmbienteDataTable";
 import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardDescription,
-} from "@/components/ui/card";
-import { PieChartNFSe } from "@/components/PieChartNFSe";
-import { BarChartNFSe } from "@/components/BarChartNFSe";
-import { LineChartNFSe } from "@/components/LineChartNFSe";
+  AmbienteKpiSkeleton,
+  AmbienteChartSkeleton,
+  AmbienteBarSkeleton,
+  AmbienteLineSkeleton,
+  AmbienteTableSkeleton,
+} from "./components/AmbienteSkeletons";
 import { FiltroHeader } from "@/components/Layout/FiltroHeader";
 import { useAmbienteFiltersState } from "@/state/ambienteFiltersSate";
 
 const Ambiente: React.FC = () => {
+  // Reset do estado quando o componente for montado
+  const reset = useAmbienteFiltersState(state => state.reset);
+
+  useEffect(() => {
+    reset();
+  }, [reset]);
+
+  // Se há filtros submetidos ou dados carregados, consultaIniciada deve ser true
   const { data, isLoading, error } = useAmbienteEmissao();
 
   // Recupera os filtros aplicados do Zustand (padrão submittedFilters)
   const submittedFilters = useAmbienteFiltersState(
     state => state.submittedFilters
   );
+
+  const consultaIniciada = !!(
+    submittedFilters || // Se há filtros submetidos, considera iniciada
+    (data && data.length > 0)
+  );
+
+  // Debug para verificar o estado
+  console.log("[Ambiente] consultaIniciada:", consultaIniciada, {
+    submittedFilters,
+    data: data?.length || 0,
+    isLoading,
+  });
 
   // Dados para gráfico de barras empilhadas (evolução anual por processo)
   const barChartData =
@@ -68,218 +92,65 @@ const Ambiente: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6">
       <h1 className="text-2xl text-center font-semibold text-gray-800 mb-4">
-        Ambiente
+        Ambiente de Emissão
       </h1>
-      {/* Header de Filtros Aplicados */}
-      <FiltroHeader
-        submittedFilters={submittedFilters}
-        returnedYears={data ? data.map((row: any) => row.ano.toString()) : []}
-      />
 
-      {/* KPIs em Cards Shadcn UI */}
-      {data && data.length > 0 && (
+      {/* Só mostra a tela de boas-vindas se ainda não iniciou consulta e não há dados */}
+      {!consultaIniciada && !(data && data.length > 0) && <AmbienteWelcome />}
+
+      {(consultaIniciada || (data && data.length > 0)) && (
         <>
-          <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Card 1: Adoção do Ambiente Nacional */}
-            <Card className="text-center">
-              <CardHeader>
-                <CardTitle className="text-base font-medium text-gray-500">
-                  Adoção do Ambiente Nacional
-                </CardTitle>
-                <CardDescription>
-                  Proporção de notas emitidas diretamente no ambiente nacional
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <span className="text-3xl font-bold text-green-700">
-                  {adocaoNacional.toFixed(1)}%
-                </span>
-              </CardContent>
-            </Card>
-            {/* Card 2: Principal Meio de Emissão */}
-            <Card className="text-center">
-              <CardHeader>
-                <CardTitle className="text-base font-medium text-gray-500">
-                  Principal Meio de Emissão
-                </CardTitle>
-                <CardDescription>
-                  Canal mais utilizado para emissão de NFSe
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <span className="text-2xl font-bold text-blue-700">
-                  {principalMeioNome}
-                </span>
-              </CardContent>
-            </Card>
-            {/* Card 3: % de Notas Transcritas */}
-            <Card className="text-center">
-              <CardHeader>
-                <CardTitle className="text-base font-medium text-gray-500">
-                  % de Notas Transcritas
-                </CardTitle>
-                <CardDescription>
-                  Notas emitidas em sistemas legados e transcritas para o padrão
-                  nacional
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <span className="text-3xl font-bold text-yellow-700">
-                  {pctTranscrita.toFixed(1)}%
-                </span>
-              </CardContent>
-            </Card>
-          </div>
+          {/* Header de Filtros Aplicados */}
+          <FiltroHeader
+            submittedFilters={submittedFilters}
+            returnedYears={
+              data ? data.map((row: any) => row.ano.toString()) : []
+            }
+          />
 
-          {/* Gráfico de Pizza: Composição por Ambiente */}
-          <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              <h2 className="text-lg font-semibold mb-2 text-gray-700">
-                Composição por Ambiente
-              </h2>
-              <PieChartNFSe
-                chartData={[
-                  {
-                    nameKey: "Ambiente Nacional",
-                    total: totalNacional,
-                    fill: "#22c55e", // verde
-                  },
-                  {
-                    nameKey: "Ambiente Município",
-                    total: totalMunicipio,
-                    fill: "#3b82f6", // azul
-                  },
-                ]}
-                chartConfig={{
-                  "Ambiente Nacional": {
-                    color: "#22c55e",
-                    label: "Ambiente Nacional",
-                  },
-                  "Ambiente Município": {
-                    color: "#3b82f6",
-                    label: "Ambiente Município",
-                  },
-                }}
+          {/* KPIs e Gráficos */}
+          {isLoading ? (
+            <>
+              <AmbienteKpiSkeleton />
+              <AmbienteChartSkeleton />
+              <AmbienteBarSkeleton />
+              <AmbienteLineSkeleton />
+            </>
+          ) : data && data.length > 0 ? (
+            <>
+              <AmbienteKpiCards
+                adocaoNacional={adocaoNacional}
+                principalMeioNome={principalMeioNome}
+                pctTranscrita={pctTranscrita}
               />
-            </div>
-            {/* Gráfico de Pizza: Composição por Processo de Emissão */}
-            <div>
-              <h2 className="text-lg font-semibold mb-2 text-gray-700">
-                Composição por Processo de Emissão
-              </h2>
-              <PieChartNFSe
-                chartData={[
-                  {
-                    nameKey: "Web Service",
-                    total: totalWebservice,
-                    fill: "#6366f1", // roxo
-                  },
-                  {
-                    nameKey: "Web",
-                    total: totalWeb,
-                    fill: "#0ea5e9", // azul claro
-                  },
-                  {
-                    nameKey: "App",
-                    total: totalApp,
-                    fill: "#f59e42", // laranja
-                  },
-                ]}
-                chartConfig={{
-                  "Web Service": {
-                    color: "#6366f1",
-                    label: "Web Service",
-                  },
-                  Web: {
-                    color: "#0ea5e9",
-                    label: "Web",
-                  },
-                  App: {
-                    color: "#f59e42",
-                    label: "App",
-                  },
-                }}
+              <AmbientePieCharts
+                totalNacional={totalNacional}
+                totalMunicipio={totalMunicipio}
+                totalWebservice={totalWebservice}
+                totalWeb={totalWeb}
+                totalApp={totalApp}
               />
-            </div>
-          </div>
-          {/* Gráfico de Barras Empilhadas: Evolução Anual */}
-          <div className="mb-8">
-            <h2 className="text-lg font-semibold mb-2 text-gray-700">
-              Evolução Anual por Processo de Emissão
-            </h2>
-            <BarChartNFSe chartData={barChartData} />
-          </div>
+              <AmbienteBarChartBlock barChartData={barChartData} />
+              <AmbienteLineChartBlock lineChartData={lineChartData} />
+            </>
+          ) : null}
 
-          {/* Gráfico de Linhas: Tendência Nacional x Município */}
-          <div className="mb-8">
-            <h2 className="text-lg font-semibold mb-2 text-gray-700">
-              Tendência: Nacional x Município (por ano)
-            </h2>
-            <LineChartNFSe data={lineChartData} />
-          </div>
+          {/* Tabela de Dados */}
+          {isLoading ? (
+            <AmbienteTableSkeleton />
+          ) : error ? (
+            <div className="bg-white rounded shadow p-6 text-center text-red-500">
+              Erro ao carregar dados do ambiente.
+            </div>
+          ) : data && data.length > 0 ? (
+            <AmbienteDataTable data={data} />
+          ) : (
+            <div className="bg-white rounded shadow p-6 text-center text-gray-500">
+              Nenhum dado encontrado para os filtros selecionados.
+            </div>
+          )}
         </>
       )}
-
-      <div className="bg-white rounded shadow p-6">
-        {isLoading ? (
-          <div className="text-center text-green-700">Carregando dados...</div>
-        ) : error ? (
-          <div className="text-center text-red-500">
-            Erro ao carregar dados do ambiente.
-          </div>
-        ) : data && data.length > 0 ? (
-          <table className="min-w-full text-sm text-gray-700">
-            <thead>
-              <tr>
-                <th className="px-2 py-1">Ano</th>
-                <th className="px-2 py-1">Amb. Nacional</th>
-                <th className="px-2 py-1">Amb. Município</th>
-                <th className="px-2 py-1">Web</th>
-                <th className="px-2 py-1">Webservice</th>
-                <th className="px-2 py-1">App</th>
-                <th className="px-2 py-1">Tipo Nacional</th>
-                <th className="px-2 py-1">Tipo Transcrita</th>
-                <th className="px-2 py-1">Total Geral Ano</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map(row => (
-                <tr key={row.ano}>
-                  <td className="px-2 py-1 text-center">{row.ano}</td>
-                  <td className="px-2 py-1 text-right">
-                    {row.total_ambiente_nacional.toLocaleString("pt-BR")}
-                  </td>
-                  <td className="px-2 py-1 text-right">
-                    {row.total_ambiente_municipio.toLocaleString("pt-BR")}
-                  </td>
-                  <td className="px-2 py-1 text-right">
-                    {row.total_web.toLocaleString("pt-BR")}
-                  </td>
-                  <td className="px-2 py-1 text-right">
-                    {row.total_webservice.toLocaleString("pt-BR")}
-                  </td>
-                  <td className="px-2 py-1 text-right">
-                    {row.total_app.toLocaleString("pt-BR")}
-                  </td>
-                  <td className="px-2 py-1 text-right">
-                    {row.total_tipo_nacional.toLocaleString("pt-BR")}
-                  </td>
-                  <td className="px-2 py-1 text-right">
-                    {row.total_tipo_transcrita.toLocaleString("pt-BR")}
-                  </td>
-                  <td className="px-2 py-1 text-right font-bold">
-                    {row.total_geral_ano.toLocaleString("pt-BR")}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <div className="text-center text-gray-500">
-            Nenhum dado encontrado para os filtros selecionados.
-          </div>
-        )}
-      </div>
     </div>
   );
 };

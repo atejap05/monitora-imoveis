@@ -7,6 +7,7 @@ interface AmbienteFiltersState {
   isLoading: boolean;
   submitFilters: (f: TFilter) => void;
   setFilters: (f: TFilter) => void;
+  reset: () => void;
 }
 
 const defaultFilters: TFilter = {
@@ -22,8 +23,17 @@ const defaultFilters: TFilter = {
 
 export const useAmbienteFiltersState = create<AmbienteFiltersState>(set => ({
   filters: defaultFilters,
-  submittedFilters: defaultFilters, // Inicializa igual ao padrão das outras páginas
+  submittedFilters: null, // Inicializa como null para não buscar dados automaticamente
   isLoading: false,
-  submitFilters: f => set({ filters: f, submittedFilters: f }),
+  submitFilters: f => {
+    console.log("[Ambiente] Filtros submetidos:", f);
+    set({ filters: f, submittedFilters: f });
+  },
   setFilters: f => set({ filters: f }),
+  reset: () =>
+    set({
+      filters: defaultFilters,
+      submittedFilters: null,
+      isLoading: false,
+    }),
 }));

@@ -28,24 +28,27 @@ export const useNotasFiscaisCanceladas = () => {
     setError(query.error ?? null);
   }, [query.error, setError]);
 
-  // Mapeamento para facilitar uso nas KPIs
-  const kpis = {
-    substituicao:
-      query.data?.find(e => e.cod_evento === "105102")?.total_notas || 0,
-    deferidoAnaliseFiscal:
-      query.data?.find(e => e.cod_evento === "105104")?.total_notas || 0,
-    oficio: query.data?.find(e => e.cod_evento === "305101")?.total_notas || 0,
-    outros: (() => {
-      // Soma todos os cancelamentos que não são os principais
-      const known = ["105102", "105104", "305101"];
-      return (
-        query.data
-          ?.filter(e => !known.includes(e.cod_evento))
-          .reduce((acc, cur) => acc + cur.total_notas, 0) || 0
-      );
-    })(),
-    total: query.data?.reduce((acc, cur) => acc + cur.total_notas, 0) || 0,
-  };
+  // Mapeamento para facilitar uso nas KPIs - retorna undefined se não há dados
+  const kpis = query.data
+    ? {
+        substituicao:
+          query.data?.find(e => e.cod_evento === "105102")?.total_notas || 0,
+        deferidoAnaliseFiscal:
+          query.data?.find(e => e.cod_evento === "105104")?.total_notas || 0,
+        oficio:
+          query.data?.find(e => e.cod_evento === "305101")?.total_notas || 0,
+        outros: (() => {
+          // Soma todos os cancelamentos que não são os principais
+          const known = ["105102", "105104", "305101"];
+          return (
+            query.data
+              ?.filter(e => !known.includes(e.cod_evento))
+              .reduce((acc, cur) => acc + cur.total_notas, 0) || 0
+          );
+        })(),
+        total: query.data?.reduce((acc, cur) => acc + cur.total_notas, 0) || 0,
+      }
+    : undefined;
 
   return { ...query, kpis };
 };

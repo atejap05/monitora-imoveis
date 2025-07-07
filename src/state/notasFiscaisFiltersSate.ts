@@ -10,6 +10,7 @@ interface NotasFiscaisFiltersState {
   submitFilters: (filters: TFilter) => void;
   setLoading: (isLoading: boolean) => void;
   setError: (error: Error | null) => void;
+  reset: () => void;
 }
 
 // Valores padrão para os filtros de notas fiscais (padronizado com VisaoGeral)
@@ -32,9 +33,18 @@ export const useNotasFiscaisFiltersState = create<NotasFiscaisFiltersState>(
     error: null,
     setFilters: (filters: Partial<TFilter>) =>
       set(state => ({ filters: { ...state.filters, ...filters } })),
-    submitFilters: (filters: TFilter) =>
-      set({ submittedFilters: filters, error: null }),
+    submitFilters: (filters: TFilter) => {
+      console.log("[NotasFiscais] Filtros submetidos:", filters);
+      set({ submittedFilters: filters, error: null });
+    },
     setLoading: (isLoading: boolean) => set({ isLoading }),
     setError: (error: Error | null) => set({ error }),
+    reset: () =>
+      set({
+        filters: defaultFilters,
+        submittedFilters: null,
+        isLoading: false,
+        error: null,
+      }),
   })
 );
