@@ -1,9 +1,4 @@
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+import { Routes, Route, Navigate, HashRouter } from "react-router-dom";
 import { MainLayout } from "@/components/MainLayout";
 import VisaoGeral from "./pages/VisaoGeral/VisaoGeral";
 import Contribuintes from "./pages/Contribuintes/Contribuintes";
@@ -17,7 +12,7 @@ import { Toaster } from "@/components/ui/sonner";
 function App() {
   return (
     <SidebarProvider>
-      <Router>
+      <HashRouter>
         <MainLayout>
           <Routes>
             <Route path="/" element={<Navigate to="/visao-geral" replace />} />
@@ -30,7 +25,7 @@ function App() {
           </Routes>
           <Toaster />
         </MainLayout>
-      </Router>
+      </HashRouter>
     </SidebarProvider>
   );
 }
