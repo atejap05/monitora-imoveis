@@ -1,0 +1,1 @@
+export { useSyncContribuintesData } from "./useSyncContribuintesData";

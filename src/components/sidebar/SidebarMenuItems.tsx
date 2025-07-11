@@ -6,6 +6,7 @@ import { useLocation } from "react-router-dom";
 import { ConveniosFilters } from "@/pages/Convenios/components/ConveniosFilters";
 import { useConveniosData } from "@/pages/Convenios/hooks/useConveniosData";
 import { AmbienteFilters } from "@/pages/Ambiente/components/AmbienteFilters";
+import { ContribuintesFilters } from "@/pages/Contribuintes/components/ContribuintesFilters";
 
 export const SidebarMenuItems = () => {
   const location = useLocation();
@@ -29,6 +30,8 @@ export const SidebarMenuItems = () => {
       return <NotasFiscaisFilters />;
     case "/ambiente":
       return <AmbienteFilters />;
+    case "/contribuintes":
+      return <ContribuintesFilters />;
     default:
       return null;
   }

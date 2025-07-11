@@ -1,27 +1,23 @@
-import React from "react";
+import ContribuintesDashboard from "./components/ContribuintesDashboard";
+import { useSyncContribuintesData } from "./hooks/useSyncContribuintesData";
+import { useContribuintesFiltersState } from "@/state/contribuintesFiltersState";
+import { ContribuintesWelcome } from "./components/ContribuintesWelcome";
 
 const Contribuintes: React.FC = () => {
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6">
-      <h1 className="text-2xl font-semibold text-gray-800 mb-4">
-        Contribuintes
-      </h1>
-      <p className="mb-4 text-gray-600">
-        Em breve: ranking de maiores emissores, perfil detalhado de
-        contribuintes, evolução de emissão, detecção de padrões atípicos e
-        filtros por porte, setor e localização.
-      </p>
-      <div className="bg-white rounded shadow p-6">
-        <ul className="list-disc pl-6 text-gray-700">
-          <li>Ranking de maiores emissores</li>
-          <li>Perfil detalhado de contribuintes (CNPJ, porte, localização)</li>
-          <li>Evolução de emissão por contribuinte</li>
-          <li>Detecção de padrões atípicos</li>
-          <li>Filtros por porte, setor, localização</li>
-        </ul>
-      </div>
-    </div>
-  );
+  const { submittedFilters, data, isLoading } = useContribuintesFiltersState();
+
+  // Hook para sincronizar os dados do dashboard com o estado de filtros
+  useSyncContribuintesData();
+
+  // A consulta é considerada iniciada se os filtros foram submetidos
+  // ou se, por algum motivo (ex: cache), já temos dados.
+  const consultaIniciada = !!(submittedFilters || data);
+
+  if (!consultaIniciada && !isLoading) {
+    return <ContribuintesWelcome />;
+  }
+
+  return <ContribuintesDashboard />;
 };
 
 export default Contribuintes;

@@ -1,5 +1,4 @@
 import { CardValor } from "@/components/CardValor";
-import React from "react";
 import { useNotasFiscaisCanceladas } from "./hooks/useNotasFiscaisCanceladas";
 import { NotasFiscaisKpiCardSkeleton } from "./components/NotasFiscaisKpiCardSkeleton";
 import { FiltroHeader } from "@/components/Layout/FiltroHeader";
@@ -16,37 +15,39 @@ import {
   FileX2,
 } from "lucide-react";
 
-const NotasFiscais: React.FC = () => {
+export const NotasFiscais = () => {
+  const { submittedFilters, isLoading, error } = useNotasFiscaisFiltersState();
+  const { data: notasCanceladasData } =
+    useNotasFiscaisCanceladas(submittedFilters);
+  const { data: top100Data, isLoading: isLoadingTop100 } =
+    useTop100NotasFiscais(submittedFilters);
 
-  const {
-    kpis,
-    isLoading: isLoadingKpis,
-    error: errorKpis,
-  } = useNotasFiscaisCanceladas();
-  const {
-    data: top100Data,
-    isLoading: isLoadingTop100,
-    error: errorTop100,
-  } = useTop100NotasFiscais();
+  // Calcula os KPIs a partir dos dados brutos
+  const kpis = notasCanceladasData
+    ? {
+      substituicao:
+        notasCanceladasData?.find(e => e.cod_evento === "105102")
+          ?.total_notas || 0,
+      deferidoAnaliseFiscal:
+        notasCanceladasData?.find(e => e.cod_evento === "105104")
+          ?.total_notas || 0,
+      oficio:
+        notasCanceladasData?.find(e => e.cod_evento === "305101")
+          ?.total_notas || 0,
+      outros: (() => {
+        const known = ["105102", "105104", "305101"];
+        return (
+          notasCanceladasData
+            ?.filter(e => !known.includes(e.cod_evento))
+            .reduce((acc, cur) => acc + cur.total_notas, 0) || 0
+        );
+      })(),
+    }
+    : null;
 
-  const submittedFilters = useNotasFiscaisFiltersState(
-    state => state.submittedFilters
-  );
-
-  const consultaIniciada = !!(
-    submittedFilters || // Se há filtros submetidos, considera iniciada
-    kpis ||
-    (top100Data && top100Data.length > 0)
-  );
-
-  // Debug para verificar o estado
-  console.log("[NotasFiscais] consultaIniciada:", consultaIniciada, {
-    submittedFilters,
-    kpis,
-    top100Data: top100Data?.length || 0,
-    isLoadingKpis,
-    isLoadingTop100,
-  });
+  if (!submittedFilters) {
+    return <NotasFiscaisWelcome />;
+  }
 
   // Anos retornados do filtro submetido (padrão das demais páginas)
   const returnedYears =
@@ -61,11 +62,11 @@ const NotasFiscais: React.FC = () => {
       </h1>
 
       {/* Só mostra a tela de boas-vindas se ainda não iniciou consulta e não há dados */}
-      {!consultaIniciada && <NotasFiscaisWelcome />}
+      {!submittedFilters && <NotasFiscaisWelcome />}
 
-      {consultaIniciada && (
+      {submittedFilters && (
         <>
-          {errorKpis && (
+          {error && (
             <div className="text-red-500 text-center mb-4">
               Erro ao carregar dados de cancelamento
             </div>
@@ -79,7 +80,7 @@ const NotasFiscais: React.FC = () => {
 
           {/* Cards de resumo de cancelamentos */}
           <div className="mb-6">
-            {isLoadingKpis ? (
+            {isLoading ? (
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <NotasFiscaisKpiCardSkeleton />
                 <NotasFiscaisKpiCardSkeleton />
@@ -141,7 +142,7 @@ const NotasFiscais: React.FC = () => {
                   Carregando dados...
                 </span>
               </div>
-            ) : errorTop100 ? (
+            ) : error ? (
               <div className="text-red-500 text-center">
                 Erro ao carregar os dados das top 100 notas fiscais.
               </div>

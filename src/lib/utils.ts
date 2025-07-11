@@ -88,6 +88,13 @@ export const formatNumber = (number: number | string) => {
   return new Intl.NumberFormat("pt-BR").format(Number(number));
 };
 
+export const formatCurrency = (number: number | string) => {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(Number(number));
+};
+
 export const findUFCodigo = async (uf: string) => {
   return UFS.find(item => item.uf === uf)!.codigo;
 };
