@@ -19,6 +19,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useContribuintesFiltersState } from "@/state/contribuintesFiltersState";
 import { PieChartIcon } from "lucide-react";
+import { ContribuintesPieChartSkeleton } from "./ContribuintesSkeletons";
 
 const chartConfig = {
     MEI: {
@@ -46,23 +47,7 @@ export const ContribuintesPieChart = () => {
     }, [chartData]);
 
     if (isLoading) {
-        return (
-            <Card>
-                <CardHeader>
-                    <CardTitle>Composição por Tipo</CardTitle>
-                    <CardDescription className="flex items-center gap-2">
-                        Distribuição dos contribuintes <PieChartIcon size={14} />
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="h-[400px] flex items-center justify-center">
-                        <div className="animate-pulse text-muted-foreground">
-                            Carregando gráfico...
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-        );
+        return <ContribuintesPieChartSkeleton />;
     }
 
     if (!chartData.length) {

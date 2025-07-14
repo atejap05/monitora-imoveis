@@ -1,4 +1,4 @@
-import type { TConsultaNFSeTotais, TFilter } from "@/@types";
+import type { TConsultaNFSeTotais, TFilter, TAdesaoMunicipios } from "@/@types";
 
 //////////// Fetching para Visão Geral //////////////
 export const fetchNotasFiscais = async (
@@ -52,4 +52,24 @@ export const fetchDadosETL = async (): Promise<any> => {
   );
 
   return response;
+};
+
+export const fetchAdesaoMunicipios = async (
+  params: TFilter
+): Promise<TAdesaoMunicipios> => {
+  const win = window as Window & {
+    runScript?: (
+      scriptName: string,
+      functionName: string,
+      params: TFilter
+    ) => Promise<TAdesaoMunicipios>;
+  };
+
+  const response = await win.runScript!(
+    "", // Script name, assuming empty
+    "get_adesao_municipios", // Function name
+    params // Passa o objeto params diretamente
+  );
+
+  return response as TAdesaoMunicipios;
 };

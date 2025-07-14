@@ -74,7 +74,7 @@ export type TContribuintesCrescimentoAnual = {
  * Estrutura completa dos gráficos
  */
 export type TContribuintesCharts = {
-  mapa_uf: TContribuintesMapaUF[];
+  mapa_uf: TUfMapa[]; // Dados para o mapa (será calculado no frontend)
   top_municipios: TContribuintesTopMunicipios[];
   composicao_por_tipo: TContribuintesPorTipo[];
   faturamento_por_tipo: TContribuintesFaturamentoPorTipo[];
@@ -90,6 +90,10 @@ export type TContribuintesData = {
   contribuintes: TContribuinte[];
   total_pages: number;
   current_page: number;
+  // Dados brutos para o mapa (foco atual)
+  mapa_municipios: TMunicipioMapa[];
+  // Dados para a tabela de tipo de contribuinte responsável
+  tipo_contribuinte_responsavel?: TTipoContribuinteResponsavel[];
 };
 
 /**
@@ -105,4 +109,29 @@ export type TTipoContribuinteResponsavel = {
   total_prestadores: number;
   total_intermediarios: number;
   tipo_contribuinte: string;
+};
+
+// Tipos para dados do mapa (foco atual)
+export type TMunicipioMapa = {
+  cod_municipio: string;
+  nome_municipio: string;
+  uf: string;
+  total_nfse: number;
+  valor_total: number;
+  valor_medio: number;
+  total_nao_optante: number; // Corrigido: era "nao_optante"
+  total_mei: number; // Corrigido: era "mei"
+  total_me_epp: number; // Corrigido: era "me_epp"
+};
+
+// Agregação por UF para o mapa (será calculada no frontend)
+export type TUfMapa = {
+  uf: string;
+  total_contribuintes: number;
+  total_nfse: number;
+  valor_total: number;
+  valor_medio: number;
+  nao_optante: number;
+  mei: number;
+  me_epp: number;
 };

@@ -3,6 +3,8 @@ import { distFreqColumns } from "./VisaoGeralColumns.tsx";
 import { useVisaoGeralFiltersState } from "@/state/visaoGeralFiltersState.ts";
 import { formatNumber } from "@/lib/utils";
 import { FiltroHeader } from "@/components/Layout/FiltroHeader";
+import { VisaoGeralAdesaoChart } from "./VisaoGeralAdesaoChart.tsx";
+import { VisaoGeralAdesaoChartSkeleton } from "./VisaoGeralAdesaoChartSkeleton.tsx";
 
 import LocalEtlSection from "./LocalEtlSection";
 import { FileText, User, Building2, Factory } from "lucide-react";
@@ -15,6 +17,7 @@ const VisaoGeralDashboard = () => {
 
   const nfseTotaisData = data?.nfseTotais;
   const distFreqData = data?.distribuicaoFrequencia;
+  const adesaoData = data?.adesaoMunicipios;
 
   let aggregatedTotals = { total: 0, mei: 0, me_epp: 0, nao_optante: 0 };
   let returnedYears: string[] = [];
@@ -98,6 +101,12 @@ const VisaoGeralDashboard = () => {
             </>
           )}
         </div>
+
+        {isLoading ? (
+          <VisaoGeralAdesaoChartSkeleton />
+        ) : (
+          <VisaoGeralAdesaoChart data={adesaoData} />
+        )}
 
         {/* Tabela de distribuição de frequência abaixo do histograma */}
         <div className="w-full">

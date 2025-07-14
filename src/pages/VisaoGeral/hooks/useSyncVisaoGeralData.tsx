@@ -1,7 +1,11 @@
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useVisaoGeralFiltersState } from "@/state/visaoGeralFiltersState";
-import { fetchNotasFiscais, fetchDistribuicaoFrequencia } from "@/service";
+import {
+  fetchNotasFiscais,
+  fetchDistribuicaoFrequencia,
+  fetchAdesaoMunicipios,
+} from "@/service";
 import { TVisaoGeral } from "@/@types";
 
 export const useSyncVisaoGeralData = () => {
@@ -20,13 +24,15 @@ export const useSyncVisaoGeralData = () => {
       }
       console.log(
         "[useSyncVisaoGeralData] Filtros enviados para o backend:",
-        submittedFilters
+        submittedFilters,
       );
-      const [nfseTotais, distribuicaoFrequencia] = await Promise.all([
-        fetchNotasFiscais(submittedFilters),
-        fetchDistribuicaoFrequencia(submittedFilters),
-      ]);
-      return { nfseTotais, distribuicaoFrequencia };
+      const [nfseTotais, distribuicaoFrequencia, adesaoMunicipios] =
+        await Promise.all([
+          fetchNotasFiscais(submittedFilters),
+          fetchDistribuicaoFrequencia(submittedFilters),
+          fetchAdesaoMunicipios(submittedFilters),
+        ]);
+      return { nfseTotais, distribuicaoFrequencia, adesaoMunicipios };
     },
 
     enabled: !!submittedFilters,

@@ -3,12 +3,13 @@ import { formatNumber } from "@/lib/utils";
 import { useMemo } from "react";
 import { Users, Building, UserCheck, GitBranch } from "lucide-react";
 import DashCard from "@/components/DashCard";
+import { ContribuintesKpiSkeleton } from "./ContribuintesSkeletons";
 
 export const ContribuintesKpiCards = () => {
     const { data, isLoading } = useContribuintesFiltersState();
 
     const kpis = useMemo(() => {
-        if (!data || !Array.isArray(data)) {
+        if (!data || !data.tipo_contribuinte_responsavel || !Array.isArray(data.tipo_contribuinte_responsavel)) {
             return {
                 totalTomadores: 0,
                 totalPrestadores: 0,
@@ -17,9 +18,9 @@ export const ContribuintesKpiCards = () => {
             };
         }
 
-        const totalTomadores = data.reduce((sum, item) => sum + item.total_tomadores, 0);
-        const totalPrestadores = data.reduce((sum, item) => sum + item.total_prestadores, 0);
-        const totalIntermediarios = data.reduce((sum, item) => sum + item.total_intermediarios, 0);
+        const totalTomadores = data.tipo_contribuinte_responsavel.reduce((sum, item) => sum + (item.total_tomadores ?? 0), 0);
+        const totalPrestadores = data.tipo_contribuinte_responsavel.reduce((sum, item) => sum + (item.total_prestadores ?? 0), 0);
+        const totalIntermediarios = data.tipo_contribuinte_responsavel.reduce((sum, item) => sum + (item.total_intermediarios ?? 0), 0);
         const totalContribuintes = totalTomadores + totalPrestadores + totalIntermediarios;
 
         return {
@@ -31,43 +32,35 @@ export const ContribuintesKpiCards = () => {
     }, [data]);
 
     if (isLoading) {
-        return (
-            <>
-                <DashCard isPending title="" value="" description="" />
-                <DashCard isPending title="" value="" description="" />
-                <DashCard isPending title="" value="" description="" />
-                <DashCard isPending title="" value="" description="" />
-            </>
-        );
+        return <ContribuintesKpiSkeleton />;
     }
 
     return (
         <>
             <DashCard
-                title="Total de Tomadores"
-                description="Número de tomadores de serviço"
-                value={formatNumber(kpis.totalTomadores)}
-                icon={<Users size={18} />}
-            />
-            <DashCard
-                title="Total de Prestadores"
-                description="Número de prestadores de serviço"
-                value={formatNumber(kpis.totalPrestadores)}
-                icon={<Building size={18} />}
-            />
-            <DashCard
-                title="Total de Intermediários"
-                description="Número de intermediários de serviço"
-                value={formatNumber(kpis.totalIntermediarios)}
-                icon={<GitBranch size={18} />}
-            />
-            <DashCard
                 title="Total de Contribuintes"
-                description="Soma de tomadores e prestadores"
                 value={formatNumber(kpis.totalContribuintes)}
-                icon={<UserCheck size={18} />}
+                description="Todos os tipos de contribuintes"
+                icon={<Users className="text-blue-600" />}
             />
-
+            <DashCard
+                title="Tomadores"
+                value={formatNumber(kpis.totalTomadores)}
+                description="Contratantes de serviços"
+                icon={<Building className="text-green-600" />}
+            />
+            <DashCard
+                title="Prestadores"
+                value={formatNumber(kpis.totalPrestadores)}
+                description="Prestadores de serviços"
+                icon={<UserCheck className="text-purple-600" />}
+            />
+            <DashCard
+                title="Intermediários"
+                value={formatNumber(kpis.totalIntermediarios)}
+                description="Intermediadores de serviços"
+                icon={<GitBranch className="text-orange-600" />}
+            />
         </>
     );
 }; 

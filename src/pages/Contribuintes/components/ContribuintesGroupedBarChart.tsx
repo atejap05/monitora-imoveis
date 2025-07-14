@@ -14,6 +14,7 @@ import {
 import { useContribuintesFiltersState } from "@/state/contribuintesFiltersState";
 import { TrendingUp } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
+import { ContribuintesGroupedBarChartSkeleton } from "./ContribuintesSkeletons";
 
 const chartConfig = {
     faturamento_total: {
@@ -32,23 +33,7 @@ export const ContribuintesGroupedBarChart = () => {
     const chartData = data?.charts?.faturamento_por_tipo || [];
 
     if (isLoading) {
-        return (
-            <Card>
-                <CardHeader>
-                    <CardTitle>Faturamento por Tipo</CardTitle>
-                    <CardDescription className="flex items-center gap-2">
-                        Comparação de faturamento por regime tributário <TrendingUp size={14} />
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="h-[300px] flex items-center justify-center">
-                        <div className="animate-pulse text-muted-foreground">
-                            Carregando gráfico...
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-        );
+        return <ContribuintesGroupedBarChartSkeleton />;
     }
 
     if (!chartData.length) {

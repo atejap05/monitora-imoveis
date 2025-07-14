@@ -1,30 +1,52 @@
 import type {
-  TContribuintesData,
   TContribuintesFilter,
   TTipoContribuinteResponsavel,
+  TMunicipioMapa,
 } from "@/@types";
 
 /**
  * Busca dados consolidados da página Contribuintes
  */
-export const fetchContribuintesData = async (
+// export const fetchContribuintesData = async (
+//   params: TContribuintesFilter
+// ): Promise<TContribuintesData> => {
+//   const win = window as Window & {
+//     runScript?: (
+//       scriptName: string,
+//       functionName: string,
+//       params: TContribuintesFilter
+//     ) => Promise<TContribuintesData>;
+//   };
+
+//   const response = await win.runScript!(
+//     "",
+//     "get_contribuintes_dashboard_data",
+//     params
+//   );
+
+//   return response as TContribuintesData;
+// };
+
+/**
+ * Busca dados específicos para o mapa de contribuintes
+ * Retorna dados agregados por município conforme a query fornecida
+ */
+export const fetchMapData = async (
   params: TContribuintesFilter
-): Promise<TContribuintesData> => {
+): Promise<TMunicipioMapa[]> => {
   const win = window as Window & {
     runScript?: (
       scriptName: string,
       functionName: string,
       params: TContribuintesFilter
-    ) => Promise<TContribuintesData>;
+    ) => Promise<TMunicipioMapa[]>;
   };
 
-  const response = await win.runScript!(
-    "",
-    "get_contribuintes_dashboard_data",
-    params
-  );
+  const response = await win.runScript!("", "get_map_data", params);
 
-  return response as TContribuintesData;
+  console.log("mapData", response);
+
+  return response as TMunicipioMapa[];
 };
 
 // /**
@@ -118,5 +140,6 @@ export const fetchTipoContribuinteResponsavel = async (
     params
   );
 
+  console.log("tipoContribuinteResponsavel", response);
   return response as TTipoContribuinteResponsavel[];
 };

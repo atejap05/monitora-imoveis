@@ -34,7 +34,12 @@ export const useContribuintesFiltersState = create<ContribuintesFiltersState>(
     error: null,
     setFilters: newFilters =>
       set(state => ({ filters: { ...state.filters, ...newFilters } })),
-    submitFilters: filters => set({ submittedFilters: filters, error: null }), // Limpa o erro ao submeter
+    submitFilters: filters =>
+      set({
+        submittedFilters: filters,
+        error: null,
+        isLoading: true, // Ativa o loading imediatamente
+      }),
     setLoading: isLoading => set({ isLoading }),
     setData: data => set({ data, isLoading: false }), // Atualiza os dados e desativa o loading
     setError: error => set({ error, isLoading: false }), // Define o erro e desativa o loading

@@ -1,4 +1,4 @@
-import { LineChart, Line, CartesianGrid, XAxis, YAxis } from "recharts";
+import { Line, LineChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import {
     Card,
     CardContent,
@@ -16,10 +16,11 @@ import {
 } from "@/components/ui/chart";
 import { useContribuintesFiltersState } from "@/state/contribuintesFiltersState";
 import { TrendingUp } from "lucide-react";
+import { ContribuintesLineChartSkeleton } from "./ContribuintesSkeletons";
 
 const chartConfig = {
     total_contribuintes: {
-        label: "Total de Contribuintes",
+        label: "Contribuintes",
         color: "hsl(var(--chart-1))",
     },
     novos_contribuintes: {
@@ -34,23 +35,7 @@ export const ContribuintesLineChart = () => {
     const chartData = data?.charts?.crescimento_anual || [];
 
     if (isLoading) {
-        return (
-            <Card>
-                <CardHeader>
-                    <CardTitle>Crescimento Anual</CardTitle>
-                    <CardDescription className="flex items-center gap-2">
-                        Evolução da base de contribuintes <TrendingUp size={14} />
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="h-[300px] flex items-center justify-center">
-                        <div className="animate-pulse text-muted-foreground">
-                            Carregando gráfico...
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-        );
+        return <ContribuintesLineChartSkeleton />;
     }
 
     if (!chartData.length) {

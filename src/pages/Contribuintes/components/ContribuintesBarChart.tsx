@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/chart";
 import { useContribuintesFiltersState } from "@/state/contribuintesFiltersState";
 import { Building2 } from "lucide-react";
+import { ContribuintesChartSkeleton } from "./ContribuintesSkeletons";
 
 const chartConfig = {
     total_contribuintes: {
@@ -28,23 +29,7 @@ export const ContribuintesBarChart = () => {
     const chartData = data?.charts?.top_municipios || [];
 
     if (isLoading) {
-        return (
-            <Card>
-                <CardHeader>
-                    <CardTitle>Top 10 Municípios</CardTitle>
-                    <CardDescription className="flex items-center gap-2">
-                        Maiores concentrações de contribuintes <Building2 size={14} />
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="h-[300px] flex items-center justify-center">
-                        <div className="animate-pulse text-muted-foreground">
-                            Carregando gráfico...
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-        );
+        return <ContribuintesChartSkeleton />;
     }
 
     if (!chartData.length) {

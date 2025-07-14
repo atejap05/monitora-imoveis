@@ -2,16 +2,17 @@ import { useContribuintesFiltersState } from "@/state/contribuintesFiltersState"
 import { useMemo } from "react";
 import { formatNumber } from "@/lib/utils";
 import { BasicTable } from "@/components/BasicTable";
+import { ContribuintesTableSkeleton } from "./ContribuintesSkeletons";
 
 export const ContribuintesTipoTable = () => {
     const { data, isLoading } = useContribuintesFiltersState();
 
     const tableData = useMemo(() => {
-        if (!data || !Array.isArray(data)) {
+        if (!data || !data.tipo_contribuinte_responsavel || !Array.isArray(data.tipo_contribuinte_responsavel)) {
             return [];
         }
 
-        return data.map((item) => ({
+        return data.tipo_contribuinte_responsavel.map((item) => ({
             tipo: item.tipo_contribuinte,
             tomadores: item.total_tomadores,
             prestadores: item.total_prestadores,
@@ -54,17 +55,7 @@ export const ContribuintesTipoTable = () => {
     ];
 
     if (isLoading) {
-        return (
-            <div className="w-full bg-white p-4 rounded-lg shadow-sm border">
-                <h3 className="text-lg font-semibold mb-4">Detalhamento por Tipo de Contribuinte</h3>
-                <div className="animate-pulse">
-                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded"></div>
-                </div>
-            </div>
-        );
+        return <ContribuintesTableSkeleton />;
     }
 
     if (!tableData.length) {
