@@ -1,121 +1,304 @@
 # Painel NFSe
 
-## Visão Geral do Projeto
+## 📊 Visão Geral do Projeto
 
-O Painel NFSe é um dashboard interativo para visualização e análise de dados de Notas Fiscais de Serviço Eletrônicas (NFSe). O projeto visa fornecer insights sobre a arrecadação, identificar tendências e padrões, e facilitar a consulta de dados para os municípios conveniados.
+O **Painel NFSe** é um dashboard interativo e moderno para visualização e análise de dados de Notas Fiscais de Serviço Eletrônicas (NFSe). O projeto fornece insights sobre arrecadação, identifica tendências e padrões, e facilita a consulta de dados para municípios conveniados com a Receita Federal do Brasil.
 
-## Features Implementadas
+## ✨ Features Implementadas
 
-Atualmente, as seguintes features estão implementadas e funcionais:
+### 🏠 **Visão Geral**
 
-### Visão Geral
+- **Dashboard Interativo**: Resumo estatístico completo da base de NFSe
+- **Filtros Avançados**: Filtragem por ano, UF, município, região, tipo de contribuinte e valor
+- **Análise de Distribuição**: Tabela e histograma da distribuição de frequência
+- **Métricas Estatísticas**: Média, mediana, moda, desvio padrão com destaque visual
+- **Gráficos de Adesão**: Visualização da adesão de municípios ao sistema
+- **Volumetria ETL**: Dados de processamento diário com gráficos de tendência
+- **Cache Inteligente**: Sistema de cache otimizado com React Query
 
-- **Dashboard Interativo**: Apresenta um resumo estatístico da base de NFSe.
-- **Filtros Globais**: Permite a filtragem dos dados por ano, UF, município, região, tipo de contribuinte e valor.
-- **Análise de Distribuição**: Exibe a distribuição de frequência dos dados em formato de tabela e histograma.
-- **Métricas Estatísticas**: Calcula e exibe métricas como média, mediana, moda e desvio padrão.
-- **Destaques Visuais**: Facilita a identificação de outliers e modas.
+### 🔍 **Consultas**
 
-### Consultas
+- **Busca por CNPJ**: Consulta detalhada de NFSe por contribuinte
+- **Tabela Paginada**: Resultados em tabela com paginação e ordenação
+- **Exportação**: Exportação para CSV e XLSX
+- **Filtros Temporais**: Busca por anos específicos
 
-- **Busca Detalhada**: Permite a consulta detalhada de NFSe por contribuinte.
-- **Tabela de Dados**: Exibe os resultados da consulta em uma tabela paginada.
-- **Exportação de Dados**: Permite a exportação dos dados da consulta para os formatos CSV e XLSX.
+### 🏢 **Contribuintes**
 
-## Roadmap de Desenvolvimento
+- **Mapa Interativo**: Visualização geográfica dos contribuintes por UF
+- **Tabela de Tipos**: Análise por tipo de contribuinte responsável
+- **Filtros Geográficos**: Busca por região, UF e município
+- **Dados Agregados**: KPIs e métricas consolidadas
 
-As seguintes páginas e funcionalidades estão planejadas para futuras versões:
+### 📄 **Notas Fiscais**
 
-### Ambiente
+- **Análise de Cancelamentos**: Motivos, frequência e valores de cancelamento
+- **Top 100 Emissores**: Ranking dos maiores contribuintes
+- **KPIs de Cancelamento**: Métricas específicas por tipo de evento
+- **Filtros Avançados**: Por valor, região e tipo de contribuinte
 
-- Evolução temporal do volume de NFSe (linha do tempo)
-- Mapa de calor por UF/município
-- Ranking de municípios/UFs por emissão
-- Indicadores de crescimento/queda
-- Filtros por período, UF, município, porte
+### 🌍 **Ambiente**
 
-### Contribuintes
+- **Evolução Temporal**: Gráficos de linha mostrando tendências anuais
+- **Análise por Processo**: Comparação entre APP, Web, WebService e próprio
+- **Mapa de Calor**: Visualização por UF/município
+- **KPIs de Adoção**: Métricas de adoção nacional vs municipal
 
-- Ranking de maiores emissores
-- Perfil detalhado de contribuintes (CNPJ, porte, localização)
-- Evolução de emissão por contribuinte
-- Detecção de padrões atípicos
-- Filtros por porte, setor, localização
+### 🤝 **Convênios**
 
-### Notas Fiscais
+- **Relatório Completo**: Dados de convênios entre municípios e RFB
+- **Status de Adesão**: Informações sobre Ambiente de Dados Nacional
+- **Filtros Avançados**: Por UF, região geográfica, fiscal e status
+- **Exportação de Dados**: Funcionalidade de exportação completa
+- **Tabela Interativa**: Com seleção, paginação e ordenação
 
-- Análise de cancelamentos (motivo, frequência, valor)
-- Distribuição por faixa de valor
-- Detalhamento de notas por status
-- Gráficos de barras/pizza para motivos de cancelamento
-- Filtros por status, valor, data
+## 🚀 Roadmap de Desenvolvimento
 
-### Convênios
+### 🔄 **Melhorias em Andamento**
 
-- Informações sobre convênios celebrados entre municípios e a RFB
-- Status de adesão dos municípios ao Ambiente de Dados Nacional
-- Datas de celebração e vigência dos convênios
-- Visualização de municípios conveniados em mapa e lista
-- Filtros por UF, município, status do convênio
-- Indicadores de cobertura nacional e evolução histórica dos convênios
+- **Otimização de Performance**: Sistema de cache avançado implementado
+- **Queue Management**: Gerenciamento de fila para backend sequencial
+- **Error Handling**: Sistema robusto de tratamento de erros
+- **Prefetch Inteligente**: Carregamento antecipado de dados relacionados
 
----
+## 🛠️ Tecnologias Utilizadas
 
-## Estrutura do Projeto
+### **Frontend**
 
-A estrutura do projeto foi organizada para maior escalabilidade, reutilização e clareza. Agora, cada grande funcionalidade (feature) possui seu próprio diretório em `src/pages`, e os filtros globais ficam em `src/filters`, podendo ser reutilizados em qualquer página.
+- **React 18** - Biblioteca principal para interface
+- **TypeScript** - Tipagem estática e melhor DX
+- **Vite** - Build tool rápido e moderno
+- **Tailwind CSS** - Framework CSS utilitário
+- **Radix UI** - Componentes acessíveis e customizáveis
 
-### Estrutura de Diretórios
+### **State Management & Data Fetching**
+
+- **React Query (TanStack Query)** - Cache inteligente e sincronização de dados
+- **Zustand** - Gerenciamento de estado global
+- **React Hook Form** - Formulários performáticos
+- **Zod** - Validação de schemas
+
+### **UI/UX**
+
+- **Recharts** - Gráficos interativos
+- **React Table** - Tabelas avançadas com paginação
+- **Leaflet** - Mapas interativos
+- **Lucide React** - Ícones modernos
+- **Sonner** - Notificações toast
+
+### **Utilitários**
+
+- **React Router** - Roteamento da aplicação
+- **Date-fns** - Manipulação de datas
+- **React Spinners** - Indicadores de loading
+- **XLSX** - Exportação para Excel
+- **React Papa Parse** - Parsing de CSV
+
+## 📁 Estrutura do Projeto
 
 ```
 src/
-  assets/                # Imagens e arquivos estáticos
-  components/            # Componentes de UI reutilizáveis (Header, Sidebar, etc)
-  dashboards/            # Dashboards antigos (em migração)
-  filters/               # Filtros globais reutilizáveis (FormAno, FormUf, etc)
-  hooks/                 # Hooks genéricos
-  lib/                   # Utilitários e helpers
-  pages/
-    Ambiente/
-      Ambiente.tsx
-    Consultas/
-      Consultas.tsx
-      components/
-      hooks/
-    Contribuintes/
-      Contribuintes.tsx
-    Convenios/
-      Convenios.tsx
-    NotasFiscais/
-      NotasFiscais.tsx
-    VisaoGeral/
-      VisaoGeral.tsx
-      components/        # Componentes específicos da Visão Geral
-      hooks/             # Hooks específicos da Visão Geral
-  service/               # Serviços de API
-  state/                 # Zustand stores (em revisão)
+├── @types/                    # Definições de tipos TypeScript
+│   ├── ambiente.types.ts
+│   ├── contribuintes.types.ts
+│   ├── convenios.types.ts
+│   ├── notasFiscais.types.ts
+│   ├── shared.types.ts
+│   └── visaoGeral.types.ts
+├── assets/                    # Recursos estáticos
+│   ├── csv.png
+│   ├── logo-nfse-*.png
+│   └── xlsx.png
+├── components/                # Componentes reutilizáveis
+│   ├── ui/                    # Componentes base (Button, Card, etc.)
+│   ├── Header/                # Cabeçalho da aplicação
+│   ├── Layout/                # Componentes de layout
+│   ├── Sidebar/               # Barra lateral de navegação
+│   ├── BarChartNFSe.tsx
+│   ├── BasicTable.tsx
+│   ├── CardValor.tsx
+│   ├── DataTable.tsx
+│   ├── MainLayout.tsx
+│   └── Pagination.tsx
+├── filters/                   # Filtros globais reutilizáveis
+│   ├── FormAno.tsx
+│   ├── FormCNPJ.tsx
+│   ├── FormMunicipio.tsx
+│   ├── FormOptions.tsx
+│   ├── FormRegiao.tsx
+│   ├── FormUf.tsx
+│   └── index.ts
+├── hooks/                     # Hooks customizados
+│   ├── useDebounce.ts
+│   ├── useDanfseBase64.ts
+│   ├── useGeoJson.ts
+│   ├── use-mobile.tsx
+│   ├── usePrefetch.ts         # Sistema de prefetch inteligente
+│   └── index.ts
+├── lib/                       # Utilitários e configurações
+│   ├── backendQueue.ts        # Queue manager para backend
+│   ├── queryConfig.ts         # Configurações do React Query
+│   ├── queryKeys.ts           # Query keys hierárquicas
+│   ├── copyToClipboard.ts
+│   └── utils.ts
+├── pages/                     # Páginas da aplicação
+│   ├── Ambiente/
+│   │   ├── Ambiente.tsx
+│   │   ├── components/        # Componentes específicos
+│   │   └── hooks/
+│   │       └── useAmbienteEmissao.ts
+│   ├── Consultas/
+│   │   ├── Consultas.tsx
+│   │   ├── components/
+│   │   └── hooks/
+│   ├── Contribuintes/
+│   │   ├── Contribuintes.tsx
+│   │   ├── components/
+│   │   └── hooks/
+│   │       └── useSyncContribuintesData.tsx
+│   ├── Convenios/
+│   │   ├── Convenios.tsx
+│   │   ├── components/
+│   │   │   └── ConveniosFiltersWrapper.tsx
+│   │   └── hooks/
+│   │       └── useConveniosData.ts
+│   ├── NotasFiscais/
+│   │   ├── NotasFiscais.tsx
+│   │   ├── components/
+│   │   └── hooks/
+│   │       ├── useNotasFiscaisCanceladas.ts
+│   │       └── useTop100NotasFiscais.ts
+│   └── VisaoGeral/
+│       ├── VisaoGeral.tsx
+│       ├── components/
+│       └── hooks/
+│           ├── useEtlData.ts
+│           └── useSyncVisaoGeralData.tsx
+├── service/                   # Serviços de API
+│   ├── ambiente.ts
+│   ├── consultas.ts
+│   ├── contribuintes.ts
+│   ├── convenios.ts
+│   ├── ibge.ts
+│   ├── notas-fiscais.ts
+│   ├── user.ts
+│   ├── visao-geral.ts
+│   └── index.ts
+├── state/                     # Stores Zustand
+│   ├── ambienteFiltersSate.ts
+│   ├── consultasState.ts
+│   ├── contribuintesFiltersState.ts
+│   ├── conveniosFiltersState.ts
+│   ├── notasFiscaisFiltersSate.ts
+│   └── visaoGeralFiltersState.ts
+├── App.tsx                    # Componente principal
+├── main.tsx                   # Entry point com React Query configurado
+└── index.css                  # Estilos globais
 ```
 
-### Padrão de Organização
+## 🎯 Detalhes das Páginas
 
-- **src/pages/Feature/**: Cada página/feature principal da aplicação reside em seu próprio diretório, contendo seus componentes, hooks e lógica específica.
-- **src/filters/**: Componentes de filtro globais que podem ser reutilizados em múltiplas páginas.
-- **src/components/**: Componentes de UI genéricos e reutilizáveis em toda a aplicação.
+### **🏠 Visão Geral** (`/visao-geral`)
+
+**Dashboard principal** com visão consolidada dos dados de NFSe
+
+- **KPIs Principais**: Totais por ano, MEI, ME/EPP, Não Optante
+- **Gráficos de Adesão**: Evolução da adesão de municípios
+- **Distribuição de Frequência**: Análise estatística detalhada
+- **Volumetria ETL**: Dados de processamento diário
+- **Filtros Globais**: Aplicáveis a todos os componentes
+
+### **🔍 Consultas** (`/consultas`)
+
+**Sistema de busca** por CNPJ específico
+
+- **Formulário de Busca**: CNPJ + anos de interesse
+- **Tabela de Resultados**: Paginada e ordenável
+- **Exportação**: CSV e XLSX
+- **Filtros Avançados**: Por período e contribuinte
+
+### **🏢 Contribuintes** (`/contribuintes`)
+
+**Análise geográfica** e perfil dos contribuintes
+
+- **Mapa Interativo**: Visualização por UF com Leaflet
+- **Tabela de Tipos**: Análise por responsabilidade
+- **KPIs Geográficos**: Métricas por região
+- **Filtros Espaciais**: UF, município, região
+
+### **📄 Notas Fiscais** (`/notas-fiscais`)
+
+**Análise detalhada** de notas fiscais e cancelamentos
+
+- **KPIs de Cancelamento**: Por tipo de evento
+- **Top 100 Emissores**: Ranking dos maiores contribuintes
+- **Análise de Eventos**: Substituição, deferimento, ofício
+- **Filtros Específicos**: Por valor e tipo de contribuinte
+
+### **🌍 Ambiente** (`/ambiente`)
+
+**Evolução temporal** e adoção de ambientes de emissão
+
+- **Gráficos de Linha**: Tendências anuais por processo
+- **Gráficos de Barras**: Comparação entre ambientes
+- **KPIs de Adoção**: Nacional vs Municipal
+- **Análise por Processo**: APP, Web, WebService, Próprio
+
+### **🤝 Convênios** (`/convenios`)
+
+**Relatório completo** de convênios municipais
+
+- **Tabela Completa**: Todos os municípios conveniados
+- **Filtros Avançados**: Região, UF, status
+- **Exportação**: Dados selecionados ou completos
+- **KPIs de Cobertura**: Métricas de adesão nacional
+
+## ⚡ Otimizações Implementadas
+
+### **React Query Avançado**
+
+- **Cache Inteligente**: staleTime de 1 hora para dados estáticos
+- **Query Keys Hierárquicas**: Organização estruturada do cache
+- **Queue Manager**: Gerenciamento de fila para backend sequencial
+- **Prefetch Inteligente**: Carregamento antecipado de dados relacionados
+- **Error Handling**: Retry inteligente baseado no tipo de erro
+
+### **Performance**
+
+- **Lazy Loading**: Componentes carregados sob demanda
+- **Memoização**: Uso de useMemo e useCallback
+- **Bundle Splitting**: Código dividido por rotas
+- **Image Optimization**: Otimização de assets
+
+### **UX/UI**
+
+- **Loading States**: Skeletons e spinners consistentes
+- **Error Boundaries**: Tratamento elegante de erros
+- **Responsive Design**: Adaptação para todos os dispositivos
+- **Accessibility**: Componentes acessíveis com Radix UI
+
+## 🚀 Como Executar
+
+```bash
+# Instalar dependências
+npm install
+
+# Executar em desenvolvimento
+npm run dev
+
+# Build para produção
+npm run build
+
+# Preview da build
+npm run preview
+```
+
+## 📊 Monitoramento
+
+- **React Query DevTools**: Monitoramento de cache e queries
+- **Console Logs**: Logs estruturados para debugging
+- **Performance Metrics**: Métricas de carregamento e renderização
 
 ---
 
-## Tecnologias Utilizadas
-
-- React 18
-- TypeScript
-- Zustand (state management)
-- React Query (data fetching/cache)
-- React Router (rotas)
-- Tailwind CSS (UI)
-- Recharts (gráficos)
-- Zod (validação de schemas)
-- Vite (build)
-
----
-
-> README atualizado para refletir o estado atual do desenvolvimento do projeto.
+> **Status**: 🎉 **Projeto em desenvolvimento ativo com todas as páginas principais implementadas e otimizadas**

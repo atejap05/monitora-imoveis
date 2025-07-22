@@ -7,6 +7,8 @@ import {
   fetchAdesaoMunicipios,
 } from "@/service";
 import { TVisaoGeral } from "@/@types";
+import { QUERY_KEYS } from "@/lib/queryKeys";
+import { queuedBackendCall } from "@/lib/backendQueue";
 
 export const useSyncVisaoGeralData = () => {
   const { submittedFilters, setLoading, setData, setError } =
@@ -16,7 +18,7 @@ export const useSyncVisaoGeralData = () => {
     TVisaoGeral,
     Error
   >({
-    queryKey: ["visaoGeralData", submittedFilters],
+    queryKey: QUERY_KEYS.visaoGeralData(submittedFilters!),
 
     queryFn: async () => {
       if (!submittedFilters) {
@@ -26,19 +28,17 @@ export const useSyncVisaoGeralData = () => {
         "[useSyncVisaoGeralData] Filtros enviados para o backend:",
         submittedFilters,
       );
-      const [nfseTotais, distribuicaoFrequencia, adesaoMunicipios] =
-        await Promise.all([
-          fetchNotasFiscais(submittedFilters),
-          fetchDistribuicaoFrequencia(submittedFilters),
-          fetchAdesaoMunicipios(submittedFilters),
-        ]);
+
+      // Usar fila sequencial do backend em vez de Promise.all
+      const nfseTotais = await queuedBackendCall(() => fetchNotasFiscais(submittedFilters), 'high');
+      const distribuicaoFrequencia = await queuedBackendCall(() => fetchDistribuicaoFrequencia(submittedFilters));
+      const adesaoMunicipios = await queuedBackendCall(() => fetchAdesaoMunicipios(submittedFilters));
+
       return { nfseTotais, distribuicaoFrequencia, adesaoMunicipios };
     },
 
     enabled: !!submittedFilters,
-    staleTime: 1000 * 60 * 5, // 5 minutos
-    refetchOnWindowFocus: false,
-    retry: 1,
+    // staleTime removido - usar configuração global de 1 hora
   });
 
   useEffect(() => {

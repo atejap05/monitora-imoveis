@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { fetchDadosETL } from "@/service";
+import { QUERY_KEYS } from "@/lib/queryKeys";
+import { queuedBackendCall } from "@/lib/backendQueue";
 
 export type EtlData = {
   data_etl: string; // yyyy-mm-dd
@@ -16,39 +18,42 @@ function normalizeDate(dateStr: string): string {
 }
 
 export function useEtlData() {
-  const [data, setData] = useState<EtlData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    data,
+    isLoading: loading,
+    error: queryError,
+  } = useQuery({
+    queryKey: QUERY_KEYS.etlDados(),
+    queryFn: async () => {
+      const response = await queuedBackendCall(() => fetchDadosETL(), "low"); // Prioridade baixa
 
-  useEffect(() => {
-    fetchDadosETL()
-      .then(response => {
-        // response: { "2025-05-03": 762084, ... }
-        if (!response || typeof response !== "object") {
-          setError("Dados ETL inválidos");
-          setLoading(false);
-          return;
-        }
-        const rows: EtlData[] = Object.entries(response)
-          .map(([data_etl, qtd_nfse]) => ({
-            data_etl: normalizeDate(data_etl),
-            qtd_nfse: Number(qtd_nfse),
-          }))
-          .filter(d => !!d.data_etl && !isNaN(d.qtd_nfse));
-        // eslint-disable-next-line no-console
-        console.log(
-          "[ETL DEBUG] Dados recebidos do backend:",
-          rows.slice(0, 5),
-          rows.length
-        );
-        setData(rows);
-        setLoading(false);
-      })
-      .catch(err => {
-        setError("Erro ao carregar dados ETL: " + err.message);
-        setLoading(false);
-      });
-  }, []);
+      // response: { "2025-05-03": 762084, ... }
+      if (!response || typeof response !== "object") {
+        throw new Error("Dados ETL inválidos");
+      }
 
-  return { data, loading, error };
+      const rows: EtlData[] = Object.entries(response)
+        .map(([data_etl, qtd_nfse]) => ({
+          data_etl: normalizeDate(data_etl),
+          qtd_nfse: Number(qtd_nfse),
+        }))
+        .filter(d => !!d.data_etl && !isNaN(d.qtd_nfse));
+
+      // eslint-disable-next-line no-console
+      console.log(
+        "[ETL DEBUG] Dados recebidos do backend:",
+        rows.slice(0, 5),
+        rows.length
+      );
+
+      return rows;
+    },
+    // staleTime configurado globalmente para 1 hora
+  });
+
+  const error = queryError
+    ? `Erro ao carregar dados ETL: ${queryError.message}`
+    : null;
+
+  return { data: data || [], loading, error };
 }

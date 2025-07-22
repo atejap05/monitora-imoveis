@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchRelatrioConvenios } from "@/service";
+import { QUERY_KEYS } from "@/lib/queryKeys";
+import { queuedBackendCall } from "@/lib/backendQueue";
 
 export const useConveniosData = () => {
   const { data, error, isLoading, isError, isSuccess, refetch } = useQuery({
-    queryKey: ["relatorioConvenios"],
-    queryFn: fetchRelatrioConvenios,
-    staleTime: 1000 * 60 * 60 * 24, // 24 horas
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
+    queryKey: QUERY_KEYS.conveniosRelatorio(),
+    queryFn: () => queuedBackendCall(() => fetchRelatrioConvenios(), "normal"),
+    // staleTime removido - usar configuração global de 1 hora
     enabled: false, // Impede a execução automática da consulta
   });
 
@@ -18,6 +18,9 @@ export const useConveniosData = () => {
     : isSuccess
     ? "success"
     : "idle";
+
+  // Debug: log quando o hook é chamado
+  console.log("[useConveniosData] Hook chamado - status:", status);
 
   return {
     status,

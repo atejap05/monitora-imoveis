@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchNotasFiscaisCanceladas } from "@/service";
 import { TFilter } from "@/@types";
+import { QUERY_KEYS } from "@/lib/queryKeys";
+import { queuedBackendCall } from "@/lib/backendQueue";
 
 /**
  * Hook para buscar dados de notas fiscais canceladas (KPIs de cancelamento)
@@ -9,11 +11,14 @@ import { TFilter } from "@/@types";
 
 export const useNotasFiscaisCanceladas = (filters: TFilter | null) => {
   const query = useQuery({
-    queryKey: ["notasFiscaisCanceladas", filters],
-    queryFn: () => fetchNotasFiscaisCanceladas(filters as TFilter),
+    queryKey: QUERY_KEYS.notasFiscaisCanceladas(filters!),
+    queryFn: () =>
+      queuedBackendCall(
+        () => fetchNotasFiscaisCanceladas(filters as TFilter),
+        "normal"
+      ),
     enabled: !!filters,
-    staleTime: 1000 * 60 * 10, // 10 minutos
-    refetchOnWindowFocus: false,
+    // staleTime removido - usar configuração global de 1 hora
   });
 
   return query;

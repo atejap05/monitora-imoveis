@@ -3,8 +3,7 @@ import { NotasFiscaisFilters } from "@/pages/NotasFiscais/components/NotasFiscai
 import { FormConsultas } from "@/pages/Consultas/components/FormConsultas";
 import { useConsultasState } from "@/pages/Consultas/hooks/useConsultasState";
 import { useLocation } from "react-router-dom";
-import { ConveniosFilters } from "@/pages/Convenios/components/ConveniosFilters";
-import { useConveniosData } from "@/pages/Convenios/hooks/useConveniosData";
+import { ConveniosFiltersWrapper } from "@/pages/Convenios/components/ConveniosFiltersWrapper";
 import { AmbienteFilters } from "@/pages/Ambiente/components/AmbienteFilters";
 import { ContribuintesFilters } from "@/pages/Contribuintes/components/ContribuintesFilters";
 
@@ -12,7 +11,6 @@ export const SidebarMenuItems = () => {
   const location = useLocation();
   // Chame todos os hooks no topo, SEM condicional
   const consultasState = useConsultasState();
-  const conveniosData = useConveniosData();
 
   switch (location.pathname) {
     case "/visao-geral":
@@ -22,9 +20,8 @@ export const SidebarMenuItems = () => {
       return <FormConsultas onSubmit={submitConsulta} isPending={isPending} />;
     }
     case "/convenios": {
-      const { status } = conveniosData;
-      const isLoading = status !== "success";
-      return <ConveniosFilters isLoading={isLoading} />;
+      // Usar wrapper que só carrega o hook quando necessário
+      return <ConveniosFiltersWrapper />;
     }
     case "/notas-fiscais":
       return <NotasFiscaisFilters />;

@@ -9,9 +9,12 @@ import "leaflet/dist/leaflet.css";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 60 * 24, // 24 horas
+      staleTime: 1000 * 60 * 60, // 1 hora - dados não alteram com frequência
+      gcTime: 1000 * 60 * 60 * 2, // 2 horas para manter dados em cache
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
+      retry: 2, // Retry adequado para backend com fila sequencial
+      retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000), // Backoff exponencial
     },
   },
 });
