@@ -1,5 +1,6 @@
 import { CardValor } from "@/components/CardValor";
 import { useNotasFiscaisCanceladas } from "./hooks/useNotasFiscaisCanceladas";
+import { useSyncNotasFiscaisData } from "./hooks/useSyncNotasFiscaisData";
 import { NotasFiscaisKpiCardSkeleton } from "./components/NotasFiscaisKpiCardSkeleton";
 import { FiltroHeader } from "@/components/Layout/FiltroHeader";
 import { useNotasFiscaisFiltersState } from "@/state/notasFiscaisFiltersSate";
@@ -21,6 +22,9 @@ export const NotasFiscais = () => {
     useNotasFiscaisCanceladas(submittedFilters);
   const { data: top100Data, isLoading: isLoadingTop100 } =
     useTop100NotasFiscais(submittedFilters);
+
+  // Hook para sincronizar os dados dos KPIs com o estado de filtros
+  useSyncNotasFiscaisData();
 
   // Calcula os KPIs a partir dos dados brutos
   const kpis = notasCanceladasData
@@ -61,9 +65,6 @@ export const NotasFiscais = () => {
         Notas Fiscais
       </h1>
 
-      {/* Só mostra a tela de boas-vindas se ainda não iniciou consulta e não há dados */}
-      {!submittedFilters && <NotasFiscaisWelcome />}
-
       {submittedFilters && (
         <>
           {error && (
@@ -81,11 +82,16 @@ export const NotasFiscais = () => {
           {/* Cards de resumo de cancelamentos */}
           <div className="mb-6">
             {isLoading ? (
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <NotasFiscaisKpiCardSkeleton />
-                <NotasFiscaisKpiCardSkeleton />
-                <NotasFiscaisKpiCardSkeleton />
-                <NotasFiscaisKpiCardSkeleton />
+              <div>
+                <h2 className="text-xl font-semibold text-gray-700 mb-4">
+                  Cancelamentos por Tipo
+                </h2>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                  <NotasFiscaisKpiCardSkeleton />
+                  <NotasFiscaisKpiCardSkeleton />
+                  <NotasFiscaisKpiCardSkeleton />
+                  <NotasFiscaisKpiCardSkeleton />
+                </div>
               </div>
             ) : (
               kpis && (
@@ -101,9 +107,9 @@ export const NotasFiscais = () => {
                       value={kpis.substituicao}
                     />
                     <CardValor
-                      icon={<FileCheck className="text-yellow-600 h-5 w-5" />}
+                      icon={<FileCheck className="text-green h-5 w-5" />}
                       title={
-                        <span className="text-yellow-600">
+                        <span className="text-green">
                           Deferido por Análise Fiscal
                         </span>
                       }
@@ -111,14 +117,14 @@ export const NotasFiscais = () => {
                       value={kpis.deferidoAnaliseFiscal}
                     />
                     <CardValor
-                      icon={<FileSignature className="text-blue-600 h-5 w-5" />}
-                      title={<span className="text-blue-600">De Ofício</span>}
+                      icon={<FileSignature className="text-green h-5 w-5" />}
+                      title={<span className="text-green">De Ofício</span>}
                       description="Total de notas fiscais canceladas"
                       value={kpis.oficio}
                     />
                     <CardValor
-                      icon={<FileX2 className="text-purple-600 h-5 w-5" />}
-                      title={<span className="text-purple-600">Outros</span>}
+                      icon={<FileX2 className="text-green h-5 w-5" />}
+                      title={<span className="text-green">Outros</span>}
                       description="Total de notas fiscais canceladas"
                       value={kpis.outros}
                     />

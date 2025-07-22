@@ -5,6 +5,9 @@ import { formataCNPJ } from "@/lib/utils";
 import { Copy } from "lucide-react";
 import { copyToClipboard } from "@/lib/copyToClipboard";
 import { Button } from "@/components/ui/button";
+import { useDanfseBase64 } from "@/hooks/useDanfseBase64";
+import { useState } from "react";
+import { toast } from "sonner";
 
 const formataTextoLongo = (info: CellContext<NfseData, unknown>) => {
   const text = String(info.getValue() ?? "");
@@ -28,17 +31,36 @@ export const nfseColumns: ColumnDef<NfseData, any>[] = [
     accessorKey: "chave_acesso",
     cell: info => {
       const chave = String(info.getValue() ?? "");
+      const { mutate: fetchPdf, isPending } = useDanfseBase64();
+      const [loading, setLoading] = useState(false);
+
+      const handleClick = () => {
+        setLoading(true);
+        fetchPdf(chave, {
+          onSuccess: (blob) => {
+            const url = URL.createObjectURL(blob);
+            window.open(url, "_blank");
+            setLoading(false);
+          },
+          onError: () => {
+            toast.error("Erro ao baixar DANFSe. Tente novamente.");
+            setLoading(false);
+          },
+        });
+      };
+
       return (
         <div className="flex items-center gap-2 whitespace-nowrap">
-          <a
-            href="https://www.nfse.gov.br/consultapublica"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-700 hover:text-blue-900"
-            title="Consultar chave de acesso na NFSe.gov.br"
+          <button
+            type="button"
+            className="text-blue-700 hover:text-blue-900 underline"
+            onClick={handleClick}
+            disabled={isPending || loading}
+            aria-label="Visualizar DANFSe em PDF"
+            title="Visualizar DANFSe em PDF"
           >
-            {chave}
-          </a>
+            {isPending || loading ? "Carregando..." : chave}
+          </button>
           <Button
             variant="ghost"
             size="icon"

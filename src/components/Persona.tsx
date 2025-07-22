@@ -1,10 +1,10 @@
-import { formataCPF } from "@/lib/utils";
 import { getDadosUsuarioAutenticado } from "@/service";
 import { useQuery } from "@tanstack/react-query";
+import { formataCPF } from "@/lib/utils";
 import { Skeleton } from "./ui/skeleton";
 import { STALE_TIME } from "@/lib/utils";
 
-const Persona = () => {
+export function Persona() {
   const { data, isLoading } = useQuery({
     queryKey: ["dadosUsuarioAutenticado"],
     queryFn: getDadosUsuarioAutenticado,
@@ -29,7 +29,7 @@ const Persona = () => {
 
 export default Persona;
 
-////// Skeleton Persona //////
+//////? Skeleton Persona //////
 const PersonaSkeleton = () => {
   return (
     <div className="flex flex-col items-end gap-1">

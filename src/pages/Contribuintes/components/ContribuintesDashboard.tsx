@@ -1,14 +1,11 @@
-import { useSyncContribuintesData } from "../hooks/useSyncContribuintesData";
+// Removido: useSyncContribuintesData duplicado
 import { useContribuintesFiltersState } from "@/state/contribuintesFiltersState";
 import { FiltroHeader } from "@/components/Layout/FiltroHeader";
 import { ContribuintesKpiCards } from "./ContribuintesKpiCards";
 import { ContribuintesTipoTable } from "./ContribuintesTipoTable";
-import { ContribuintesBarChart } from "./ContribuintesBarChart";
-import { ContribuintesGroupedBarChart } from "./ContribuintesGroupedBarChart";
-import { ContribuintesLineChart } from "./ContribuintesLineChart";
-import { ContribuintesPieChart } from "./ContribuintesPieChart";
 import { MapSkeleton } from "./MapSkeleton";
 import { Suspense, lazy } from "react";
+import ContribuintesSkeletons from "./ContribuintesSkeletons";
 
 // Lazy loading do componente de mapa
 const ContribuintesMapChart = lazy(() =>
@@ -18,11 +15,14 @@ const ContribuintesMapChart = lazy(() =>
 );
 
 const ContribuintesDashboard = () => {
-    useSyncContribuintesData(); // Sincroniza os dados com base nos filtros
     const { submittedFilters, error, isLoading } = useContribuintesFiltersState();
 
     // Extract years from filters for FiltroHeader
     const returnedYears = submittedFilters?.anos?.map(String) || [];
+
+    if (isLoading) {
+        return <ContribuintesSkeletons />;
+    }
 
     if (error) {
         return (
@@ -41,7 +41,7 @@ const ContribuintesDashboard = () => {
     return (
         <div className="px-4 py-4">
             {/* Mostra FiltroHeader apenas se não estiver carregando */}
-            {!isLoading && submittedFilters && (
+            {submittedFilters && (
                 <FiltroHeader
                     submittedFilters={submittedFilters}
                     returnedYears={returnedYears}
@@ -55,6 +55,11 @@ const ContribuintesDashboard = () => {
                     <ContribuintesKpiCards />
                 </div>
 
+                {/* Tabela detalhada */}
+                <div className="w-full">
+                    <ContribuintesTipoTable />
+                </div>
+
                 {/* Mapa de Distribuição */}
                 <div className="w-full">
                     <Suspense fallback={<MapSkeleton />}>
@@ -62,21 +67,8 @@ const ContribuintesDashboard = () => {
                     </Suspense>
                 </div>
 
-                {/* Gráficos */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <ContribuintesBarChart />
-                    <ContribuintesGroupedBarChart />
-                </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <ContribuintesLineChart />
-                    <ContribuintesPieChart />
-                </div>
 
-                {/* Tabela detalhada */}
-                <div className="w-full">
-                    <ContribuintesTipoTable />
-                </div>
             </div>
         </div>
     );

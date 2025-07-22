@@ -75,7 +75,6 @@ export const ContribuintesMapChart = () => {
     // Eventos para interatividade
     const onEachFeature = (feature: StateFeature, layer: any) => {
         const stateData = getStateData(feature.properties.id);
-        console.log('🟦 Tooltip UF:', feature.properties.id, stateData);
         const contribuintes = stateData?.total_contribuintes || 0;
         const totalNfse = stateData?.total_nfse || 0;
         const valorTotal = stateData?.valor_total || 0;

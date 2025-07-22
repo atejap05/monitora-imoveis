@@ -1,3 +1,9 @@
+export type TNotasFiscaisCanceladas = {
+  cod_evento: string;
+  descr_evento: string;
+  total_notas: number;
+}[];
+
 export type TTop100NFSe = {
   valordoservico: number;
   chaveacesso: string;

@@ -11,6 +11,7 @@ export const useSyncContribuintesData = () => {
         if (!submittedFilters) return;
 
         const fetchData = async () => {
+            setLoading(true);
             try {
                 setError(null);
 
@@ -55,5 +56,5 @@ export const useSyncContribuintesData = () => {
         };
 
         fetchData();
-    }, [submittedFilters, setData, setLoading, setError]);
+    }, [submittedFilters]); // Removido setData, setLoading, setError das dependências
 }; 

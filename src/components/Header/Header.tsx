@@ -1,6 +1,7 @@
 import React, { useState, useEffect, RefObject } from "react";
 import Persona from "../Persona";
 
+
 export interface HeaderVisibilityProps {
   onVisibilityChange?: (visible: boolean) => void;
   scrollContainerRef?: RefObject<HTMLElement>;
@@ -36,11 +37,16 @@ const Header: React.FC<HeaderVisibilityProps> = ({
     // eslint-disable-next-line
   }, [lastScrollY, scrollContainerRef]);
 
+  // const handleContactClick = () => {
+  //   // Abre diretamente o chat no Teams via web
+  //   const teamsWebUrl = "https://teams.microsoft.com/l/chat/0/0?users=joel.pereira@rfb.gov.br";
+  //   window.open(teamsWebUrl, "_blank", "noopener,noreferrer");
+  // };
+
   return (
     <header
-      className={`shadow-md sticky top-0 bg-[#fafafa] z-40 transition-transform duration-300 ${
-        show ? "translate-y-0" : "-translate-y-full"
-      }`}
+      className={`shadow-md sticky top-0 bg-[#fafafa] z-40 transition-transform duration-300 ${show ? "translate-y-0" : "-translate-y-full"
+        }`}
       style={{ willChange: "transform", height: HEADER_HEIGHT }}
     >
       <div className="flex items-center justify-between p-4 md:p-6">
@@ -52,7 +58,18 @@ const Header: React.FC<HeaderVisibilityProps> = ({
             Divisão de Captação de Dados - DICAP
           </h2>
         </div>
-        <Persona />
+        <div className="flex items-center gap-4">
+          {/* <Button
+            variant="ghost"
+            onClick={handleContactClick}
+            className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-green hover:text-green/80 transition-colors duration-200 hover:bg-green/10 rounded-md"
+            title="Abrir chat no Teams"
+          >
+            <MessageCircle size={16} />
+            <span className="hidden sm:inline">Contato</span>
+          </Button> */}
+          <Persona />
+        </div>
       </div>
     </header>
   );

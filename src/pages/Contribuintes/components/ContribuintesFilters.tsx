@@ -51,10 +51,6 @@ export const ContribuintesFilters = () => {
     const selectedOption = form.watch("filtro");
 
     function onSubmit(data: TFilterForm) {
-        console.log(
-            "[ContribuintesFilters] Formulário submetido (dados do formulário):",
-            data
-        );
         const payload: TContribuintesFilter = {
             ...data,
             anos: Array.isArray(data.anos)
@@ -87,10 +83,7 @@ export const ContribuintesFilters = () => {
             municipio: data.municipio ? Number(data.municipio) : null,
             regiao: data.regiao || null,
         };
-        console.log(
-            "[ContribuintesFilters] Payload submetido para o backend:",
-            payload
-        );
+
         submitFilters(payload);
     }
 
@@ -129,7 +122,7 @@ export const ContribuintesFilters = () => {
 
                 <div className="flex justify-center mt-2">
                     <Button type="submit" disabled={isLoading}>
-                        {isLoading ? "Aplicando..." : "Aplicar Filtros"}
+                        {isLoading ? "Aplicando..." : "Aplicar"}
                     </Button>
                 </div>
             </form>

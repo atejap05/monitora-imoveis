@@ -169,4 +169,26 @@ export const ContribuintesGroupedBarChartSkeleton: React.FC = () => (
             </div>
         </CardContent>
     </Card>
-); 
+);
+
+const ContribuintesSkeletons: React.FC = () => (
+    <div className="px-4 py-4 space-y-6">
+        <ContribuintesKpiSkeleton />
+        <div className="w-full">
+            <Skeleton className="h-[400px] w-full" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ContribuintesChartSkeleton />
+            <ContribuintesGroupedBarChartSkeleton />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ContribuintesLineChartSkeleton />
+            <ContribuintesPieChartSkeleton />
+        </div>
+        <div className="w-full">
+            <ContribuintesTableSkeleton />
+        </div>
+    </div>
+);
+
+export default ContribuintesSkeletons; 

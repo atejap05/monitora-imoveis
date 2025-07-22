@@ -13,15 +13,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
-import { fecthMunicipioByUf } from "@/service";
+import { fetchMunicipioByUf } from "@/service";
 
 export const FormMunicipio = () => {
   const { control } = useFormContext();
   const uf = useWatch({ control, name: "uf" });
   const { data, isPending } = useQuery({
-    queryKey: ["fecth-municipios", uf],
-    queryFn: () => fecthMunicipioByUf(uf),
+    queryKey: ["fetch-municipios", uf],
+    queryFn: () => fetchMunicipioByUf(uf),
     enabled: !!uf,
+    staleTime: Infinity,
   });
 
   return (
@@ -43,8 +44,8 @@ export const FormMunicipio = () => {
                 {!uf
                   ? "Aguardando UF"
                   : isPending
-                  ? "Carregando..."
-                  : data?.find((m: any) => m.id === Number(field.value))
+                    ? "Carregando..."
+                    : data?.find((m: any) => m.id === Number(field.value))
                       ?.nome || "Selecione o Município"}
               </SelectValue>
             </SelectTrigger>

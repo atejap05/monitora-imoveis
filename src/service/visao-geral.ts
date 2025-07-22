@@ -5,52 +5,32 @@ export const fetchNotasFiscais = async (
   params: TFilter
 ): Promise<TConsultaNFSeTotais> => {
   const win = window as Window & {
-    runScript?: (
-      scriptName: string,
-      functionName: string,
+    get_totais_nfse_com_filtro?: (
       params: TFilter
     ) => Promise<TConsultaNFSeTotais>;
   };
-
-  const response = await win.runScript!(
-    "", // Script name, assuming empty
-    "get_totais_nfse_com_filtro", // Function name
-    params // Passa o objeto params diretamente
-  );
-
-  return response as TConsultaNFSeTotais;
+  //@ts-ignore
+  const response = await win.get_totais_nfse_com_filtro(params);
+  return response;
 };
 
 export const fetchDistribuicaoFrequencia = async (
   params: TFilter
 ): Promise<any> => {
   const win = window as Window & {
-    runScript?: (
-      scriptName: string,
-      functionName: string,
-      params: TFilter
-    ) => Promise<any>;
+    get_distribuicao_freq_nfse_com_filtro?: (params: TFilter) => Promise<any>;
   };
-
-  const response = await win.runScript!(
-    "", // Script name, assuming empty
-    "get_distribuicao_freq_nfse_com_filtro", // Function name
-    params // Passa o objeto params diretamente
-  );
-
+  //@ts-ignore
+  const response = await win.get_distribuicao_freq_nfse_com_filtro(params);
   return response;
 };
 
 export const fetchDadosETL = async (): Promise<any> => {
   const win = window as Window & {
-    runScript?: (scriptName: string, functionName: string) => Promise<any>;
+    get_dados_etl_nfse?: () => Promise<any>;
   };
-
-  const response = await win.runScript!(
-    "", // Script name, assuming empty
-    "get_dados_etl_nfse" // Function name
-  );
-
+  //@ts-ignore
+  const response = await win.get_dados_etl_nfse();
   return response;
 };
 
@@ -58,18 +38,9 @@ export const fetchAdesaoMunicipios = async (
   params: TFilter
 ): Promise<TAdesaoMunicipios> => {
   const win = window as Window & {
-    runScript?: (
-      scriptName: string,
-      functionName: string,
-      params: TFilter
-    ) => Promise<TAdesaoMunicipios>;
+    get_adesao_municipios?: (params: TFilter) => Promise<TAdesaoMunicipios>;
   };
-
-  const response = await win.runScript!(
-    "", // Script name, assuming empty
-    "get_adesao_municipios", // Function name
-    params // Passa o objeto params diretamente
-  );
-
-  return response as TAdesaoMunicipios;
+  //@ts-ignore
+  const response = await win.get_adesao_municipios(params);
+  return response;
 };

@@ -34,14 +34,24 @@ export const useContribuintesFiltersState = create<ContribuintesFiltersState>(
     error: null,
     setFilters: newFilters =>
       set(state => ({ filters: { ...state.filters, ...newFilters } })),
-    submitFilters: filters =>
+    submitFilters: filters => {
       set({
         submittedFilters: filters,
         error: null,
+        data: null, // Limpa dados existentes para garantir que o skeleton apareça
         isLoading: true, // Ativa o loading imediatamente
-      }),
+      });
+    },
     setLoading: isLoading => set({ isLoading }),
     setData: data => set({ data, isLoading: false }), // Atualiza os dados e desativa o loading
-    setError: error => set({ error, isLoading: false }), // Define o erro e desativa o loading
+    setError: error => {
+      if (error) {
+        // Só desativa loading se há um erro real
+        set({ error, isLoading: false });
+      } else {
+        // Se está limpando o erro (null), não mexe no loading
+        set({ error: null });
+      }
+    },
   })
 );

@@ -5,6 +5,9 @@ import { formataCNPJ } from "@/lib/utils";
 import { Copy } from "lucide-react";
 import { copyToClipboard } from "@/lib/copyToClipboard";
 import { Button } from "@/components/ui/button";
+import { useDanfseBase64 } from "@/hooks/useDanfseBase64";
+import { useState } from "react";
+import { toast } from "sonner";
 
 const formataHeader = (text: string) => (
   <span className="text-base text-nowrap text-green py-2">{text}</span>
@@ -23,21 +26,40 @@ export const top100NFSeColumns: ColumnDef<TTop100NFSe[number]>[] = [
     accessorKey: "chaveacesso",
     cell: ({ row }) => {
       const chave = row.original.chaveacesso;
+      const { mutate: fetchPdf, isPending } = useDanfseBase64();
+      const [loading, setLoading] = useState(false);
+
+      const handleClick = () => {
+        setLoading(true);
+        fetchPdf(chave, {
+          onSuccess: (blob) => {
+            const url = URL.createObjectURL(blob);
+            window.open(url, "_blank");
+            setLoading(false);
+          },
+          onError: () => {
+            toast.error("Erro ao baixar DANFSe. Tente novamente.");
+            setLoading(false);
+          },
+        });
+      };
+
       return (
         <div className="flex items-center gap-2 whitespace-nowrap">
-          <a
-            href="https://www.nfse.gov.br/consultapublica"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-700 hover:text-blue-900"
-            title="Consultar chave de acesso na NFSe.gov.br"
+          <button
+            type="button"
+            className="text-blue-700 hover:text-blue-900 underline"
+            onClick={handleClick}
+            disabled={isPending || loading}
+            aria-label="Visualizar DANFSe em PDF"
+            title="Visualizar DANFSe em PDF"
           >
             <BasicTooltip content={chave}>
               <span className="truncate max-w-[150px] inline-block">
-                {chave}
+                {isPending || loading ? "Carregando..." : chave}
               </span>
             </BasicTooltip>
-          </a>
+          </button>
           <Button
             variant="ghost"
             size="icon"
