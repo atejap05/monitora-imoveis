@@ -2,11 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchDadosETL } from "@/service";
 import { QUERY_KEYS } from "@/lib/queryKeys";
 import { queuedBackendCall } from "@/lib/backendQueue";
-
-export type EtlData = {
-  data_etl: string; // yyyy-mm-dd
-  qtd_nfse: number;
-};
+import { type EtlData } from "@/lib/utils";
 
 function normalizeDate(dateStr: string): string {
   // Aceita tanto yyyy-mm-dd quanto ISO, retorna yyyy-mm-dd

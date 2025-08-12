@@ -6,7 +6,6 @@
  */
 class BackendQueueManager {
   private queue: Array<() => Promise<any>> = [];
-  private isProcessing = false;
   private maxConcurrent = 1; // Backend Python roda sequencial
   private currentTasks = 0;
 
