@@ -1,5 +1,4 @@
 import type { TConsultaNFSeTotais, TFilter, TAdesaoMunicipios } from "@/@types";
-import { ClimbingBoxLoader } from "react-spinners";
 
 //////////// Fetching para Visão Geral //////////////
 export const fetchNotasFiscais = async (
@@ -32,7 +31,7 @@ export const fetchDadosETL = async (): Promise<any> => {
   };
   //@ts-ignore
   const response = await win.get_dados_etl_nfse();
-  console.log(response);
+
   return response;
 };
 
