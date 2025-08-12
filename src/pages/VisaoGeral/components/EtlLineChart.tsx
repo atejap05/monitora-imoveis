@@ -7,7 +7,7 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
-import { EtlData } from "../hooks/useEtlData";
+import { type EtlData } from "@/lib/utils";
 
 interface EtlLineChartProps {
   data: EtlData[];

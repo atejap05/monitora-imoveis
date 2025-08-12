@@ -267,7 +267,6 @@ const completarDatasFaltantes = (etlData: EtlData[]): EtlData[] => {
   );
 
   const primeiraDataComDados = dadosOrdenados[0].data_etl;
-  const ultimaDataComDados = dadosOrdenados[dadosOrdenados.length - 1].data_etl;
   const hoje = new Date().toISOString().slice(0, 10);
 
   // Gerar array de datas desde a primeira data com dados até hoje
@@ -372,11 +371,7 @@ export const calcularKpisEtl = (
   const pico = Math.max(...filteredData.map(d => d.qtd_nfse));
 
   // Média considerando dias sem dados
-  const media = calcularMediaComDiasSemDados(
-    filteredData,
-    period,
-    diasSemDados
-  );
+  const media = calcularMediaComDiasSemDados(filteredData, period);
 
   // Última atualização (última data com dados > 0)
   const ultimaAtualizacao = periodoReal.fim;
@@ -420,8 +415,7 @@ const calcularDiasSemDados = (
  */
 const calcularMediaComDiasSemDados = (
   filteredData: EtlData[],
-  period: "7d" | "30d" | "all",
-  diasSemDados: number
+  period: "7d" | "30d" | "all"
 ): number => {
   if (period === "all") {
     // Para período "all", média considerando todos os dias (incluindo dias sem dados)

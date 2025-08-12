@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Sparkline } from "./Sparkline";
-import { EtlData } from "../hooks/useEtlData";
+import { type EtlData } from "@/lib/utils";
 import { ReactNode } from "react";
 import { formatNumber } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";

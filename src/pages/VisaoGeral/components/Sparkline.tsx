@@ -1,4 +1,4 @@
-import { EtlData } from "../hooks/useEtlData";
+import { type EtlData } from "@/lib/utils";
 import { LineChart, Line, ResponsiveContainer } from "recharts";
 
 interface SparklineProps {

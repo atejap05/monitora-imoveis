@@ -9,8 +9,7 @@ import { BarLoader } from "react-spinners";
 import {
   calcularKpisEtl,
   formatarDataEtl,
-  verificarDadosDesatualizados,
-  type EtlData
+  verificarDadosDesatualizados
 } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
