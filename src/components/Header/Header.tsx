@@ -1,5 +1,7 @@
 import React, { useState, useEffect, RefObject } from "react";
 import Persona from "../Persona";
+import { Button } from "../ui/button";
+import { MessageCircle, ExternalLink } from "lucide-react";
 
 
 export interface HeaderVisibilityProps {
@@ -37,11 +39,6 @@ const Header: React.FC<HeaderVisibilityProps> = ({
     // eslint-disable-next-line
   }, [lastScrollY, scrollContainerRef]);
 
-  // const handleContactClick = () => {
-  //   // Abre diretamente o chat no Teams via web
-  //   const teamsWebUrl = "https://teams.microsoft.com/l/chat/0/0?users=joel.pereira@rfb.gov.br";
-  //   window.open(teamsWebUrl, "_blank", "noopener,noreferrer");
-  // };
 
   return (
     <header
@@ -49,25 +46,38 @@ const Header: React.FC<HeaderVisibilityProps> = ({
         }`}
       style={{ willChange: "transform", height: HEADER_HEIGHT }}
     >
-      <div className="flex items-center justify-between p-4 md:p-6">
+      <div className="flex items-center justify-between p-4 md:px-6 md:py-4">
         <div className="flex flex-col items-start gap-0.5">
           <h1 className="text-xl md:text-2xl font-semibold text-green">
             PAINEL NFSe
           </h1>
-          <h2 className="text-sm md:text-base text-gray-600">
+          <a
+            href="https://rfbgov.sharepoint.com/sites/Sufis/Cofis/SitePages/Dicap.aspx"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm md:text-base text-gray-600 hover:text-green transition-colors duration-200 cursor-pointer flex items-center gap-1"
+          >
             Divisão de Captação de Dados - DICAP
-          </h2>
+            <ExternalLink size={12} className="opacity-70" />
+          </a>
         </div>
         <div className="flex items-center gap-4">
-          {/* <Button
+          <Button
             variant="ghost"
-            onClick={handleContactClick}
             className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-green hover:text-green/80 transition-colors duration-200 hover:bg-green/10 rounded-md"
-            title="Abrir chat no Teams"
+            onClick={() => window.open('https://www.gov.br/nfse/pt-br', '_blank')}
+          >
+            <ExternalLink size={16} />
+            Portal NFSe
+          </Button>
+          <Button
+            variant="ghost"
+            className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-green hover:text-green/80 transition-colors duration-200 hover:bg-green/10 rounded-md"
+            onClick={() => window.open('msteams://teams.microsoft.com/l/chat/0/0?users=joel.pereira@rfb.gov.br', '_blank')}
           >
             <MessageCircle size={16} />
-            <span className="hidden sm:inline">Contato</span>
-          </Button> */}
+            Contato
+          </Button>
           <Persona />
         </div>
       </div>

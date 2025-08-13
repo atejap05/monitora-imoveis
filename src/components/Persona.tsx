@@ -16,7 +16,7 @@ export function Persona() {
   }
 
   return (
-    <div className="flex flex-col items-end gap-1">
+    <div className="flex flex-col items-end gap-1 border border-green-100 rounded-md p-2">
       <p className="text-sm sm:text-base md:text-lg text-gray-600">
         {data?.nome}
       </p>
