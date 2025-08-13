@@ -33,7 +33,9 @@ export const top100NFSeColumns: ColumnDef<TTop100NFSe[number]>[] = [
         setLoading(true);
         fetchPdf(chave, {
           onSuccess: (blob) => {
+
             const url = URL.createObjectURL(blob);
+
             window.open(url, "_blank");
             setLoading(false);
           },
@@ -45,21 +47,21 @@ export const top100NFSeColumns: ColumnDef<TTop100NFSe[number]>[] = [
       };
 
       return (
-        <div className="flex items-center gap-2 whitespace-nowrap">
-          <button
-            type="button"
+        <div className="flex items-center gap-2">
+          <Button
+            variant="link"
             className="text-blue-700 hover:text-blue-900 underline"
             onClick={handleClick}
             disabled={isPending || loading}
             aria-label="Visualizar DANFSe em PDF"
-            title="Visualizar DANFSe em PDF"
+            title="Visualizar DANFSe"
           >
             <BasicTooltip content={chave}>
               <span className="truncate max-w-[150px] inline-block">
                 {isPending || loading ? "Carregando..." : chave}
               </span>
             </BasicTooltip>
-          </button>
+          </Button>
           <Button
             variant="ghost"
             size="icon"
