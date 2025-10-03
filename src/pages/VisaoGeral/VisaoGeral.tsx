@@ -3,6 +3,7 @@ import VisaoGeralDashboard from "./components/VisaoGeralDashboard";
 import { useSyncVisaoGeralData } from "./hooks/useSyncVisaoGeralData";
 import { useVisaoGeralFiltersState } from "@/state/visaoGeralFiltersState";
 
+
 const VisaoGeral = () => {
   const { submittedFilters, submitFilters, filters } =
     useVisaoGeralFiltersState();

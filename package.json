@@ -30,7 +30,6 @@
     "@tanstack/react-table": "^8.20.6",
     "@types/react": "^18.2.76",
     "@types/react-dom": "^18.2.15",
-    "caniuse-lite": "^1.0.30001717",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",

@@ -61,6 +61,9 @@ export const QUERY_KEYS = {
   ibge: ["ibge"] as const,
   ibgeMunicipios: (uf: string) =>
     [...QUERY_KEYS.ibge, "municipios", uf] as const,
+
+  // Volumetria
+  volumetria: () => ["volumetria"] as const,
 } as const;
 
 /**
@@ -75,4 +78,5 @@ export const invalidateQueries = {
   convenios: () => QUERY_KEYS.convenios,
   consultas: () => QUERY_KEYS.consultas,
   etl: () => QUERY_KEYS.etl,
+  volumetria: () => QUERY_KEYS.volumetria(),
 } as const;

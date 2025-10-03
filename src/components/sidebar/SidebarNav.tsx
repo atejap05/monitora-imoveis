@@ -9,6 +9,7 @@ import {
   Menu,
   X,
   Handshake,
+  Activity,
 } from "lucide-react";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ const navItems = [
   { label: "Notas Fiscais", to: "/notas-fiscais", icon: <FileBarChart2 /> },
   { label: "Ambiente", to: "/ambiente", icon: <Settings /> },
   { label: "Convênios", to: "/convenios", icon: <Handshake /> },
+  { label: "Volumetria", to: "/volumetria", icon: <Activity /> },
 ];
 
 const SidebarNav: React.FC = () => {

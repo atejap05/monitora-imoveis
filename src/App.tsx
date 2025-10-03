@@ -6,6 +6,7 @@ import Ambiente from "./pages/Ambiente/Ambiente";
 import Consultas from "./pages/Consultas/Consultas";
 import NotasFiscais from "./pages/NotasFiscais/NotasFiscais";
 import Convenios from "./pages/Convenios/Convenios";
+import Volumetria from "./pages/Volumetria/Volumetria";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -22,6 +23,7 @@ function App() {
             <Route path="/consultas" element={<Consultas />} />
             <Route path="/notas-fiscais" element={<NotasFiscais />} />
             <Route path="/convenios" element={<Convenios />} />
+            <Route path="/volumetria" element={<Volumetria />} />
           </Routes>
           <Toaster />
         </MainLayout>
