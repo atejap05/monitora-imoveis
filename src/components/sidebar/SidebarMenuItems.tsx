@@ -6,6 +6,7 @@ import { useLocation } from "react-router-dom";
 import { ConveniosFiltersWrapper } from "@/pages/Convenios/components/ConveniosFiltersWrapper";
 import { AmbienteFilters } from "@/pages/Ambiente/components/AmbienteFilters";
 import { ContribuintesFilters } from "@/pages/Contribuintes/components/ContribuintesFilters";
+import { VolumetriaFilters } from "@/pages/Volumetria/components/VolumetriaFilters";
 
 export const SidebarMenuItems = () => {
   const location = useLocation();
@@ -29,6 +30,8 @@ export const SidebarMenuItems = () => {
       return <AmbienteFilters />;
     case "/contribuintes":
       return <ContribuintesFilters />;
+    case "/volumetria":
+      return <VolumetriaFilters />;
     default:
       return null;
   }

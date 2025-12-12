@@ -31,6 +31,19 @@ const DIAS_PT = [
   "Sábado",
 ];
 
+// Função auxiliar para converter data_processamento para string YYYY-MM-DD
+const formatarDataProcessamento = (data: string | number): string => {
+  if (typeof data === "string") {
+    return data; // Já está no formato "YYYY-MM-DD"
+  }
+  // Se for número (timestamp), converte para data
+  const date = new Date(data);
+  const ano = date.getFullYear();
+  const mes = String(date.getMonth() + 1).padStart(2, "0");
+  const dia = String(date.getDate()).padStart(2, "0");
+  return `${ano}-${mes}-${dia}`;
+};
+
 // Função 1: Calcular KPIs gerais
 export const calcularKpis = (data: TVolumetriaRaw[]): TVolumetriaKpis => {
   if (!data || data.length === 0) {
@@ -47,28 +60,42 @@ export const calcularKpis = (data: TVolumetriaRaw[]): TVolumetriaKpis => {
     };
   }
 
-  const datasOrdenadas = [...data].sort(
-    (a, b) => a.data_processamento - b.data_processamento
-  );
+  const datasOrdenadas = [...data].sort((a, b) => {
+    const dataA =
+      typeof a.data_processamento === "string"
+        ? new Date(a.data_processamento).getTime()
+        : a.data_processamento;
+    const dataB =
+      typeof b.data_processamento === "string"
+        ? new Date(b.data_processamento).getTime()
+        : b.data_processamento;
+    return dataA - dataB;
+  });
 
   const diasComHora = data.filter(d => d.nfse_com_hora_valida > 0).length;
 
   return {
     total_registros: data.length,
-    periodo_inicial: new Date(
+    periodo_inicial: formatarDataProcessamento(
       datasOrdenadas[0].data_processamento
-    ).toLocaleDateString("pt-BR"),
-    periodo_final: new Date(
+    ),
+    periodo_final: formatarDataProcessamento(
       datasOrdenadas[data.length - 1].data_processamento
-    ).toLocaleDateString("pt-BR"),
+    ),
     total_nfse_processadas: data.reduce(
       (acc, d) => acc + d.total_nfse_processadas,
       0
     ),
     volume_medio_diario:
       data.reduce((acc, d) => acc + d.total_nfse_processadas, 0) / data.length,
-    municipios_unicos: Math.max(...data.map(d => d.municipios_diferentes)),
-    prestadores_unicos: Math.max(...data.map(d => d.prestadores_diferentes)),
+    municipios_unicos: Math.max(
+      0,
+      ...data.map(d => d.municipios_diferentes ?? 0)
+    ),
+    prestadores_unicos: Math.max(
+      0,
+      ...data.map(d => d.prestadores_diferentes ?? 0)
+    ),
     dias_com_hora_valida: diasComHora,
     percentual_hora_valida: (diasComHora / data.length) * 100,
   };
@@ -94,8 +121,8 @@ export const processarEvolucaoMensal = (
     }
 
     acc[key].volumes.push(row.total_nfse_processadas);
-    acc[key].municipios_total += row.municipios_diferentes;
-    acc[key].prestadores_total += row.prestadores_diferentes;
+    acc[key].municipios_total += row.municipios_diferentes ?? 0;
+    acc[key].prestadores_total += row.prestadores_diferentes ?? 0;
 
     return acc;
   }, {} as Record<string, any>);
@@ -206,17 +233,33 @@ export const processarPadroesHorarios = (
   data: TVolumetriaRaw[]
 ): TVolumetriaPadraoHorario[] => {
   const comHora = data.filter(
-    d => d.hora_media_processamento !== null && d.hora_media_processamento >= 0
+    d =>
+      d.hora_media_decimal !== null &&
+      d.hora_media_decimal !== undefined &&
+      d.hora_media_decimal >= 0
+  );
+
+  console.log("[processarPadroesHorarios] Total de registros:", data.length);
+  console.log(
+    "[processarPadroesHorarios] Registros com hora_media_decimal válida:",
+    comHora.length
+  );
+  console.log(
+    "[processarPadroesHorarios] Primeiros registros:",
+    data.slice(0, 3).map(d => ({
+      hora_media_decimal: d.hora_media_decimal,
+      hora_media_processamento: d.hora_media_processamento,
+    }))
   );
 
   const porHora = comHora.reduce((acc, row) => {
-    const hora = Math.floor(row.hora_media_processamento as number);
+    const hora = Math.floor(row.hora_media_decimal as number);
     if (!acc[hora]) acc[hora] = [];
     acc[hora].push(row.total_nfse_processadas);
     return acc;
   }, {} as Record<number, number[]>);
 
-  return Object.entries(porHora)
+  const resultado = Object.entries(porHora)
     .map(([hora, volumes]) => ({
       hora: parseInt(hora),
       dias_registrados: volumes.length,
@@ -224,6 +267,9 @@ export const processarPadroesHorarios = (
       volume_total: volumes.reduce((a, b) => a + b, 0),
     }))
     .sort((a, b) => a.hora - b.hora);
+
+  console.log("[processarPadroesHorarios] Resultado final:", resultado);
+  return resultado;
 };
 
 // Função 6: Preparar dados para gráfico de barras (evolução mensal)

@@ -13,6 +13,7 @@ interface CardValorProps {
   description: string;
   value: number | string;
   icon?: React.ReactNode;
+  suffix?: string;
 }
 
 export const CardValor = ({
@@ -20,6 +21,7 @@ export const CardValor = ({
   description,
   value,
   icon,
+  suffix,
 }: CardValorProps) => {
   return (
     <Card className="flex flex-col items-start p-4 gap-2 min-w-[180px]">
@@ -32,6 +34,7 @@ export const CardValor = ({
       <CardContent className="p-0">
         <span className="text-2xl font-bold text-gray-900">
           {formatNumber(value)}
+          {suffix && <span className="text-sm font-normal ml-1">{suffix}</span>}
         </span>
         <CardDescription className="text-xs text-gray-400">
           {description}

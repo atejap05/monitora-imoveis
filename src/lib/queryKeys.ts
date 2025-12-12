@@ -1,4 +1,4 @@
-import type { TFilter, TContribuintesFilter } from "@/@types";
+import type { TFilter, TContribuintesFilter, VolumetriaParams } from "@/@types";
 
 /**
  * Query Keys hierárquicas para melhor gerenciamento de cache
@@ -64,6 +64,8 @@ export const QUERY_KEYS = {
 
   // Volumetria
   volumetria: () => ["volumetria"] as const,
+  volumetriaData: (filters: VolumetriaParams) =>
+    [...QUERY_KEYS.volumetria(), "data", filters] as const,
 } as const;
 
 /**

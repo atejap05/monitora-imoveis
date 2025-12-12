@@ -1,20 +1,24 @@
-import { Activity } from "lucide-react";
+import React from "react";
+import { Card } from "@/components/ui/card";
 
-export const VolumetriaWelcome = () => {
-    return (
-        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-            <Activity className="w-20 h-20 text-blue-500 mb-6" />
-            <h2 className="text-3xl font-bold text-gray-800 mb-4">
-                Análise de Volumetria NFSe
-            </h2>
-            <p className="text-gray-600 max-w-2xl mb-6">
-                Esta seção apresenta análises temporais completas dos padrões de
-                processamento de NFSe para planejamento de infraestrutura.
-            </p>
-            <p className="text-gray-500 text-sm">
-                Os dados serão carregados automaticamente.
-            </p>
+export const VolumetriaWelcome: React.FC = () => {
+  return (
+    <Card className="p-12 text-center">
+      <div className="max-w-md mx-auto">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+          Bem-vindo à Análise de Volumetria
+        </h2>
+        <p className="text-gray-600 mb-6">
+          Selecione os filtros acima para visualizar dados de volumetria de
+          NFSe, incluindo métricas de processamento, padrões horários e
+          sazonalidade.
+        </p>
+        <div className="space-y-2 text-sm text-gray-500">
+          <p>📊 Visualize tendências mensais e anuais</p>
+          <p>📈 Analise padrões de processamento por dia da semana</p>
+          <p>⏰ Explore variações horárias de emissão</p>
         </div>
-    );
+      </div>
+    </Card>
+  );
 };
-

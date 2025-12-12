@@ -1,17 +1,37 @@
-// Tipo retornado pelo backend
-export type TVolumetriaRaw = {
-  data_processamento: number; // timestamp em ms
+// Parâmetros enviados ao backend
+export interface VolumetriaParams {
+  filtro?: "uf" | "regiao" | "municipio" | "todos";
+  uf?: string;
+  regiao?: string;
+  municipio?: string | number;
+  contribuintes?: number[];
+  anos?: number[];
+  dataInicio?: string; // "YYYY-MM-DD"
+  dataFim?: string; // "YYYY-MM-DD"
+  valorMin?: number;
+  valorMax?: number;
+  incluir_canceladas?: boolean;
+}
+
+// Cada item retornado pelo backend
+export interface VolumetriaItem {
+  data_processamento: string | number; // "YYYY-MM-DD" ou timestamp milissegundos
   ano_processamento: number;
-  prestadores_diferentes: number;
-  nfse_com_hora_valida: number;
-  hora_media_processamento: number | null;
-  dia_semana_nome: string;
-  municipios_diferentes: number;
-  dia_processamento: number;
   mes_processamento: number;
+  dia_processamento: number;
+  dia_semana: number;
+  dia_semana_nome: string;
   total_nfse_processadas: number;
-  dia_semana: number; // 0=domingo, 6=sábado
-};
+  nfse_com_hora_valida?: number;
+  hora_media_processamento?: string;
+  hora_media_decimal?: number;
+  municipios_diferentes?: number;
+  prestadores_diferentes?: number;
+  valor_total_processado?: number;
+}
+
+// Tipo compatível com processamento (substitui TVolumetriaRaw)
+export type TVolumetriaRaw = VolumetriaItem;
 
 // Tipos para visualizações específicas
 export type TVolumetriaEvolucaoMensal = {

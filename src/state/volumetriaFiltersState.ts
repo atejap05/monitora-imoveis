@@ -1,41 +1,61 @@
-import { TFilter } from "@/@types";
 import { create } from "zustand";
+import { VolumetriaParams, VolumetriaItem } from "@/@types";
 
-interface VolumetriaFiltersState {
-  filters: TFilter;
-  submittedFilters: TFilter | null;
+type VolumetriaFiltersState = {
+  filters: VolumetriaParams;
+  submittedFilters: VolumetriaParams | null;
   isLoading: boolean;
-  submitFilters: (f: TFilter) => void;
-  setFilters: (f: TFilter) => void;
-  reset: () => void;
-}
+  data: VolumetriaItem[] | null;
+  error: Error | null;
+  setFilters: (filters: Partial<VolumetriaParams>) => void;
+  submitFilters: (filters: VolumetriaParams) => void;
+  setLoading: (isLoading: boolean) => void;
+  setData: (data: VolumetriaItem[] | null) => void;
+  setError: (error: Error | null) => void;
+};
 
-const defaultFilters: TFilter = {
+const initialState: VolumetriaParams = {
   filtro: "todos",
   anos: [],
-  contribuintes: [1, 2, 3],
-  valorMin: null,
-  valorMax: null,
-  uf: null,
-  municipio: null,
-  regiao: null,
+  contribuintes: [],
+  valorMin: undefined,
+  valorMax: undefined,
+  uf: undefined,
+  municipio: undefined,
+  regiao: undefined,
 };
 
 export const useVolumetriaFiltersState = create<VolumetriaFiltersState>(
   set => ({
-    filters: defaultFilters,
-    submittedFilters: null, // Inicializa como null para não buscar dados automaticamente
+    filters: initialState,
+    submittedFilters: null,
     isLoading: false,
-    submitFilters: f => {
-      console.log("[Volumetria] Filtros submetidos:", f);
-      set({ filters: f, submittedFilters: f });
-    },
-    setFilters: f => set({ filters: f }),
-    reset: () =>
+    data: null,
+    error: null,
+
+    setFilters: newFilters =>
+      set(state => ({ filters: { ...state.filters, ...newFilters } })),
+
+    submitFilters: filters => {
+      console.log("[Volumetria] Filtros submetidos:", filters);
       set({
-        filters: defaultFilters,
-        submittedFilters: null,
-        isLoading: false,
-      }),
+        submittedFilters: filters,
+        error: null,
+        data: null,
+        isLoading: true,
+      });
+    },
+
+    setLoading: isLoading => set({ isLoading }),
+
+    setData: data => set({ data, isLoading: false }),
+
+    setError: error => {
+      if (error) {
+        set({ error, isLoading: false });
+      } else {
+        set({ error: null });
+      }
+    },
   })
 );

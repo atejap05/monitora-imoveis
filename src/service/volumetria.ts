@@ -1,8 +1,12 @@
-import { TVolumetriaRaw } from "@/@types";
+import { VolumetriaParams, VolumetriaItem } from "@/@types";
 
-export const fetchVolumetriaData = async (): Promise<TVolumetriaRaw[]> => {
+export const fetchVolumetriaData = async (
+  params: VolumetriaParams
+): Promise<VolumetriaItem[]> => {
   const win = window as Window & {
-    get_volumetria_nfse?: () => Promise<TVolumetriaRaw[]>;
+    get_volumetria_nfse?: (
+      params: VolumetriaParams
+    ) => Promise<VolumetriaItem[]>;
   };
 
   if (!win.get_volumetria_nfse) {
@@ -10,8 +14,9 @@ export const fetchVolumetriaData = async (): Promise<TVolumetriaRaw[]> => {
   }
 
   try {
-    const response = await win.get_volumetria_nfse();
-    console.log("response volumetria", response);
+    //@ts-ignore
+    const response = await win.get_volumetria_nfse(params);
+    console.log("response volumetria com filtros:", params, response);
 
     if (!Array.isArray(response)) {
       throw new Error("Resposta inválida do backend - esperado array");
