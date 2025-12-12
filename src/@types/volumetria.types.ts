@@ -23,7 +23,7 @@ export interface VolumetriaItem {
   dia_semana_nome: string;
   total_nfse_processadas: number;
   nfse_com_hora_valida?: number;
-  hora_media_processamento?: string;
+  hora_media_processamento?: string | number; // "HH:MM:SS" ou número (hora decimal como 14, 13, etc)
   hora_media_decimal?: number;
   municipios_diferentes?: number;
   prestadores_diferentes?: number;

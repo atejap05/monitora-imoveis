@@ -28,7 +28,9 @@ export const CardValor = ({
       <CardHeader className="p-0">
         <div className="flex items-center gap-2">
           {icon}
-          <CardTitle className="text-base font-semibold">{title}</CardTitle>
+          <CardTitle className="text-base font-semibold text-green">
+            {title}
+          </CardTitle>
         </div>
       </CardHeader>
       <CardContent className="p-0">

@@ -3,10 +3,14 @@ import { fetchVolumetriaData } from "@/service";
 import { QUERY_KEYS } from "@/lib/queryKeys";
 import { queuedBackendCall } from "@/lib/backendQueue";
 
-export const useVolumetriaData = () => {
+import { VolumetriaParams } from "@/@types";
+
+export const useVolumetriaData = (filters: VolumetriaParams | null) => {
   return useQuery({
-    queryKey: QUERY_KEYS.volumetria(),
-    queryFn: () => queuedBackendCall(() => fetchVolumetriaData(), "normal"),
+    queryKey: QUERY_KEYS.volumetriaData(filters ?? {}),
+    queryFn: () =>
+      queuedBackendCall(() => fetchVolumetriaData(filters ?? {}), "normal"),
+    enabled: !!filters,
     staleTime: 1000 * 60 * 60, // 1 hora
   });
 };

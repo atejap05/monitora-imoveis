@@ -4,13 +4,13 @@ import { useSyncVolumetriaData } from "./hooks/useSyncVolumetriaData";
 import { VolumetriaWelcome } from "./components/VolumetriaWelcome";
 import { VolumetriaKpiCards } from "./components/VolumetriaKpiCards";
 import { VolumetriaEvolucaoMensal } from "./components/VolumetriaEvolucaoMensal";
+import { VolumetriaSazonalidade } from "./components/VolumetriaSazonalidade";
 import { VolumetriaPadroesSemanais } from "./components/VolumetriaPadroesSemanais";
 import { VolumetriaPadroesHorarios } from "./components/VolumetriaPadroesHorarios";
-import { VolumetriaDataTable } from "./components/VolumetriaDataTable";
 import {
   VolumetriaKpiSkeleton,
+  VolumetriaChartSingleSkeleton,
   VolumetriaChartSkeleton,
-  VolumetriaTableSkeleton,
 } from "./components/VolumetriaSkeletons";
 import {
   calcularKpis,
@@ -21,8 +21,7 @@ import {
 } from "./components/utils";
 
 const Volumetria: React.FC = () => {
-  const { submittedFilters, data, isLoading, error } =
-    useVolumetriaFiltersState();
+  const { submittedFilters, data, isLoading } = useVolumetriaFiltersState();
 
   // Hook para sincronizar dados com backend
   useSyncVolumetriaData();
@@ -56,14 +55,22 @@ const Volumetria: React.FC = () => {
             <VolumetriaKpiCards kpis={kpis} />
           ) : null}
 
-          {/* Evolução Mensal e Sazonalidade */}
+          {/* Evolução Temporal (Coluna Única) */}
           {isLoading ? (
-            <VolumetriaChartSkeleton />
+            <VolumetriaChartSingleSkeleton />
           ) : (
-            <VolumetriaEvolucaoMensal
-              evolucaoMensal={evolucaoMensal}
-              sazonalidade={sazonalidade}
-            />
+            <div className="mb-6">
+              <VolumetriaEvolucaoMensal evolucaoMensal={evolucaoMensal} />
+            </div>
+          )}
+
+          {/* Sazonalidade Mensal (Coluna Única) */}
+          {isLoading ? (
+            <VolumetriaChartSingleSkeleton />
+          ) : (
+            <div className="mb-6">
+              <VolumetriaSazonalidade sazonalidade={sazonalidade} />
+            </div>
           )}
 
           {/* Padrões Semanais */}
@@ -74,23 +81,10 @@ const Volumetria: React.FC = () => {
           )}
 
           {/* Padrões Horários */}
-          {!isLoading && (
-            <VolumetriaPadroesHorarios padroesHorarios={padroesHorarios} />
-          )}
-
-          {/* Tabela de Dados */}
           {isLoading ? (
-            <VolumetriaTableSkeleton />
-          ) : error ? (
-            <div className="bg-white rounded shadow p-6 text-center text-red-500">
-              Erro ao carregar dados de volumetria: {error.message}
-            </div>
-          ) : data && data.length > 0 ? (
-            <VolumetriaDataTable data={data} />
+            <VolumetriaChartSkeleton />
           ) : (
-            <div className="bg-white rounded shadow p-6 text-center text-gray-500">
-              Nenhum dado de volumetria disponível para os filtros selecionados.
-            </div>
+            <VolumetriaPadroesHorarios padroesHorarios={padroesHorarios} />
           )}
         </>
       )}

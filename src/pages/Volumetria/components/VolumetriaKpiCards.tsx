@@ -10,25 +10,25 @@ export const VolumetriaKpiCards = ({ kpis }: Props) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <CardValor
-        icon={<FileText className="w-6 h-6" />}
+        icon={<FileText className="w-6 h-6 text-green" />}
         title="Total Processadas"
         value={kpis.total_nfse_processadas}
         description="NFSe no período"
       />
       <CardValor
-        icon={<TrendingUp className="w-6 h-6" />}
+        icon={<TrendingUp className="w-6 h-6 text-green" />}
         title="Média Diária"
         value={Math.round(kpis.volume_medio_diario)}
         description="NFSe por dia"
       />
       <CardValor
-        icon={<Building2 className="w-6 h-6" />}
+        icon={<Building2 className="w-6 h-6 text-green" />}
         title="Municípios Ativos"
         value={kpis.municipios_unicos}
         description="Diferentes municípios"
       />
       <CardValor
-        icon={<Calendar className="w-6 h-6" />}
+        icon={<Calendar className="w-6 h-6 text-green" />}
         title="Período Analisado"
         value={kpis.total_registros}
         suffix="dias"

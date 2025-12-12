@@ -72,7 +72,9 @@ export const calcularKpis = (data: TVolumetriaRaw[]): TVolumetriaKpis => {
     return dataA - dataB;
   });
 
-  const diasComHora = data.filter(d => d.nfse_com_hora_valida > 0).length;
+  const diasComHora = data.filter(
+    d => (d.nfse_com_hora_valida ?? 0) > 0
+  ).length;
 
   return {
     total_registros: data.length,
@@ -189,6 +191,7 @@ export const calcularSazonalidade = (
 export const processarPadroesSemanais = (
   data: TVolumetriaRaw[]
 ): TVolumetriaPadraoSemanal[] => {
+  // Agrupar dados por dia da semana
   const porDia = data.reduce((acc, row) => {
     const dia = row.dia_semana;
     if (!acc[dia]) acc[dia] = [];
@@ -196,9 +199,27 @@ export const processarPadroesSemanais = (
     return acc;
   }, {} as Record<number, number[]>);
 
-  return Object.entries(porDia)
-    .map(([dia, volumes]) => {
-      const diaNum = parseInt(dia);
+  // Garantir que todos os 7 dias estejam presentes (0-6)
+  const ordemCorreto = [1, 2, 3, 4, 5, 6, 0]; // segunda até domingo
+  const resultado: TVolumetriaPadraoSemanal[] = [];
+
+  for (const diaNum of ordemCorreto) {
+    const volumes = porDia[diaNum] ?? [];
+
+    // Se não há dados para o dia, cria um registro com valores padrão
+    if (volumes.length === 0) {
+      resultado.push({
+        dia_semana: diaNum,
+        dia_nome: DIAS_PT[diaNum] ?? "Desconhecido",
+        dias_total: 0,
+        volume_medio: 0,
+        volume_mediano: 0,
+        desvio_padrao: 0,
+        volume_min: 0,
+        volume_max: 0,
+        variabilidade: 0,
+      });
+    } else {
       const ordenado = [...volumes].sort((a, b) => a - b);
       const media = volumes.reduce((a, b) => a + b, 0) / volumes.length;
       const mediana = ordenado[Math.floor(ordenado.length / 2)];
@@ -207,9 +228,9 @@ export const processarPadroesSemanais = (
         volumes.length;
       const desvio = Math.sqrt(variancia);
 
-      return {
+      resultado.push({
         dia_semana: diaNum,
-        dia_nome: DIAS_PT[diaNum],
+        dia_nome: DIAS_PT[diaNum] ?? "Desconhecido",
         dias_total: volumes.length,
         volume_medio: media,
         volume_mediano: mediana,
@@ -217,31 +238,30 @@ export const processarPadroesSemanais = (
         volume_min: Math.min(...volumes),
         volume_max: Math.max(...volumes),
         variabilidade: (desvio / media) * 100,
-      };
-    })
-    .sort((a, b) => {
-      // Ordenar: segunda=1, terça=2, ..., domingo=0
-      const ordemCorreto = [1, 2, 3, 4, 5, 6, 0];
-      return (
-        ordemCorreto.indexOf(a.dia_semana) - ordemCorreto.indexOf(b.dia_semana)
-      );
-    });
+      });
+    }
+  }
+
+  return resultado;
 };
 
 // Função 5: Processar padrões horários
 export const processarPadroesHorarios = (
   data: TVolumetriaRaw[]
 ): TVolumetriaPadraoHorario[] => {
-  const comHora = data.filter(
-    d =>
-      d.hora_media_decimal !== null &&
-      d.hora_media_decimal !== undefined &&
-      d.hora_media_decimal >= 0
-  );
+  // Tenta usar hora_media_decimal primeiro, se não existir tenta hora_media_processamento como número
+  const comHora = data.filter(d => {
+    const hora =
+      d.hora_media_decimal ??
+      (typeof d.hora_media_processamento === "number"
+        ? d.hora_media_processamento
+        : undefined);
+    return hora !== null && hora !== undefined && hora >= 0;
+  });
 
   console.log("[processarPadroesHorarios] Total de registros:", data.length);
   console.log(
-    "[processarPadroesHorarios] Registros com hora_media_decimal válida:",
+    "[processarPadroesHorarios] Registros com hora válida:",
     comHora.length
   );
   console.log(
@@ -253,7 +273,13 @@ export const processarPadroesHorarios = (
   );
 
   const porHora = comHora.reduce((acc, row) => {
-    const hora = Math.floor(row.hora_media_decimal as number);
+    // Usa hora_media_decimal se disponível, senão usa hora_media_processamento como número
+    const horaDecimal =
+      row.hora_media_decimal ??
+      (typeof row.hora_media_processamento === "number"
+        ? row.hora_media_processamento
+        : 0);
+    const hora = Math.floor(horaDecimal);
     if (!acc[hora]) acc[hora] = [];
     acc[hora].push(row.total_nfse_processadas);
     return acc;
