@@ -37,7 +37,6 @@ export const useVolumetriaFiltersState = create<VolumetriaFiltersState>(
       set(state => ({ filters: { ...state.filters, ...newFilters } })),
 
     submitFilters: filters => {
-      console.log("[Volumetria] Filtros submetidos:", filters);
       set({
         submittedFilters: filters,
         error: null,

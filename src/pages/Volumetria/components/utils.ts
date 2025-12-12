@@ -259,19 +259,6 @@ export const processarPadroesHorarios = (
     return hora !== null && hora !== undefined && hora >= 0;
   });
 
-  console.log("[processarPadroesHorarios] Total de registros:", data.length);
-  console.log(
-    "[processarPadroesHorarios] Registros com hora válida:",
-    comHora.length
-  );
-  console.log(
-    "[processarPadroesHorarios] Primeiros registros:",
-    data.slice(0, 3).map(d => ({
-      hora_media_decimal: d.hora_media_decimal,
-      hora_media_processamento: d.hora_media_processamento,
-    }))
-  );
-
   const porHora = comHora.reduce((acc, row) => {
     // Usa hora_media_decimal se disponível, senão usa hora_media_processamento como número
     const horaDecimal =
@@ -294,7 +281,6 @@ export const processarPadroesHorarios = (
     }))
     .sort((a, b) => a.hora - b.hora);
 
-  console.log("[processarPadroesHorarios] Resultado final:", resultado);
   return resultado;
 };
 

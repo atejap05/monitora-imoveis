@@ -16,7 +16,6 @@ export const fetchVolumetriaData = async (
   try {
     //@ts-ignore
     const response = await win.get_volumetria_nfse(params);
-    console.log("response volumetria com filtros:", params, response);
 
     if (!Array.isArray(response)) {
       throw new Error("Resposta inválida do backend - esperado array");

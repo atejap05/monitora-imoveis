@@ -21,11 +21,6 @@ export const useSyncVolumetriaData = () => {
         throw new Error("Filtros não submetidos para a busca.");
       }
 
-      console.log(
-        "[useSyncVolumetriaData] Filtros enviados para o backend:",
-        submittedFilters
-      );
-
       const data = await queuedBackendCall(
         () => fetchVolumetriaData(submittedFilters),
         "normal"

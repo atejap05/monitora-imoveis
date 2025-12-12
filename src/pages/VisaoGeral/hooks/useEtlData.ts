@@ -35,13 +35,6 @@ export function useEtlData() {
         }))
         .filter(d => !!d.data_etl && !isNaN(d.qtd_nfse));
 
-      // eslint-disable-next-line no-console
-      console.log(
-        "[ETL DEBUG] Dados recebidos do backend:",
-        rows.slice(0, 5),
-        rows.length
-      );
-
       return rows;
     },
     // staleTime configurado globalmente para 1 hora

@@ -24,15 +24,18 @@ export const useSyncVisaoGeralData = () => {
       if (!submittedFilters) {
         throw new Error("Filtros não submetidos para a busca.");
       }
-      console.log(
-        "[useSyncVisaoGeralData] Filtros enviados para o backend:",
-        submittedFilters,
-      );
 
       // Usar fila sequencial do backend em vez de Promise.all
-      const nfseTotais = await queuedBackendCall(() => fetchNotasFiscais(submittedFilters), 'high');
-      const distribuicaoFrequencia = await queuedBackendCall(() => fetchDistribuicaoFrequencia(submittedFilters));
-      const adesaoMunicipios = await queuedBackendCall(() => fetchAdesaoMunicipios(submittedFilters));
+      const nfseTotais = await queuedBackendCall(
+        () => fetchNotasFiscais(submittedFilters),
+        "high"
+      );
+      const distribuicaoFrequencia = await queuedBackendCall(() =>
+        fetchDistribuicaoFrequencia(submittedFilters)
+      );
+      const adesaoMunicipios = await queuedBackendCall(() =>
+        fetchAdesaoMunicipios(submittedFilters)
+      );
 
       return { nfseTotais, distribuicaoFrequencia, adesaoMunicipios };
     },

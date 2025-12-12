@@ -19,9 +19,6 @@ export const useConveniosData = () => {
     ? "success"
     : "idle";
 
-  // Debug: log quando o hook é chamado
-  console.log("[useConveniosData] Hook chamado - status:", status);
-
   return {
     status,
     data,
