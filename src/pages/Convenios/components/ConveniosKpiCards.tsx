@@ -11,8 +11,8 @@ export const ConveniosKpiCards: React.FC<ConveniosKpiCardsProps> = ({ data }) =>
     const total = data.length;
     const conveniadosAtivos = data.filter(m => m.StatusConvenioSEFIN === "Conveniado Ativo").length;
     const conveniadosNaoAtivos = data.filter(m => m.StatusConvenioSEFIN === "Conveniado - Nao Ativo").length;
+    const totalConveniados = conveniadosAtivos + conveniadosNaoAtivos;
     const naoConveniados = data.filter(m => m.StatusConvenioSEFIN === "Nao Conveniado").length;
-    const erroConsulta = data.filter(m => m.StatusConvenioSEFIN === "Erro na Consulta").length;
     const ativosUltimoPeriodo = data.filter(m => m.AtivoUltimoPeriodo === "Sim").length;
     const ativosNaBase = data.filter(m => m.AtivoNaBase === "Sim").length;
     const semAtividade = data.filter(m => !m.UltimaAtividade).length;
@@ -45,10 +45,10 @@ export const ConveniosKpiCards: React.FC<ConveniosKpiCardsProps> = ({ data }) =>
                     icon={<AlertTriangle />}
                 />
                 <DashCard
-                    title="Com Erro na Consulta"
-                    value={erroConsulta.toLocaleString("pt-BR")}
-                    description="Erro na consulta SEFIN"
-                    icon={<AlertTriangle color='#eab308' />}
+                    title="Total Conveniados"
+                    value={totalConveniados.toLocaleString("pt-BR")}
+                    description="Conveniados Ativos + Não Ativos"
+                    icon={<CheckCircle color='#22c55e' />}
                 />
                 <DashCard
                     title="Ativos no Último Período"
