@@ -19,6 +19,11 @@ import {
   processarPadroesSemanais,
   processarPadroesHorarios,
 } from "./components/utils";
+import {
+  CONTAINER_MAX_WIDTH,
+  RESPONSIVE_PADDING,
+  FLEX_COL_GAP_CLASSES,
+} from "@/lib/constants";
 
 const Volumetria: React.FC = () => {
   const { submittedFilters, data, isLoading } = useVolumetriaFiltersState();
@@ -37,8 +42,8 @@ const Volumetria: React.FC = () => {
   const padroesHorarios = data ? processarPadroesHorarios(data) : [];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6">
-      <h1 className="text-2xl text-center font-semibold text-gray-800 mb-6">
+    <div className={`${CONTAINER_MAX_WIDTH} ${RESPONSIVE_PADDING} py-6`}>
+      <h1 className="text-2xl text-center font-semibold text-gray-800 mb-4 md:mb-6 lg:mb-8">
         Análise de Volumetria NFSe
       </h1>
 
@@ -47,7 +52,7 @@ const Volumetria: React.FC = () => {
 
       {/* Conteúdo Principal */}
       {consultaIniciada && (
-        <>
+        <div className={FLEX_COL_GAP_CLASSES}>
           {/* KPIs */}
           {isLoading ? (
             <VolumetriaKpiSkeleton />
@@ -59,18 +64,14 @@ const Volumetria: React.FC = () => {
           {isLoading ? (
             <VolumetriaChartSingleSkeleton />
           ) : (
-            <div className="mb-6">
-              <VolumetriaEvolucaoMensal evolucaoMensal={evolucaoMensal} />
-            </div>
+            <VolumetriaEvolucaoMensal evolucaoMensal={evolucaoMensal} />
           )}
 
           {/* Sazonalidade Mensal (Coluna Única) */}
           {isLoading ? (
             <VolumetriaChartSingleSkeleton />
           ) : (
-            <div className="mb-6">
-              <VolumetriaSazonalidade sazonalidade={sazonalidade} />
-            </div>
+            <VolumetriaSazonalidade sazonalidade={sazonalidade} />
           )}
 
           {/* Padrões Semanais */}
@@ -86,7 +87,7 @@ const Volumetria: React.FC = () => {
           ) : (
             <VolumetriaPadroesHorarios padroesHorarios={padroesHorarios} />
           )}
-        </>
+        </div>
       )}
     </div>
   );

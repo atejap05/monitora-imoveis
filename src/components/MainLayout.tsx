@@ -4,8 +4,7 @@ import Header from "@/components/Header/Header";
 import SidebarNav from "./Sidebar/SidebarNav";
 import React, { useState, useRef } from "react";
 import SidebarMenuItems from "./Sidebar/SidebarMenuItems";
-
-const HEADER_HEIGHT = 94; // unificado com Header
+import { HEADER_HEIGHT_PX } from "@/lib/constants";
 
 export const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const [headerVisible, setHeaderVisible] = useState(true);
@@ -33,7 +32,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
           className="w-full bg-green z-40"
           style={{
             position: "sticky",
-            top: headerVisible ? HEADER_HEIGHT : 0,
+            top: headerVisible ? HEADER_HEIGHT_PX : "0",
             boxShadow: "0 2px 8px 0 rgba(0,0,0,0.04)",
           }}
         >
@@ -42,9 +41,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
         <div className="flex-1 min-h-0">
           <div className="flex w-full h-full relative">
             <div className="flex-1 flex justify-center">
-              <div className="w-full px-4 sm:px-6 md:px-8 py-8">
-                {children}
-              </div>
+              <div className="w-full px-4 sm:px-6 md:px-8 py-8">{children}</div>
             </div>
           </div>
         </div>

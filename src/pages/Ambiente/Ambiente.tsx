@@ -16,6 +16,7 @@ import {
 } from "./components/AmbienteSkeletons";
 import { FiltroHeader } from "@/components/Layout/FiltroHeader";
 import { useAmbienteFiltersState } from "@/state/ambienteFiltersSate";
+import { CONTAINER_MAX_WIDTH, RESPONSIVE_PADDING } from "@/lib/constants";
 
 const Ambiente: React.FC = () => {
   // Reset do estado quando o componente for montado
@@ -90,8 +91,8 @@ const Ambiente: React.FC = () => {
   const pctTranscrita = totalGeral ? (totalTranscrita / totalGeral) * 100 : 0;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6">
-      <h1 className="text-2xl text-center font-semibold text-gray-800 mb-4">
+    <div className={`${CONTAINER_MAX_WIDTH} ${RESPONSIVE_PADDING} py-6`}>
+      <h1 className="text-2xl text-center font-semibold text-gray-800 mb-4 md:mb-6 lg:mb-8">
         Ambiente de Emissão
       </h1>
 

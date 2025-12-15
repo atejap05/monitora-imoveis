@@ -10,6 +10,12 @@ import LocalEtlSection from "./LocalEtlSection";
 import { FileText, User, Building2, Factory } from "lucide-react";
 import DashCard from "@/components/DashCard";
 import BarLoader from "react-spinners/BarLoader";
+import {
+  CONTAINER_MAX_WIDTH,
+  RESPONSIVE_PADDING,
+  RESPONSIVE_GAP,
+  KPI_GRID_CLASSES,
+} from "@/lib/constants";
 
 const VisaoGeralDashboard = () => {
   const { data, isLoading, error, submittedFilters } =
@@ -54,7 +60,7 @@ const VisaoGeralDashboard = () => {
   }
 
   return (
-    <div className="px-4 py-4">
+    <div className={`${CONTAINER_MAX_WIDTH} ${RESPONSIVE_PADDING} py-6`}>
       <h1 className="text-2xl text-center font-semibold text-gray-800 mb-4 md:mb-6 lg:mb-8">
         Visão Geral da Base NFSe
       </h1>
@@ -63,8 +69,8 @@ const VisaoGeralDashboard = () => {
         returnedYears={returnedYears}
       />
 
-      <div className="flex flex-col gap-4 md:gap-6 lg:gap-8">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className={`flex flex-col ${RESPONSIVE_GAP}`}>
+        <div className={KPI_GRID_CLASSES}>
           {isLoading ? (
             <>
               <DashCard isPending title="" value="" description="" />
@@ -132,7 +138,7 @@ const VisaoGeralDashboard = () => {
         {/* Gráfico sobre as ETL no Banco de dados. */}
         <LocalEtlSection />
       </div>
-    </div >
+    </div>
   );
 };
 

@@ -26,6 +26,11 @@ import { ConveniosKpiCards } from "./components/ConveniosKpiCards";
 import { ConveniosChartsSection } from "./components/ConveniosChartsSection";
 import { useConveniosFiltersState } from "@/state/conveniosFiltersState";
 import { ConveniosSkeleton } from "./components/ConveniosSkeleton";
+import {
+  CONTAINER_MAX_WIDTH,
+  RESPONSIVE_PADDING,
+  RESPONSIVE_GAP,
+} from "@/lib/constants";
 
 const Convenios: React.FC = () => {
   const { status, data, error, refetch } = useConveniosData();
@@ -105,12 +110,12 @@ const Convenios: React.FC = () => {
   const hasData = !!(data && data.length > 0);
 
   return (
-    <div className="w-full flex-1 px-4 sm:px-6 md:px-8 py-6">
-      <div className="flex flex-col items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-primary">
+    <div className={`${CONTAINER_MAX_WIDTH} ${RESPONSIVE_PADDING} py-6`}>
+      <div className="text-center mb-4 md:mb-6 lg:mb-8">
+        <h1 className="text-2xl font-semibold text-gray-800">
           Informações sobre Convênios
         </h1>
-        <p className="text-sm text-gray-500 text-center max-w-2xl mt-2">
+        <p className="text-sm text-gray-500 max-w-2xl mx-auto mt-2">
           Visualize indicadores, gráficos e relatórios sobre os convênios
           celebrados entre municípios e a Receita Federal do Brasil (RFB).
         </p>
@@ -128,14 +133,14 @@ const Convenios: React.FC = () => {
       )}
 
       {consultaIniciada && (
-        <>
+        <div className={`flex flex-col ${RESPONSIVE_GAP}`}>
           {status === "success" && data && (
             <>
               <ConveniosKpiCards data={filteredData} />
               <ConveniosChartsSection data={filteredData} />
             </>
           )}
-          <Card className="mt-8">
+          <Card>
             <CardHeader>
               <CardTitle>Relatório de Convênios</CardTitle>
               <CardDescription className="flex items-center gap-2 text-sm text-gray-500">
@@ -168,7 +173,7 @@ const Convenios: React.FC = () => {
               ) : null}
             </CardContent>
           </Card>
-        </>
+        </div>
       )}
     </div>
   );
