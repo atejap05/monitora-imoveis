@@ -27,7 +27,7 @@ export const QUERY_KEYS = {
   contribuintesCharts: (filters: TContribuintesFilter) =>
     [...QUERY_KEYS.contribuintes, "charts", filters] as const,
   contribuintesTabela: (
-    filters: TContribuintesFilter & { page?: number; limit?: number }
+    filters: TContribuintesFilter & { page?: number; limit?: number },
   ) => [...QUERY_KEYS.contribuintes, "tabela", filters] as const,
   contribuintesTipo: (filters: TContribuintesFilter) =>
     [...QUERY_KEYS.contribuintes, "tipo", filters] as const,
@@ -52,6 +52,8 @@ export const QUERY_KEYS = {
   consultas: ["consultas"] as const,
   consultasCnpj: (ni: string, anos: number[]) =>
     [...QUERY_KEYS.consultas, "cnpj", { ni, anos }] as const,
+  consultasChave: (chave: string) =>
+    [...QUERY_KEYS.consultas, "chave", chave] as const,
 
   // ETL
   etl: ["etl"] as const,

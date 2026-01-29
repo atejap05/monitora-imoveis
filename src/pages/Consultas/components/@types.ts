@@ -20,3 +20,5 @@ export interface NfseData {
 }
 
 export type Consulta = NfseData[];
+
+export type ModoConsulta = "cnpj" | "chave";

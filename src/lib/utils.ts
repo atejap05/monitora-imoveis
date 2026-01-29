@@ -101,7 +101,7 @@ export const findUFCodigo = async (uf: string) => {
 
 export const currentYear = new Date().getFullYear();
 export const YEARS = Array.from({ length: currentYear - 2022 + 1 }, (_, i) =>
-  (2022 + i).toString()
+  (2022 + i).toString(),
 );
 
 export const formataCNPJ = (cnpj?: string | null) => {
@@ -110,6 +110,18 @@ export const formataCNPJ = (cnpj?: string | null) => {
   return cnpj.length === 8
     ? cnpj.replace(/(\d{2})(\d{3})(\d{3})/, "$1.$2.$3")
     : cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
+};
+
+/**
+ * Remove a formatação do CNPJ, deixando apenas os números
+ * Aceita formatos: 44.628.044/0001-36 ou 44628044000136
+ * @param cnpj CNPJ formatado ou não formatado
+ * @returns CNPJ apenas com números (14 dígitos)
+ */
+export const normalizaCNPJ = (cnpj: string): string => {
+  if (!cnpj) return "";
+  // Remove todos os caracteres não numéricos
+  return cnpj.replace(/\D/g, "");
 };
 
 export const formataCPF = (cpf: string) => {
@@ -138,7 +150,7 @@ export const exportXLSX = async (data: any, ni: string, anos: string[]) => {
 ///////////// setFormData para FormNotasFiscais.tsx /////////////
 export function setFormData(
   data: Omit<TFormData, "filtro">,
-  selectedOption: string
+  selectedOption: string,
 ): TFormData {
   return {
     ...data,
@@ -194,7 +206,7 @@ export const dashboardDisplayTitle = (
   uf: string,
   municipio: string,
   regiao: string,
-  chartData: Array<{ year: string }>
+  chartData: Array<{ year: string }>,
 ) => {
   const anos = chartData.map(chart => chart.year).join(", ");
 
@@ -263,7 +275,7 @@ const completarDatasFaltantes = (etlData: EtlData[]): EtlData[] => {
 
   // Ordenar dados por data
   const dadosOrdenados = [...etlData].sort((a, b) =>
-    a.data_etl.localeCompare(b.data_etl)
+    a.data_etl.localeCompare(b.data_etl),
   );
 
   const primeiraDataComDados = dadosOrdenados[0].data_etl;
@@ -274,7 +286,7 @@ const completarDatasFaltantes = (etlData: EtlData[]): EtlData[] => {
 
   // Criar mapa dos dados existentes para busca rápida
   const dadosExistentes = new Map(
-    dadosOrdenados.map(d => [d.data_etl, d.qtd_nfse])
+    dadosOrdenados.map(d => [d.data_etl, d.qtd_nfse]),
   );
 
   // Completar com dados faltantes (valor 0)
@@ -307,7 +319,7 @@ const completarDatasFaltantes = (etlData: EtlData[]): EtlData[] => {
  */
 export const calcularKpisEtl = (
   etlData: EtlData[],
-  period: "7d" | "30d" | "all"
+  period: "7d" | "30d" | "all",
 ): EtlCalculations => {
   if (!etlData || etlData.length === 0) {
     return {
@@ -329,7 +341,7 @@ export const calcularKpisEtl = (
 
   // Ordenar do mais antigo para o mais recente
   const sortedData = [...dadosCompletos].sort((a, b) =>
-    a.data_etl.localeCompare(b.data_etl)
+    a.data_etl.localeCompare(b.data_etl),
   );
 
   // Filtrar dados por período
@@ -337,13 +349,13 @@ export const calcularKpisEtl = (
   if (period === "7d") {
     // Para 7 dias: pegar os últimos 7 dias dos dados reais (não dos completos)
     const dadosReais = etlData.sort((a, b) =>
-      a.data_etl.localeCompare(b.data_etl)
+      a.data_etl.localeCompare(b.data_etl),
     );
     filteredData = dadosReais.slice(-7);
   } else if (period === "30d") {
     // Para 30 dias: pegar os últimos 30 dias dos dados reais (não dos completos)
     const dadosReais = etlData.sort((a, b) =>
-      a.data_etl.localeCompare(b.data_etl)
+      a.data_etl.localeCompare(b.data_etl),
     );
     filteredData = dadosReais.slice(-30);
   }
@@ -395,7 +407,7 @@ export const calcularKpisEtl = (
  */
 const calcularDiasSemDados = (
   filteredData: EtlData[],
-  period: "7d" | "30d" | "all"
+  period: "7d" | "30d" | "all",
 ): number => {
   if (period === "all") {
     // Para período "all", calcular dias sem dados em todo o período
@@ -415,7 +427,7 @@ const calcularDiasSemDados = (
  */
 const calcularMediaComDiasSemDados = (
   filteredData: EtlData[],
-  period: "7d" | "30d" | "all"
+  period: "7d" | "30d" | "all",
 ): number => {
   if (period === "all") {
     // Para período "all", média considerando todos os dias (incluindo dias sem dados)
@@ -454,7 +466,7 @@ export const formatarDataEtl = (data: string): string => {
  * Verifica se os dados estão desatualizados (mais de 1 dia sem atualização)
  */
 export const verificarDadosDesatualizados = (
-  ultimaAtualizacao: string | null
+  ultimaAtualizacao: string | null,
 ): boolean => {
   if (!ultimaAtualizacao) return true;
 

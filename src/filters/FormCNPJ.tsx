@@ -24,6 +24,9 @@ export const FormCNPJ = () => {
             className="bg-white"
           />
           <FormMessage />
+          <p className="text-xs text-muted-foreground">
+            Aceita formato com ou sem pontuação
+          </p>
         </FormItem>
       )}
     />

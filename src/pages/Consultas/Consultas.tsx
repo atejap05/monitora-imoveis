@@ -11,7 +11,9 @@ import BasicTooltip from "@/components/BasicTooltip";
 import { setFileName, exportXLSX } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { useConsultasState } from "./hooks/useConsultasState";
+import { useConsultasState } from "@/state/consultasState";
+import { useConsultaPorChave } from "./hooks/useConsultaPorChave";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import {
   getCoreRowModel,
@@ -30,12 +32,48 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { ModoConsultaToggle } from "./components/ModoConsultaToggle";
+import { NfseDetalhada } from "./components/NfseDetalhada";
 
 const Consultas = () => {
-  const { consulta, formData, isPending } = useConsultasState();
+  const {
+    consulta,
+    formData,
+    isLoading,
+    modoConsulta,
+    chaveAcesso,
+    nfseDetalhada,
+    setNfseDetalhada,
+  } = useConsultasState();
+
+  // Hook para consulta por chave
+  const {
+    data: nfsePorChave,
+    isLoading: isLoadingChave,
+    isError: isErrorChave,
+    error: errorChave,
+  } = useConsultaPorChave(chaveAcesso, modoConsulta === "chave");
+
+  // Sincroniza dados da consulta por chave com o estado
+  useEffect(() => {
+    if (modoConsulta === "chave") {
+      if (nfsePorChave !== undefined) {
+        setNfseDetalhada(nfsePorChave);
+      }
+      if (isErrorChave) {
+        setNfseDetalhada(null);
+        toast.error(
+          errorChave?.message || "Erro ao consultar NFSe por chave de acesso"
+        );
+      }
+    }
+  }, [nfsePorChave, isErrorChave, errorChave, modoConsulta, setNfseDetalhada]);
+
   const { CSVDownloader, Type } = useCSVDownloader();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
+
+  const isPending = modoConsulta === "cnpj" ? isLoading : isLoadingChave;
 
   const table = useReactTable({
     data: consulta,
@@ -58,8 +96,11 @@ const Consultas = () => {
       <h1 className="text-2xl font-bold text-center mb-4">
         Consulta Contribuinte
       </h1>
+      <ModoConsultaToggle />
       <main className="flex-1 flex justify-center items-center">
-        {isPending ? (
+        {modoConsulta === "chave" ? (
+          <NfseDetalhada nfse={nfseDetalhada} isLoading={isPending} />
+        ) : isPending ? (
           <div className="flex flex-col justify-center items-center h-80 gap-3">
             <BarLoader color="#709f77" />
             <span className="text-green text-lg font-semibold ml-4 animate-pulse">
@@ -84,8 +125,8 @@ const Consultas = () => {
                     <div className="flex flex-row gap-2">
                       {consulta.length > 0
                         ? Array.from(
-                            new Set(consulta.map(item => String(item.ano)))
-                          ).map(ano => <Badge key={ano}>{ano}</Badge>)
+                          new Set(consulta.map(item => String(item.ano)))
+                        ).map(ano => <Badge key={ano}>{ano}</Badge>)
                         : null}
                     </div>
                   </div>

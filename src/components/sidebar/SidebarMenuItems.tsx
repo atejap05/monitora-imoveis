@@ -1,7 +1,8 @@
 import { VisaoGeralFilters } from "@/pages/VisaoGeral/components";
 import { NotasFiscaisFilters } from "@/pages/NotasFiscais/components/NotasFiscaisFilters";
 import { FormConsultas } from "@/pages/Consultas/components/FormConsultas";
-import { useConsultasState } from "@/pages/Consultas/hooks/useConsultasState";
+import { FormConsultaChave } from "@/pages/Consultas/components/FormConsultaChave";
+import { useConsultasState } from "@/state/consultasState";
 import { useLocation } from "react-router-dom";
 import { ConveniosFiltersWrapper } from "@/pages/Convenios/components/ConveniosFiltersWrapper";
 import { AmbienteFilters } from "@/pages/Ambiente/components/AmbienteFilters";
@@ -17,8 +18,30 @@ export const SidebarMenuItems = () => {
     case "/visao-geral":
       return <VisaoGeralFilters />;
     case "/consultas": {
-      const { isPending, submitConsulta } = consultasState;
-      return <FormConsultas onSubmit={submitConsulta} isPending={isPending} />;
+      const {
+        isLoading,
+        modoConsulta,
+        submitConsulta,
+        setChaveAcesso,
+      } = consultasState;
+
+      if (modoConsulta === "chave") {
+        return (
+          <FormConsultaChave
+            onSubmit={(chave) => {
+              setChaveAcesso(chave);
+            }}
+            isPending={isLoading}
+          />
+        );
+      }
+
+      return (
+        <FormConsultas
+          onSubmit={(ni, anos) => submitConsulta({ ni, anos })}
+          isPending={isLoading}
+        />
+      );
     }
     case "/convenios": {
       // Usar wrapper que só carrega o hook quando necessário
