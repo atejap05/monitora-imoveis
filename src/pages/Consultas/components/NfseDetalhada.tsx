@@ -53,7 +53,7 @@ export function NfseDetalhada({ nfse, isLoading }: NfseDetalhadaProps) {
 
   if (isLoading) {
     return (
-      <Card className="w-full max-w-7xl shadow-md">
+      <Card className="w-full shadow-md">
         <CardContent className="flex items-center justify-center h-80">
           <div className="flex flex-col items-center gap-3">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green"></div>
@@ -68,7 +68,7 @@ export function NfseDetalhada({ nfse, isLoading }: NfseDetalhadaProps) {
 
   if (!nfse) {
     return (
-      <Card className="w-full max-w-7xl shadow-md">
+      <Card className="w-full shadow-md">
         <CardContent className="flex items-center justify-center h-80">
           <div className="text-center">
             <p className="text-lg text-muted-foreground">
@@ -81,11 +81,11 @@ export function NfseDetalhada({ nfse, isLoading }: NfseDetalhadaProps) {
   }
 
   return (
-    <Card className="w-full max-w-7xl shadow-md">
+    <Card className="w-full shadow-md">
       <CardHeader>
-        <div className="flex justify-between items-start">
-          <div>
-            <CardTitle className="text-2xl mb-2">Detalhes da NFSe</CardTitle>
+        <div className="flex flex-col lg:flex-row justify-between items-start gap-4">
+          <div className="flex-1 min-w-0">
+            <CardTitle className="text-xl md:text-2xl mb-3">Detalhes da NFSe</CardTitle>
             <div className="flex items-center gap-2 flex-wrap">
               <Badge variant="outline" className="text-sm">
                 {formataCNPJ(nfse.ni_prestador)}
@@ -97,25 +97,31 @@ export function NfseDetalhada({ nfse, isLoading }: NfseDetalhadaProps) {
               </Badge>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 w-full lg:w-auto">
             <Button
               variant="outline"
               size="sm"
               onClick={handleCopyChave}
-              className="gap-2"
+              className="gap-2 flex-1 lg:flex-initial"
             >
               <Copy className="h-4 w-4" />
-              Copiar Chave
+              <span className="hidden sm:inline">Copiar Chave</span>
+              <span className="sm:hidden">Copiar</span>
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={handleDownloadDanfse}
               disabled={isDownloading || loading}
-              className="gap-2"
+              className="gap-2 flex-1 lg:flex-initial"
             >
               <Download className="h-4 w-4" />
-              {isDownloading || loading ? "Baixando..." : "Baixar DANFSe"}
+              <span className="hidden sm:inline">
+                {isDownloading || loading ? "Baixando..." : "Baixar DANFSe"}
+              </span>
+              <span className="sm:hidden">
+                {isDownloading || loading ? "..." : "PDF"}
+              </span>
             </Button>
           </div>
         </div>

@@ -27,6 +27,7 @@ const LocalEtlSection = () => {
   if (loadingEtl) {
     return (
       <div className="w-full mt-6 flex flex-col gap-6">
+
         <h1>
           <span className="text-2xl font-bold">Volumetria - ETL</span>
         </h1>
@@ -78,7 +79,7 @@ const LocalEtlSection = () => {
     <div className="w-full mt-6 flex flex-col gap-6">
       <div className="flex flex-col gap-2">
         <h1>
-          <span className="text-2xl font-bold">Volumetria</span>
+          <span className="text-2xl font-bold">Volumetria - ETL</span>
         </h1>
 
         {/* Indicadores de Status dos Dados */}
@@ -155,21 +156,19 @@ const LocalEtlSection = () => {
           icon={<CalendarCheck size={18} />}
         />
         <EtlKpiCard
-          title={`Média Diária (${
-            period === "all"
-              ? kpis.dadosCompletos.length
-              : period.replace("d", "")
-          }d)`}
+          title={`Média Diária (${period === "all"
+            ? kpis.dadosCompletos.length
+            : period.replace("d", "")
+            }d)`}
           value={kpis.media}
           sparkData={filteredData}
           icon={<BarChart2 size={18} />}
         />
         <EtlKpiCard
-          title={`Pico de Processamento (${
-            period === "all"
-              ? kpis.dadosCompletos.length
-              : period.replace("d", "")
-          }d)`}
+          title={`Pico de Processamento (${period === "all"
+            ? kpis.dadosCompletos.length
+            : period.replace("d", "")
+            }d)`}
           value={kpis.pico}
           sparkData={filteredData}
           icon={<TrendingUp size={18} />}
@@ -209,8 +208,8 @@ const LocalEtlSection = () => {
             <p className="font-medium">
               {kpis.periodoReal.inicio && kpis.periodoReal.fim
                 ? `${formatarDataEtl(
-                    kpis.periodoReal.inicio
-                  )} - ${formatarDataEtl(kpis.periodoReal.fim)}`
+                  kpis.periodoReal.inicio
+                )} - ${formatarDataEtl(kpis.periodoReal.fim)}`
                 : "N/A"}
             </p>
           </div>
@@ -224,8 +223,8 @@ const LocalEtlSection = () => {
               <p className="font-medium">
                 {kpis.periodoCompleto.inicio && kpis.periodoCompleto.fim
                   ? `${formatarDataEtl(
-                      kpis.periodoCompleto.inicio
-                    )} - ${formatarDataEtl(kpis.periodoCompleto.fim)}`
+                    kpis.periodoCompleto.inicio
+                  )} - ${formatarDataEtl(kpis.periodoCompleto.fim)}`
                   : "N/A"}
               </p>
             </div>

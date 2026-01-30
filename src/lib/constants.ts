@@ -17,7 +17,7 @@ export const KPI_GRID_CLASSES =
   "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4";
 
 // Classes Tailwind CSS para container máximo centralizado
-export const CONTAINER_MAX_WIDTH = "max-w-[.8] mx-auto";
+export const CONTAINER_MAX_WIDTH = "w-full mx-auto";
 
 // Classes Tailwind CSS para container centralizado com padding responsivo
 export const CONTAINER_CLASSES = `${CONTAINER_MAX_WIDTH} ${RESPONSIVE_PADDING}`;

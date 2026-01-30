@@ -1,4 +1,4 @@
-import { nfseColumns } from "./components/columns";
+import { nfseColumns, defaultColumnVisibility, columnDisplayNames } from "./components/columns";
 import { DataTable } from "@/components/DataTable";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +21,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   SortingState,
+  VisibilityState,
   useReactTable,
 } from "@tanstack/react-table";
 import { useState } from "react";
@@ -34,6 +35,11 @@ import { ChevronDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ModoConsultaToggle } from "./components/ModoConsultaToggle";
 import { NfseDetalhada } from "./components/NfseDetalhada";
+import {
+  CONTAINER_MAX_WIDTH,
+  RESPONSIVE_PADDING,
+  RESPONSIVE_GAP,
+} from "@/lib/constants";
 
 const Consultas = () => {
   const {
@@ -72,6 +78,7 @@ const Consultas = () => {
   const { CSVDownloader, Type } = useCSVDownloader();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(defaultColumnVisibility);
 
   const isPending = modoConsulta === "cnpj" ? isLoading : isLoadingChave;
 
@@ -84,20 +91,23 @@ const Consultas = () => {
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onGlobalFilterChange: setGlobalFilter,
+    onColumnVisibilityChange: setColumnVisibility,
     globalFilterFn: "includesString",
     state: {
       sorting,
       globalFilter,
+      columnVisibility,
     },
   });
 
   return (
-    <div className="flex w-full flex-col gap-4 p-4">
-      <h1 className="text-2xl font-bold text-center mb-4">
+    <div className={`${CONTAINER_MAX_WIDTH} ${RESPONSIVE_PADDING} py-6`}>
+      <h1 className="text-2xl text-center font-semibold text-gray-800 mb-4 md:mb-6 lg:mb-8">
         Consulta Contribuinte
       </h1>
-      <ModoConsultaToggle />
-      <main className="flex-1 flex justify-center items-center">
+      <div className={`flex flex-col ${RESPONSIVE_GAP}`}>
+        <ModoConsultaToggle />
+
         {modoConsulta === "chave" ? (
           <NfseDetalhada nfse={nfseDetalhada} isLoading={isPending} />
         ) : isPending ? (
@@ -108,25 +118,23 @@ const Consultas = () => {
             </span>
           </div>
         ) : (
-          <Card className="w-full max-w-7xl shadow-md">
-            <CardHeader className="flex flex-row justify-between items-center ">
-              <div>
+          <Card className="w-full shadow-md">
+            <CardHeader className="flex flex-row flex-wrap justify-between items-center gap-4">
+              <div className="flex-1 min-w-0">
                 {consulta.length > 0 ? (
-                  <div className="flex justify-start gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <Badge className="text-sm place-content-center tracking-wide">
                       {formataCNPJ(consulta[0]?.ni_prestador || formData.ni)}
                     </Badge>
-                    <span>
-                      <Separator
-                        className="h-full w-0.5 bg-green"
-                        orientation="vertical"
-                      />
-                    </span>
-                    <div className="flex flex-row gap-2">
+                    <Separator
+                      className="h-5 w-0.5 bg-green"
+                      orientation="vertical"
+                    />
+                    <div className="flex flex-wrap gap-2">
                       {consulta.length > 0
                         ? Array.from(
-                          new Set(consulta.map(item => String(item.ano)))
-                        ).map(ano => <Badge key={ano}>{ano}</Badge>)
+                          new Set(consulta.map((item) => String(item.ano)))
+                        ).map((ano) => <Badge key={ano}>{ano}</Badge>)
                         : null}
                     </div>
                   </div>
@@ -136,17 +144,17 @@ const Consultas = () => {
                   </div>
                 )}
               </div>
-              <div>
-                <span>
-                  <span className="text-lg font-mono font-semibold tracking-wide text-gray-500">
-                    {consulta.length}
-                  </span>{" "}
-                  registro(s) encontrado(s).
-                </span>
-              </div>
-              {consulta.length > 0 && (
-                <div className="flex flex-row gap-3">
-                  <span className="text-sm text-gray-500">
+              <div className="flex items-center gap-4 flex-wrap">
+                <div>
+                  <span>
+                    <span className="text-lg font-mono font-semibold tracking-wide text-gray-500">
+                      {consulta.length}
+                    </span>{" "}
+                    registro(s) encontrado(s).
+                  </span>
+                </div>
+                {consulta.length > 0 && (
+                  <div className="flex flex-row gap-3">
                     <CSVDownloader
                       type={Type.Button}
                       data={consulta}
@@ -168,8 +176,6 @@ const Consultas = () => {
                         </Button>
                       </BasicTooltip>
                     </CSVDownloader>
-                  </span>
-                  <span>
                     <BasicTooltip asChild content="Exportar XLSX">
                       <Button
                         variant={"outline"}
@@ -187,39 +193,38 @@ const Consultas = () => {
                         <img src={xlsx_icon} alt="xlsx" className="w-6 h-6" />
                       </Button>
                     </BasicTooltip>
-                  </span>
-                </div>
-              )}
+                  </div>
+                )}
+              </div>
             </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between mb-4">
+            <CardContent className="overflow-hidden">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
                 <Input
                   placeholder="Pesquisar em todas as colunas..."
                   value={globalFilter}
-                  onChange={e => setGlobalFilter(e.target.value)}
-                  className="max-w-sm"
+                  onChange={(e) => setGlobalFilter(e.target.value)}
+                  className="w-full sm:max-w-sm"
                 />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="ml-auto">
+                    <Button variant="outline" className="w-full sm:w-auto">
                       Colunas <ChevronDown className="ml-2 h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent align="end" className="max-h-80 overflow-y-auto">
                     {table
                       .getAllColumns()
-                      .filter(column => column.getCanHide())
-                      .map(column => {
+                      .filter((column) => column.getCanHide())
+                      .map((column) => {
                         return (
                           <DropdownMenuCheckboxItem
                             key={column.id}
-                            className="capitalize"
                             checked={column.getIsVisible()}
-                            onCheckedChange={value =>
+                            onCheckedChange={(value) =>
                               column.toggleVisibility(!!value)
                             }
                           >
-                            {column.id}
+                            {columnDisplayNames[column.id] || column.id}
                           </DropdownMenuCheckboxItem>
                         );
                       })}
@@ -230,7 +235,7 @@ const Consultas = () => {
             </CardContent>
           </Card>
         )}
-      </main>
+      </div>
     </div>
   );
 };

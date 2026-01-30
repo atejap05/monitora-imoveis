@@ -6,7 +6,6 @@ import {
 import { ArrowUpIcon, ArrowDownIcon } from "lucide-react";
 
 import {
-  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -24,77 +23,82 @@ export function DataTable<TData>({
   table,
 }: DataTableProps<TData>) {
   return (
-    <div className="w-full overflow-x-auto transition-all duration-300">
-      <Table className="min-w-[900px] w-full">
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
-                return (
-                  <TableHead key={header.id} colSpan={header.colSpan}>
-                    {header.isPlaceholder ? null : (
-                      <div
-                        className={
-                          header.column.getCanSort()
-                            ? "cursor-pointer select-none flex items-center justify-center gap-1"
-                            : "flex items-center justify-center gap-1"
-                        }
-                        onClick={header.column.getToggleSortingHandler()}
-                        title={
-                          header.column.getCanSort()
-                            ? header.column.getNextSortingOrder() === "asc"
-                              ? "Ordenar ascendente"
-                              : header.column.getNextSortingOrder() === "desc"
-                                ? "Ordenar descendente"
-                                : "Limpar ordenação"
-                            : undefined
-                        }
-                      >
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
+    <div className="w-full">
+      <div className="rounded-md border">
+        <div className="overflow-x-auto">
+          <table className="w-full table-auto caption-bottom text-sm">
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id} colSpan={header.colSpan}>
+                        {header.isPlaceholder ? null : (
+                          <div
+                            className={
+                              header.column.getCanSort()
+                                ? "cursor-pointer select-none flex items-center justify-center gap-1"
+                                : "flex items-center justify-center gap-1"
+                            }
+                            onClick={header.column.getToggleSortingHandler()}
+                            title={
+                              header.column.getCanSort()
+                                ? header.column.getNextSortingOrder() === "asc"
+                                  ? "Ordenar ascendente"
+                                  : header.column.getNextSortingOrder() === "desc"
+                                    ? "Ordenar descendente"
+                                    : "Limpar ordenação"
+                                : undefined
+                            }
+                          >
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                            {{
+                              asc: <ArrowUpIcon size={16} className="text-green" />,
+                              desc: <ArrowDownIcon size={16} className="text-green" />,
+                            }[header.column.getIsSorted() as string] ?? null}
+                          </div>
                         )}
-                        {{
-                          asc: <ArrowUpIcon size={16} className="text-green" />,
-                          desc: <ArrowDownIcon size={16} className="text-green" />,
-                        }[header.column.getIsSorted() as string] ?? null}
-                      </div>
-                    )}
-                  </TableHead>
-                );
-              })}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && "selected"}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className="text-center align-middle">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableHead>
+                    );
+                  })}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} className="text-center align-middle">
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={table.getAllColumns().length}
+                    className="h-24 text-center"
+                  >
+                    Nenhum resultado.
                   </TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell
-                colSpan={table.getAllColumns().length}
-                className="h-24 text-center"
-              >
-                Nenhum resultado.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-      <Separator />
-      <Pagination slice={10} table={table} />
-
+                </TableRow>
+              )}
+            </TableBody>
+          </table>
+        </div>
+      </div>
+      <div className="mt-4">
+        <Separator className="mb-4" />
+        <Pagination slice={10} table={table} />
+      </div>
     </div>
   );
 }
