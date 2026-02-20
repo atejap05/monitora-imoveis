@@ -31,8 +31,8 @@ const DIAS_PT = [
   "Sábado",
 ];
 
-// Função auxiliar para converter data_processamento para string YYYY-MM-DD
-const formatarDataProcessamento = (data: string | number): string => {
+// Função auxiliar para converter data_processamento para string YYYY-MM-DD (exportada para uso em mapeamento)
+export const formatarDataProcessamento = (data: string | number): string => {
   if (typeof data === "string") {
     return data; // Já está no formato "YYYY-MM-DD"
   }
@@ -304,4 +304,140 @@ export const prepararDadosPieChart = (
     value: Math.round(item.volume_medio),
     fill: `hsl(var(--chart-${(item.dia_semana % 5) + 1}))`,
   }));
+};
+
+// Tipo de retorno para KPIs diários de volumetria
+export type VolumDiarioKpis = {
+  ultimoDia: TVolumetriaRaw | null;
+  media: number;
+  pico: number;
+  picoData: string | null;
+  totalPeriodo: number;
+  filteredData: TVolumetriaRaw[];
+  diasComDados: number;
+  diasSemDados: number;
+  periodoReal: { inicio: string | null; fim: string | null };
+  periodoCompleto: { inicio: string | null; fim: string | null };
+  ultimaData: string | null;
+};
+
+/**
+ * Gera array de datas entre dataInicio e dataFim (YYYY-MM-DD)
+ */
+const gerarArrayDatas = (dataInicio: string, dataFim: string): string[] => {
+  const datas: string[] = [];
+  const inicio = new Date(dataInicio);
+  const fim = new Date(dataFim);
+  const dataAtual = new Date(inicio);
+  while (dataAtual <= fim) {
+    datas.push(dataAtual.toISOString().slice(0, 10));
+    dataAtual.setDate(dataAtual.getDate() + 1);
+  }
+  return datas;
+};
+
+/**
+ * Calcula KPIs diários de volumetria considerando o período selecionado
+ */
+export const calcularKpisVolumDiario = (
+  data: TVolumetriaRaw[],
+  period: "7d" | "30d" | "90d" | "all"
+): VolumDiarioKpis => {
+  if (!data || data.length === 0) {
+    return {
+      ultimoDia: null,
+      media: 0,
+      pico: 0,
+      picoData: null,
+      totalPeriodo: 0,
+      filteredData: [],
+      diasComDados: 0,
+      diasSemDados: 0,
+      periodoReal: { inicio: null, fim: null },
+      periodoCompleto: { inicio: null, fim: null },
+      ultimaData: null,
+    };
+  }
+
+  const dadosOrdenados = [...data].sort((a, b) => {
+    const dataA =
+      typeof a.data_processamento === "string"
+        ? new Date(a.data_processamento).getTime()
+        : a.data_processamento;
+    const dataB =
+      typeof b.data_processamento === "string"
+        ? new Date(b.data_processamento).getTime()
+        : b.data_processamento;
+    return dataA - dataB;
+  });
+
+  let filteredData: TVolumetriaRaw[];
+  if (period === "7d") {
+    filteredData = dadosOrdenados.slice(-7);
+  } else if (period === "30d") {
+    filteredData = dadosOrdenados.slice(-30);
+  } else if (period === "90d") {
+    filteredData = dadosOrdenados.slice(-90);
+  } else {
+    filteredData = dadosOrdenados;
+  }
+
+  const ultimoDia = filteredData[filteredData.length - 1] ?? null;
+  const totalPeriodo = filteredData.reduce(
+    (acc, d) => acc + d.total_nfse_processadas,
+    0
+  );
+  const media =
+    filteredData.length > 0 ? totalPeriodo / filteredData.length : 0;
+  const pico = Math.max(
+    ...filteredData.map(d => d.total_nfse_processadas),
+    0
+  );
+  const picoRegistro = filteredData.find(
+    d => d.total_nfse_processadas === pico
+  );
+  const picoData = picoRegistro
+    ? formatarDataProcessamento(picoRegistro.data_processamento)
+    : null;
+
+  const primeiraData = formatarDataProcessamento(
+    filteredData[0].data_processamento
+  );
+  const ultimaData = formatarDataProcessamento(
+    filteredData[filteredData.length - 1].data_processamento
+  );
+  const totalDiasNoRange = gerarArrayDatas(primeiraData, ultimaData).length;
+  const diasComDados = filteredData.length;
+  const diasSemDados = Math.max(0, totalDiasNoRange - diasComDados);
+
+  const dadosComValores = filteredData.filter(d => d.total_nfse_processadas > 0);
+  const periodoReal = {
+    inicio: dadosComValores[0]
+      ? formatarDataProcessamento(dadosComValores[0].data_processamento)
+      : null,
+    fim:
+      dadosComValores.length > 0
+        ? formatarDataProcessamento(
+            dadosComValores[dadosComValores.length - 1].data_processamento
+          )
+        : null,
+  };
+  const periodoCompleto = {
+    inicio: primeiraData,
+    fim: ultimaData,
+  };
+
+  return {
+    ultimoDia,
+    media,
+    pico,
+    picoData,
+    totalPeriodo,
+    filteredData,
+    diasComDados,
+    diasSemDados,
+    periodoReal,
+    periodoCompleto,
+    ultimaData,
+  };
 };

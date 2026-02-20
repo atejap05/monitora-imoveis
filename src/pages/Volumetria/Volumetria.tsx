@@ -3,6 +3,7 @@ import { useVolumetriaFiltersState } from "@/state/volumetriaFiltersState";
 import { useSyncVolumetriaData } from "./hooks/useSyncVolumetriaData";
 import { VolumetriaWelcome } from "./components/VolumetriaWelcome";
 import { VolumetriaKpiCards } from "./components/VolumetriaKpiCards";
+import { VolumetriaDiarioSection } from "./components/VolumetriaDiarioSection";
 import { VolumetriaEvolucaoMensal } from "./components/VolumetriaEvolucaoMensal";
 import { VolumetriaSazonalidade } from "./components/VolumetriaSazonalidade";
 import { VolumetriaPadroesSemanais } from "./components/VolumetriaPadroesSemanais";
@@ -59,6 +60,9 @@ const Volumetria: React.FC = () => {
           ) : kpis ? (
             <VolumetriaKpiCards kpis={kpis} />
           ) : null}
+
+          {/* Monitoramento Diário (estilo ETL) */}
+          {!isLoading && data && <VolumetriaDiarioSection data={data} />}
 
           {/* Evolução Temporal (Coluna Única) */}
           {isLoading ? (
