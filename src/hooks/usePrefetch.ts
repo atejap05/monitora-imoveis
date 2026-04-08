@@ -2,20 +2,29 @@ import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/lib/queryKeys";
 import { queuedBackendCall } from "@/lib/backendQueue";
 import type { TFilter, TContribuintesFilter } from "@/@types";
+import { fetchAmbienteEmissao } from "@/service/ambiente";
+import {
+  fetchMapData,
+  fetchTipoContribuinteResponsavel,
+} from "@/service/contribuintes";
+import {
+  fetchNotasFiscaisCanceladas,
+  fetchTop100NotasFiscais,
+} from "@/service/notas-fiscais";
 import {
   fetchNotasFiscais,
   fetchDistribuicaoFrequencia,
   fetchAdesaoMunicipios,
-  fetchNotasFiscaisCanceladas,
-  fetchTop100NotasFiscais,
-  fetchAmbienteEmissao,
-  fetchMapData,
-  fetchTipoContribuinteResponsavel,
-} from "@/service";
+} from "@/service/visao-geral";
 
 /**
- * Hook para prefetch inteligente de dados relacionados
- * Reduz revalidações na navegação entre páginas
+ * Prefetch de dados relacionados. Os `await` em sequência dentro de um mesmo
+ * `queryFn` refletem `queuedBackendCall` em `backendQueue.ts`: com
+ * maxConcurrent=1, o backend Python não processa chamadas em paralelo;
+ * `Promise.all` aqui não reduziria tempo total de CPU no servidor.
+ *
+ * Vários `prefetchQuery` separados (ex.: canceladas + top 100) disparam
+ * funções distintas; cada uma entra na fila e executa na ordem agendada.
  */
 export const usePrefetch = () => {
   const queryClient = useQueryClient();

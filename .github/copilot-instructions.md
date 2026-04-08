@@ -1,181 +1,107 @@
-# Painel NFSe - AI Coding Instructions
+# Painel NFSe — Instruções para Copilot e assistentes de código
 
-## Project Architecture Overview
+Estas instruções são a **mesma base** que [.cursor/rules/painelnfse-rules.mdc](../.cursor/rules/painelnfse-rules.mdc). Mantê-las alinhadas ao alterar regras do projeto.
 
-This is a **React 18 + TypeScript Business Intelligence dashboard** for Brazilian electronic service invoice (NFSe) data visualization and analysis. Built with **Vite** for fast development and optimized builds. The app communicates with a **Python backend via global window functions** and uses sophisticated caching for performance.
+**Contexto:** aplicação **React 18 + TypeScript + Vite** (SPA com `HashRouter`) para visualização e análise de dados de NFSe; integração com **backend Python** exposto ao cliente (ex.: funções em `window`). Para performance React detalhada, ver a skill **vercel-react-best-practices** em `.agents/skills/vercel-react-best-practices/` (`SKILL.md` e pasta `rules/`) e [docs/VERCEL_REACT_SKILL_MAPPING.md](../docs/VERCEL_REACT_SKILL_MAPPING.md).
 
-### Key Architectural Patterns
+---
 
-**Feature-Based Architecture**: Each page follows `pages/[FeatureName]/` structure with dedicated `components/` and `hooks/` folders for complete feature encapsulation.
+## 1. Tecnologias principais
 
-**Backend Integration**: Services call Python functions exposed on `window` object (e.g., `window.get_totais_nfse_com_filtro`). All API calls are **sequential** - use `queuedBackendCall()` wrapper from `@/lib/backendQueue` to prevent backend overload.
+- **App**: React 18, **Vite**, TypeScript, **React Router** (`HashRouter`).
+- **Code splitting**: rotas de página com `React.lazy` + `Suspense`; factories de import em `src/routes/pageImports.ts` (reutilizar para prefetch na navegação quando fizer sentido).
+- **Estilização**: Tailwind CSS e componentes **shadcn/ui** (`src/components/ui`).
+- **Estado de UI / filtros**: Zustand em `src/state` (por feature).
+- **Dados remotos**: TanStack Query — preferir `useQuery` / `useMutation`; **não** usar `useEffect` + `fetch` para carregar dados de API.
+- **Formulários**: React Hook Form + Zod.
+- **Gráficos / mapas**: Recharts; Leaflet onde aplicável.
+- **Tabelas**: TanStack Table.
+- **Qualidade**: ESLint; seguir convenções já usadas no repositório.
 
-**State Management**: Hybrid approach with **Zustand for client-state filters** (`src/state/`) and **TanStack Query for server-state** (`@tanstack/react-query`). Each page has its own filter store (e.g., `useVisaoGeralFiltersState`).
+---
 
-**Query Organization**: Hierarchical query keys in `src/lib/queryKeys.ts` enable granular cache invalidation. Use specific configs from `src/lib/queryConfig.ts` based on data criticality (critical/heavy/auxiliary).
+## 2. Backend e fila (`src/lib/backendQueue.ts`)
 
-## Development Patterns
+- O backend Python é atendido por uma **fila sequencial** (`maxConcurrent = 1`). Várias chamadas `queuedBackendCall` **não** executam em paralelo no servidor: `Promise.all` no cliente raramente reduz tempo total se tudo passa pela mesma fila.
+- Prefira **early return** e **não await** em ramos que não precisam de dados remotos (`async-defer-await`).
+- Documente exceções quando houver chamadas a origens que **não** usam a fila.
 
-### Page Structure
-Every page follows this pattern:
-```
-pages/[PageName]/
-├── [PageName].tsx          # Main component
-├── components/             # Page-specific components  
-└── hooks/                  # Custom hooks (useSyncData, specific queries)
-```
+---
 
-### Data Fetching Pattern
-Pages use **sync hooks** (e.g., `useSyncVisaoGeralData`) that:
-1. Watch Zustand filter state changes
-2. Use React Query for server state
-3. Update Zustand with loading/data/error states
-4. Queue backend calls sequentially
+## 3. Estrutura de pastas
 
-**Critical**: Always encapsulate data fetching in custom hooks within the feature's `hooks/` folder. Never call services directly from components or use raw `useEffect` + `fetch`.
+- **Componentes genéricos**: `src/components` (UI reutilizável, layout).
+- **Features**: `src/pages/[Feature]/components` e `src/pages/[Feature]/hooks`.
+- **API**: `src/service` — funções por domínio (`visao-geral.ts`, `notas-fiscais.ts`, etc.). **Não** chamar `fetch` diretamente em componentes de página; encapsular em `src/service` e consumir via hooks + TanStack Query.
+- **Estado global de filtros**: `src/state`.
+- **Tipos**: `src/@types`.
+- **Filtros reutilizáveis**: `src/filters/`.
 
-### Filter Management
-- **Form state**: Temporary, controlled by form components
-- **Filter state**: Zustand store per page (e.g., `filters`, `submittedFilters`)
-- **Submit pattern**: Only `submittedFilters` trigger data fetching
+---
 
-### Component Architecture
-- **UI Components**: Radix-based in `src/components/ui/` (shadcn/ui pattern)
-- **Business Components**: In `src/components/` (charts, tables, cards)
-- **Global Filters**: Reusable filter components in `src/filters/`
+## 4. Imports e bundle
 
-## Tech Stack Details
+- Use alias **`@/`** (ver `tsconfig` / Vite).
+- **Evite barrel** `import { x } from "@/service"` quando puder importar do módulo concreto: `import { x } from "@/service/visao-geral"` (melhor tree-shaking; alinhado às boas práticas Vercel de bundle).
+- **Lucide**: imports nomeados por ícone a partir de `lucide-react` (evitar import gigante único).
 
-**Core**: React 18 + Vite + TypeScript for fast development with HMR and optimized builds.
+---
 
-**Data & State**: TanStack Query (server state with cache/sync), Zustand (client state), React Hook Form + Zod (forms/validation).
+## 5. TanStack Query
 
-**UI**: Shadcn/UI (copy-paste components), Tailwind CSS (utility-first), Recharts (charts), TanStack Table (data grids), Leaflet (maps).
+- Centralizar **`queryKey`** em `src/lib/queryKeys.ts` e incluir filtros relevantes nas chaves.
+- Onde fizer sentido, usar configurações por criticidade em `src/lib/queryConfig.ts`.
+- Respeitar `staleTime` / `gcTime` globais em `main.tsx` salvo necessidade explícita de override por query.
+- **React Query Devtools**: apenas em desenvolvimento (já condicionado no app); não adicionar dependências de dev ao bundle de produção sem lazy/condicional.
 
-**Development**: ESLint for code quality, React Router DOM for routing, date-fns for dates, xlsx/papaparse for exports.
+---
 
-## File Organization Principles
+## 6. Performance e React (resumo prático)
 
-### Folder Structure Rules
-- **`@types/`**: TypeScript definitions organized by feature (e.g., `convenios.types.ts`)
-- **`components/`**: Generic, reusable UI components across the entire application
-- **`filters/`**: Specialized form components for filter sections (FormAno, FormUF, etc.)
-- **`hooks/`**: Reusable custom hooks (useDebounce, useMobile, usePrefetch)
-- **`lib/`**: Utilities, configurations, singletons (queryKeys, queryConfig, backendQueue)
-- **`pages/[Feature]/`**: Complete feature encapsulation with components/, hooks/, and main page component
-- **`service/`**: API communication layer - one file per endpoint group (convenios.ts, ambiente.ts)
-- **`state/`**: Zustand stores for global filter state management
+- **Não definir componentes** dentro do corpo de outro componente (extrair para o mesmo arquivo ou pasta).
+- **Listeners globais** (`scroll`, `resize`, etc.): preferir dependências estáveis, **refs** para valores mutáveis frequentes e `{ passive: true }` em `scroll` quando não houver `preventDefault`.
+- **Render condicional**: com valores numéricos, evitar `{n && <Comp />}` (risco de renderizar `0`); preferir `n > 0 ? <Comp /> : null` ou `Boolean(n) ? …`.
+- **`useMemo` / `memo`**: só para trabalho custoso ou estabilização de props; não memorizar expressões triviais.
+- Onde a UI puder ler direto do **resultado do `useQuery`**, evitar espelhar em Zustand com vários `useEffect` sem necessidade; ao sincronizar store + query, preferir **um efeito consolidado** ou derivar na leitura.
 
-### Import Rules
-Always use `@/` path aliases instead of relative imports. Example: `import { Button } from '@/components/ui/button'` instead of `'../../../components/ui/button'`.
+---
 
-## Critical Development Guidelines
+## 7. Padrões de código existentes
 
-### Backend Communication
-```typescript
-// ❌ Don't call backend directly or use useEffect + fetch
-const data = await window.get_totais_nfse_com_filtro(params);
+1. **Componentes**: funcionais; priorizar primitivos `src/components/ui`.
+2. **Dados**: hooks por feature (`useXxxData`, `useSyncXxxData` onde já existir o padrão) + `useQuery`; usar `queuedBackendCall` quando a regra do projeto for passar pela fila.
+3. **Filtros compartilhados**: hooks Zustand da feature, não `useState` solto para o mesmo propósito.
+4. **Estilo**: Tailwind; evitar `style={{}}` salvo integração com libs ou casos pontuais já aceitos no projeto.
 
-// ✅ Always use queue manager + TanStack Query
-const data = await queuedBackendCall(() => 
-  window.get_totais_nfse_com_filtro(params), 'high'
-);
-```
+### Fluxo típico de dados
 
-### Data Fetching Pattern (NEVER useEffect + fetch)
-```typescript
-// ✅ Use TanStack Query with hierarchical keys and proper config
-const { data } = useQuery({
-  queryKey: QUERY_KEYS.visaoGeralData(filters),
-  queryFn: () => queuedBackendCall(() => fetchNotasFiscais(filters)),
-  enabled: !!filters,
-  ...criticalQueryConfig // From queryConfig.ts
-});
-```
+Interação → formulário → store Zustand (`submittedFilters`) → hook da feature (`useQuery` + `queuedBackendCall`) → `src/service` → backend. **Prefetch** relacionado: `src/hooks/usePrefetch.ts` quando aplicável.
 
-### Filter State Management
-```typescript
-// ✅ Read/update filters via Zustand stores
-const { filters, setFilters, submittedFilters } = useConveniosFiltersState();
+---
 
-// ✅ Only submittedFilters trigger data fetching
-useEffect(() => {
-  if (isSuccess) {
-    setData(data);
-    setError(null);
-  }
-}, [isSuccess, data]);
-```
+## 8. Tarefa exemplo: novo filtro em uma página
 
-### Unidirectional Data Flow
-**User Interaction** → **Form Component** → **Zustand Store** → **Custom Hook** → **TanStack Query** → **Service Layer** → **Backend API** → **Cache & Render**
+1. Estado em `src/state/...FiltersState.ts`.
+2. UI do filtro em `src/pages/[Feature]/components/...Filters.tsx`.
+3. Hook de dados: atualizar `queryKey` (e `queryKeys.ts` se necessário) e parâmetros do serviço.
+4. Serviço em `src/service/[feature].ts` — assinatura e query string / body alinhados ao backend.
+5. Rota: páginas novas em `App.tsx` via lazy (seguir padrão de `src/routes/pageImports.ts`) e entrada na navegação em `src/components/Sidebar/SidebarNav.tsx` (ou equivalente usado no projeto).
 
-### Prefetching
-Use `usePrefetch` hook for intelligent data preloading between related pages. Call `prefetchRelatedPages()` when filters change to improve navigation UX.
+---
 
-## TypeScript Patterns
+## Arquivos-chave
 
-### Filter Types
-- `TFilter`: General page filters (year, UF, municipality, etc.)
-- `TContribuintesFilter`: Specific to contributors page
-- Form types mirror filter types but use `string | null` for form controls
+| Área | Caminho |
+|------|---------|
+| Chaves de cache | `src/lib/queryKeys.ts` |
+| Configs de query | `src/lib/queryConfig.ts` |
+| Fila do backend | `src/lib/backendQueue.ts` |
+| Prefetch | `src/hooks/usePrefetch.ts` |
+| Imports lazy de rotas | `src/routes/pageImports.ts` |
+| App / rotas | `src/App.tsx`, `src/main.tsx` |
 
-### Service Types
-Services are strongly typed with response interfaces in `src/@types/`. Backend functions are typed via window augmentation with optional properties and `//@ts-ignore`.
+---
 
-## Component Guidelines
+## Páginas principais (referência)
 
-### Layout Components
-- `MainLayout`: Handles sidebar, header, and responsive behavior
-- Sticky header with `HEADER_HEIGHT = 94px` constant
-- Sidebar toggle via `useSidebar` context
-
-### Chart Components  
-Use **Recharts** with consistent styling. Chart data should be memoized and handle loading/error states gracefully.
-
-### Table Components
-Use `@tanstack/react-table` for complex tables with pagination, sorting, and selection. Basic tables use `BasicTable` component.
-
-## Key Files to Reference
-
-- `src/lib/queryConfig.ts` - React Query configurations by data type
-- `src/lib/queryKeys.ts` - Hierarchical cache key structure  
-- `src/lib/backendQueue.ts` - Sequential backend call management
-- `src/hooks/usePrefetch.ts` - Intelligent prefetching strategies
-- `src/@types/` - Complete TypeScript definitions
-- `src/state/` - Zustand stores for filter management
-
-## Project Features
-
-**Main Pages**: VisaoGeral (dashboard), Contribuintes (map analysis), Ambiente (emissions monitoring), Convenios (municipality agreements), Consultas (document search), NotasFiscais (invoice analysis), Volumetria (temporal analysis).
-
-**UI Stack**: Shadcn/UI + Radix primitives + Tailwind CSS. Always use `src/components/ui/` base components for new UI elements.
-
-## Common Operations
-
-**Adding New Feature/Page**:
-1. Create `src/@types/[feature].types.ts` - TypeScript definitions
-2. Create `src/state/[feature]FiltersState.ts` - Zustand store for filters
-3. Create `src/service/[feature].ts` - API communication functions
-4. Create `src/pages/[FeatureName]/` structure:
-   - `[FeatureName].tsx` - Main page component
-   - `hooks/use[FeatureName]Data.ts` - Custom hook with TanStack Query
-   - `components/` - Feature-specific components
-5. Add route in `App.tsx` and navigation in `Sidebar/SidebarNav.tsx`
-6. Add query keys in `src/lib/queryKeys.ts`
-
-**Adding New Filter**: 
-1. Update types in `@types/[feature].types.ts`
-2. Add to Zustand store in `src/state/[feature]FiltersState.ts` 
-3. Create/update form component in feature's `components/` folder
-4. Update query key to include new filter
-5. Update service function to handle new parameter
-
-**Code Style Rules**:
-- Use `function Component() {}` syntax, not arrow functions for components
-- Use `@/` imports instead of relative paths
-- Never use `useEffect` with `fetch` - always use TanStack Query
-- Use Tailwind classes, avoid inline styles
-- Use Shadcn/UI components as building blocks
-
-The codebase prioritizes **performance through intelligent caching** and **maintainability through clear separation of concerns** between form state, filter state, and server state.
+Visão Geral, Contribuintes, Consultas, Notas Fiscais, Ambiente, Convênios, Volumetria — cada uma com store de filtros em `src/state` e serviços em `src/service` quando existir.

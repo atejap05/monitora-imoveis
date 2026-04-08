@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchVolumetriaData } from "@/service";
+import { fetchVolumetriaData } from "@/service/volumetria";
 import { QUERY_KEYS } from "@/lib/queryKeys";
 import { queuedBackendCall } from "@/lib/backendQueue";
 

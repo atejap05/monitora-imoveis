@@ -3,6 +3,12 @@
  *
  * Gerencia a fila de requisições para o backend Python que executa
  * funções sequencialmente (não paralelo). Evita sobrecarga e timeouts.
+ *
+ * Implicação para “parallel fetch” (ex.: diretrizes Vercel `async-parallel`):
+ * com `maxConcurrent = 1`, várias chamadas `queuedBackendCall` competem pela
+ * mesma fila; `Promise.all` no cliente não encurta o tempo total de processamento
+ * no servidor. Prefira `await` em sequência quando o fluxo já depende da fila,
+ * e use paralelismo real só para fontes que não passam por esta fila.
  */
 class BackendQueueManager {
   private queue: Array<() => Promise<any>> = [];

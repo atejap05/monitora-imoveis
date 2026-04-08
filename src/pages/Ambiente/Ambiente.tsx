@@ -17,6 +17,13 @@ import {
 import { FiltroHeader } from "@/components/Layout/FiltroHeader";
 import { useAmbienteFiltersState } from "@/state/ambienteFiltersSate";
 import { CONTAINER_MAX_WIDTH, RESPONSIVE_PADDING } from "@/lib/constants";
+import { useState } from "react";
+import { toast } from "sonner";
+import { FileDown, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import BasicTooltip from "@/components/BasicTooltip";
+import { generateAndDownloadPdf, buildReportFilename, captureAllCharts } from "@/lib/pdf";
+import { AmbienteReport } from "./report/AmbienteReport";
 
 const Ambiente: React.FC = () => {
   // Reset do estado quando o componente for montado
@@ -90,11 +97,67 @@ const Ambiente: React.FC = () => {
       : "-";
   const pctTranscrita = totalGeral ? (totalTranscrita / totalGeral) * 100 : 0;
 
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+
+  const handleGenerateReport = async () => {
+    if (!data || data.length === 0) return;
+    setIsGeneratingPdf(true);
+    try {
+      const charts = await captureAllCharts({
+        pizza: "[data-chart-id='ambiente-pie']",
+        barras: "[data-chart-id='ambiente-bar']",
+        linha: "[data-chart-id='ambiente-line']",
+      });
+      const filename = buildReportFilename("ambiente", {
+        filtro: submittedFilters?.filtro,
+        uf: submittedFilters?.uf,
+      });
+      await generateAndDownloadPdf(
+        <AmbienteReport
+          data={data}
+          filters={{
+            filtro: submittedFilters?.filtro || "todos",
+            uf: submittedFilters?.uf,
+            municipio: submittedFilters?.municipio ? String(submittedFilters.municipio) : null,
+            regiao: submittedFilters?.regiao,
+            anos: submittedFilters?.anos,
+          }}
+          charts={charts}
+        />,
+        filename,
+      );
+      toast.success("Relatório PDF gerado com sucesso!");
+    } catch {
+      toast.error("Erro ao gerar relatório PDF.");
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
+
   return (
     <div className={`${CONTAINER_MAX_WIDTH} ${RESPONSIVE_PADDING} py-6`}>
-      <h1 className="text-2xl text-center font-semibold text-gray-800 mb-4 md:mb-6 lg:mb-8">
-        Ambiente de Emissão
-      </h1>
+      <div className="flex items-center justify-center gap-3 mb-4 md:mb-6 lg:mb-8">
+        <h1 className="text-2xl font-semibold text-gray-800">
+          Ambiente de Emissão
+        </h1>
+        {data && data.length > 0 && !isLoading && (
+          <BasicTooltip asChild content="Gerar Relatório PDF">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleGenerateReport}
+              disabled={isGeneratingPdf}
+              className="shadow-sm"
+            >
+              {isGeneratingPdf ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <FileDown className="w-5 h-5 text-red-600" />
+              )}
+            </Button>
+          </BasicTooltip>
+        )}
+      </div>
 
       {/* Só mostra a tela de boas-vindas se ainda não iniciou consulta e não há dados */}
       {!consultaIniciada && !(data && data.length > 0) && <AmbienteWelcome />}

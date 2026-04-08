@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchDadosETL } from "@/service";
+import { fetchDadosETL } from "@/service/visao-geral";
 import { QUERY_KEYS } from "@/lib/queryKeys";
 import { queuedBackendCall } from "@/lib/backendQueue";
 import { type EtlData } from "@/lib/utils";

@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
-import { fetchMunicipioByUf } from "@/service";
+import { fetchMunicipioByUf } from "@/service/ibge";
 
 export const FormMunicipio = () => {
   const { control } = useFormContext();

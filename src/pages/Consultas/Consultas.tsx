@@ -31,8 +31,10 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, FileDown, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { generateAndDownloadPdf, buildReportFilename } from "@/lib/pdf";
+import { ConsultasReport } from "./report/ConsultasReport";
 import { ModoConsultaToggle } from "./components/ModoConsultaToggle";
 import { NfseDetalhada } from "./components/NfseDetalhada";
 import {
@@ -80,7 +82,32 @@ const Consultas = () => {
   const [globalFilter, setGlobalFilter] = useState("");
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(defaultColumnVisibility);
 
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+
   const isPending = modoConsulta === "cnpj" ? isLoading : isLoadingChave;
+
+  const handleGenerateReport = async () => {
+    if (consulta.length === 0) return;
+    setIsGeneratingPdf(true);
+    try {
+      const filename = buildReportFilename("consultas", {
+        cnpj: formData.ni,
+      });
+      await generateAndDownloadPdf(
+        <ConsultasReport
+          data={consulta}
+          cnpj={formData.ni}
+          anos={formData.anos}
+        />,
+        filename,
+      );
+      toast.success("Relatório PDF gerado com sucesso!");
+    } catch {
+      toast.error("Erro ao gerar relatório PDF.");
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
 
   const table = useReactTable({
     data: consulta,
@@ -191,6 +218,21 @@ const Consultas = () => {
                         className="shadow-sm"
                       >
                         <img src={xlsx_icon} alt="xlsx" className="w-6 h-6" />
+                      </Button>
+                    </BasicTooltip>
+                    <BasicTooltip asChild content="Gerar Relatório PDF">
+                      <Button
+                        variant={"outline"}
+                        size={"icon"}
+                        onClick={handleGenerateReport}
+                        disabled={isGeneratingPdf}
+                        className="shadow-sm"
+                      >
+                        {isGeneratingPdf ? (
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                          <FileDown className="w-5 h-5 text-red-600" />
+                        )}
                       </Button>
                     </BasicTooltip>
                   </div>

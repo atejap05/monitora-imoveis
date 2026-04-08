@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { fetchContribuintes } from "@/service";
+import { fetchContribuintes } from "@/service/consultas";
 import { normalizaCNPJ } from "@/lib/utils";
 import type { Consulta, NfseData } from "@/pages/Consultas/components/@types";
 

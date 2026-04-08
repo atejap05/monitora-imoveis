@@ -1,8 +1,7 @@
-import React, { useState, useEffect, RefObject } from "react";
+import React, { useState, useEffect, useRef, RefObject } from "react";
 import Persona from "../Persona";
 import { Button } from "../ui/button";
 import { MessageCircle, ExternalLink } from "lucide-react";
-
 
 export interface HeaderVisibilityProps {
   onVisibilityChange?: (visible: boolean) => void;
@@ -15,35 +14,40 @@ const Header: React.FC<HeaderVisibilityProps> = ({
   scrollContainerRef,
 }) => {
   const [show, setShow] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const lastScrollYRef = useRef(0);
+  const onVisibilityChangeRef = useRef(onVisibilityChange);
+  onVisibilityChangeRef.current = onVisibilityChange;
 
   useEffect(() => {
-    const container = scrollContainerRef?.current || window;
+    const container = scrollContainerRef?.current ?? window;
     const getScrollY = () =>
       container === window
         ? window.scrollY
         : (container as HTMLElement).scrollTop;
+
     const handleScroll = () => {
       const currentScrollY = getScrollY();
+      const lastScrollY = lastScrollYRef.current;
       if (currentScrollY > lastScrollY && currentScrollY > HEADER_HEIGHT) {
         setShow(false);
-        onVisibilityChange?.(false);
+        onVisibilityChangeRef.current?.(false);
       } else {
         setShow(true);
-        onVisibilityChange?.(true);
+        onVisibilityChangeRef.current?.(true);
       }
-      setLastScrollY(currentScrollY);
+      lastScrollYRef.current = currentScrollY;
     };
-    container.addEventListener("scroll", handleScroll);
-    return () => container.removeEventListener("scroll", handleScroll);
-    // eslint-disable-next-line
-  }, [lastScrollY, scrollContainerRef]);
 
+    const opts: AddEventListenerOptions = { passive: true };
+    container.addEventListener("scroll", handleScroll, opts);
+    return () => container.removeEventListener("scroll", handleScroll, opts);
+  }, [scrollContainerRef]);
 
   return (
     <header
-      className={`shadow-md sticky top-0 bg-[#fafafa] z-40 transition-transform duration-300 ${show ? "translate-y-0" : "-translate-y-full"
-        }`}
+      className={`shadow-md sticky top-0 bg-[#fafafa] z-40 transition-transform duration-300 ${
+        show ? "translate-y-0" : "-translate-y-full"
+      }`}
       style={{ willChange: "transform", height: HEADER_HEIGHT }}
     >
       <div className="flex items-center justify-between p-4 md:px-6 md:py-4">
@@ -65,7 +69,9 @@ const Header: React.FC<HeaderVisibilityProps> = ({
           <Button
             variant="ghost"
             className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-green hover:text-green/80 transition-colors duration-200 hover:bg-green/10 rounded-md"
-            onClick={() => window.open('https://www.gov.br/nfse/pt-br', '_blank')}
+            onClick={() =>
+              window.open("https://www.gov.br/nfse/pt-br", "_blank")
+            }
           >
             <ExternalLink size={16} />
             Portal NFSe
@@ -73,7 +79,12 @@ const Header: React.FC<HeaderVisibilityProps> = ({
           <Button
             variant="ghost"
             className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-green hover:text-green/80 transition-colors duration-200 hover:bg-green/10 rounded-md"
-            onClick={() => window.open('msteams://teams.microsoft.com/l/chat/0/0?users=joel.pereira@rfb.gov.br', '_blank')}
+            onClick={() =>
+              window.open(
+                "msteams://teams.microsoft.com/l/chat/0/0?users=joel.pereira@rfb.gov.br",
+                "_blank"
+              )
+            }
           >
             <MessageCircle size={16} />
             Contato

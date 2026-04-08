@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchAmbienteEmissao } from "@/service";
+import { fetchAmbienteEmissao } from "@/service/ambiente";
 import { useAmbienteFiltersState } from "@/state/ambienteFiltersSate";
 import { QUERY_KEYS } from "@/lib/queryKeys";
 import { queuedBackendCall } from "@/lib/backendQueue";

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchRelatrioConvenios } from "@/service";
+import { fetchRelatrioConvenios } from "@/service/convenios";
 import { QUERY_KEYS } from "@/lib/queryKeys";
 import { queuedBackendCall } from "@/lib/backendQueue";
 

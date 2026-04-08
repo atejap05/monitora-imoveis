@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchNotasFiscaisCanceladas } from "@/service";
+import { fetchNotasFiscaisCanceladas } from "@/service/notas-fiscais";
 import { TFilter } from "@/@types";
 import { QUERY_KEYS } from "@/lib/queryKeys";
 import { queuedBackendCall } from "@/lib/backendQueue";

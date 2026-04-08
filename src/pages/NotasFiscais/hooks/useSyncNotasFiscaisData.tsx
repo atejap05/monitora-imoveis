@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNotasFiscaisFiltersState } from "@/state/notasFiscaisFiltersSate";
-import { fetchNotasFiscaisCanceladas } from "@/service";
+import { fetchNotasFiscaisCanceladas } from "@/service/notas-fiscais";
 
 export const useSyncNotasFiscaisData = () => {
     const { submittedFilters, setLoading, setError } = useNotasFiscaisFiltersState();

@@ -10,7 +10,7 @@ import { queuedBackendCall } from "@/lib/backendQueue";
 export const useSyncContribuintesData = () => {
     const { submittedFilters, setData, setLoading, setError } = useContribuintesFiltersState();
 
-    const { isLoading, error, data, isSuccess } = useQuery({
+    const { isLoading, error, data, isSuccess, isError } = useQuery({
         queryKey: QUERY_KEYS.contribuintesData(submittedFilters!),
         queryFn: async () => {
             if (!submittedFilters) {
@@ -52,23 +52,17 @@ export const useSyncContribuintesData = () => {
         // staleTime configurado globalmente para 1 hora
     });
 
-    // Sincroniza com Zustand store
     useEffect(() => {
         setLoading(isLoading);
-    }, [isLoading, setLoading]);
-
-    useEffect(() => {
+        if (isError && error) {
+            console.error("Erro ao buscar dados:", error);
+            setError(error instanceof Error ? error : new Error("Erro desconhecido"));
+            setData(null);
+            return;
+        }
         if (isSuccess && data) {
             setData(data);
             setError(null);
         }
-    }, [isSuccess, data, setData, setError]);
-
-    useEffect(() => {
-        if (error) {
-            console.error("Erro ao buscar dados:", error);
-            setError(error instanceof Error ? error : new Error("Erro desconhecido"));
-            setData(null);
-        }
-    }, [error, setError, setData]);
+    }, [isLoading, isSuccess, isError, error, data, setLoading, setData, setError]);
 }; 

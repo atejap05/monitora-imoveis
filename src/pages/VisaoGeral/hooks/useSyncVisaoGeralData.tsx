@@ -5,7 +5,7 @@ import {
   fetchNotasFiscais,
   fetchDistribuicaoFrequencia,
   fetchAdesaoMunicipios,
-} from "@/service";
+} from "@/service/visao-geral";
 import { TVisaoGeral } from "@/@types";
 import { QUERY_KEYS } from "@/lib/queryKeys";
 import { queuedBackendCall } from "@/lib/backendQueue";
@@ -46,19 +46,23 @@ export const useSyncVisaoGeralData = () => {
 
   useEffect(() => {
     setLoading(isLoading);
-  }, [isLoading, setLoading]);
-
-  useEffect(() => {
+    if (isError) {
+      setError(error ?? new Error("Erro desconhecido"));
+      setData(null);
+      return;
+    }
     if (isSuccess) {
       setData(data ?? null);
       setError(null);
     }
-  }, [isSuccess, data, setData, setError]);
-
-  useEffect(() => {
-    if (isError) {
-      setError(error);
-      setData(null); // Limpa dados antigos em caso de erro
-    }
-  }, [isError, error, setError, setData]);
+  }, [
+    isLoading,
+    isSuccess,
+    isError,
+    error,
+    data,
+    setLoading,
+    setData,
+    setError,
+  ]);
 };

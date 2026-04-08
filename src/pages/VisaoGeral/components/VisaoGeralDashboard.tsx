@@ -7,7 +7,7 @@ import { VisaoGeralAdesaoChart } from "./VisaoGeralAdesaoChart.tsx";
 import { VisaoGeralAdesaoChartSkeleton } from "./VisaoGeralAdesaoChartSkeleton.tsx";
 
 import LocalEtlSection from "./LocalEtlSection";
-import { FileText, User, Building2, Factory } from "lucide-react";
+import { FileText, User, Building2, Factory, FileDown, Loader2 } from "lucide-react";
 import DashCard from "@/components/DashCard";
 import BarLoader from "react-spinners/BarLoader";
 import {
@@ -16,6 +16,12 @@ import {
   RESPONSIVE_GAP,
   KPI_GRID_CLASSES,
 } from "@/lib/constants";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import BasicTooltip from "@/components/BasicTooltip";
+import { generateAndDownloadPdf, buildReportFilename, captureAllCharts } from "@/lib/pdf";
+import { VisaoGeralReport } from "../report/VisaoGeralReport";
 
 const VisaoGeralDashboard = () => {
   const { data, isLoading, error, submittedFilters } =
@@ -36,6 +42,43 @@ const VisaoGeralDashboard = () => {
       aggregatedTotals.nao_optante += yearData.nao_optante || 0;
     });
   }
+
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+
+  const handleGenerateReport = async () => {
+    if (!nfseTotaisData) return;
+    setIsGeneratingPdf(true);
+    try {
+      const charts = await captureAllCharts({
+        adesao: "[data-chart-id='adesao-municipios']",
+      });
+      const filename = buildReportFilename("visao-geral", {
+        filtro: submittedFilters?.filtro,
+        uf: submittedFilters?.uf,
+      });
+      await generateAndDownloadPdf(
+        <VisaoGeralReport
+          nfseTotais={nfseTotaisData}
+          distribuicaoFrequencia={distFreqData || null}
+          adesaoMunicipios={adesaoData || null}
+          filters={{
+            filtro: submittedFilters?.filtro || "todos",
+            uf: submittedFilters?.uf,
+            municipio: submittedFilters?.municipio ? String(submittedFilters.municipio) : null,
+            regiao: submittedFilters?.regiao,
+            anos: submittedFilters?.anos,
+          }}
+          charts={charts}
+        />,
+        filename,
+      );
+      toast.success("Relatório PDF gerado com sucesso!");
+    } catch {
+      toast.error("Erro ao gerar relatório PDF.");
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
 
   if (error) {
     return (
@@ -61,9 +104,28 @@ const VisaoGeralDashboard = () => {
 
   return (
     <div className={`${CONTAINER_MAX_WIDTH} ${RESPONSIVE_PADDING} py-6`}>
-      <h1 className="text-2xl text-center font-semibold text-gray-800 mb-4 md:mb-6 lg:mb-8">
-        Visão Geral da Base NFSe
-      </h1>
+      <div className="flex items-center justify-center gap-3 mb-4 md:mb-6 lg:mb-8">
+        <h1 className="text-2xl font-semibold text-gray-800">
+          Visão Geral da Base NFSe
+        </h1>
+        {nfseTotaisData && !isLoading && (
+          <BasicTooltip asChild content="Gerar Relatório PDF">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleGenerateReport}
+              disabled={isGeneratingPdf}
+              className="shadow-sm"
+            >
+              {isGeneratingPdf ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <FileDown className="w-5 h-5 text-red-600" />
+              )}
+            </Button>
+          </BasicTooltip>
+        )}
+      </div>
       <FiltroHeader
         submittedFilters={submittedFilters}
         returnedYears={returnedYears}

@@ -11,10 +11,18 @@ import { Separator } from "@/components/ui/separator";
 import { NotasFiscaisWelcome } from "./components/NotasFiscaisWelcome";
 import {
   FileCheck,
+  FileDown,
   FileSignature,
   FileText,
   FileX2,
+  Loader2,
 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import BasicTooltip from "@/components/BasicTooltip";
+import { generateAndDownloadPdf, buildReportFilename } from "@/lib/pdf";
+import { NotasFiscaisReport } from "./report/NotasFiscaisReport";
 
 export const NotasFiscais = () => {
   const { submittedFilters, isLoading, error } = useNotasFiscaisFiltersState();
@@ -49,6 +57,38 @@ export const NotasFiscais = () => {
     }
     : null;
 
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+
+  const handleGenerateReport = async () => {
+    if (!notasCanceladasData && !top100Data) return;
+    setIsGeneratingPdf(true);
+    try {
+      const filename = buildReportFilename("notas-fiscais", {
+        filtro: submittedFilters?.filtro,
+        uf: submittedFilters?.uf,
+      });
+      await generateAndDownloadPdf(
+        <NotasFiscaisReport
+          canceladas={notasCanceladasData || []}
+          top100={top100Data || []}
+          filters={{
+            filtro: submittedFilters?.filtro || "todos",
+            uf: submittedFilters?.uf,
+            municipio: submittedFilters?.municipio ? String(submittedFilters.municipio) : null,
+            regiao: submittedFilters?.regiao,
+            anos: submittedFilters?.anos,
+          }}
+        />,
+        filename,
+      );
+      toast.success("Relatório PDF gerado com sucesso!");
+    } catch {
+      toast.error("Erro ao gerar relatório PDF.");
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
+
   if (!submittedFilters) {
     return <NotasFiscaisWelcome />;
   }
@@ -61,9 +101,28 @@ export const NotasFiscais = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6">
-      <h1 className="text-2xl text-center font-semibold text-gray-800 mb-4">
-        Notas Fiscais
-      </h1>
+      <div className="flex items-center justify-center gap-3 mb-4">
+        <h1 className="text-2xl font-semibold text-gray-800">
+          Notas Fiscais
+        </h1>
+        {(notasCanceladasData || top100Data) && !isLoading && (
+          <BasicTooltip asChild content="Gerar Relatório PDF">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleGenerateReport}
+              disabled={isGeneratingPdf}
+              className="shadow-sm"
+            >
+              {isGeneratingPdf ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <FileDown className="w-5 h-5 text-red-600" />
+              )}
+            </Button>
+          </BasicTooltip>
+        )}
+      </div>
 
       {submittedFilters && (
         <>

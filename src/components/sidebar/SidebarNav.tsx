@@ -14,6 +14,25 @@ import {
 import { useSidebar } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import BasicTooltip from "../BasicTooltip";
+import {
+  importVisaoGeralPage,
+  importContribuintesPage,
+  importConsultasPage,
+  importNotasFiscaisPage,
+  importAmbientePage,
+  importConveniosPage,
+  importVolumetriaPage,
+} from "@/routes/pageImports";
+
+const routePrefetchByPath: Record<string, () => Promise<unknown>> = {
+  "/visao-geral": importVisaoGeralPage,
+  "/contribuintes": importContribuintesPage,
+  "/consultas": importConsultasPage,
+  "/notas-fiscais": importNotasFiscaisPage,
+  "/ambiente": importAmbientePage,
+  "/convenios": importConveniosPage,
+  "/volumetria": importVolumetriaPage,
+};
 
 const navItems = [
   { label: "Visão Geral", to: "/visao-geral", icon: <LayoutDashboard /> },
@@ -49,6 +68,10 @@ const SidebarNav: React.FC = () => {
           <NavLink
             key={item.to}
             to={item.to}
+            onMouseEnter={() => {
+              const load = routePrefetchByPath[item.to];
+              if (load) void load();
+            }}
             className={({ isActive }) =>
               `flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-md font-medium transition-colors text-white hover:bg-green-700 hover:text-white border-b-4 text-xs md:text-sm lg:text-base ${isActive
                 ? "bg-green-900 text-yellow-300 border-yellow-300 shadow-lg"

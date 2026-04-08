@@ -38,7 +38,10 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
         >
           <SidebarNav />
         </div>
-        <div className="flex-1 min-h-0">
+        <div
+          ref={contentRef}
+          className="flex-1 min-h-0 overflow-y-auto"
+        >
           <div className="flex w-full h-full relative">
             <div className="flex-1 flex justify-center">
               <div className="w-full px-4 sm:px-6 md:px-8 py-8">{children}</div>

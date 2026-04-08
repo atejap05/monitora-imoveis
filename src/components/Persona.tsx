@@ -1,4 +1,4 @@
-import { getDadosUsuarioAutenticado } from "@/service";
+import { getDadosUsuarioAutenticado } from "@/service/user";
 import { useQuery } from "@tanstack/react-query";
 import { formataCPF } from "@/lib/utils";
 import { Skeleton } from "./ui/skeleton";

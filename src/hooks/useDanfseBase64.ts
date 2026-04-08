@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { fetchDanfseBase64 } from "@/service";
+import { fetchDanfseBase64 } from "@/service/notas-fiscais";
 
 /**
  * Hook para buscar o DANFSe em PDF (base64) a partir da chave de acesso.

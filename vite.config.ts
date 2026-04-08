@@ -31,12 +31,11 @@ export default defineConfig({
           "map-vendor": ["leaflet", "react-leaflet"],
           "form-vendor": ["react-hook-form", "@hookform/resolvers", "zod"],
           "utils-vendor": ["date-fns", "xlsx", "react-papaparse"],
-
-          // Feature chunks serão criados automaticamente pelo Vite,
+          "pdf-vendor": ["@react-pdf/renderer"],
         },
       },
     },
     // Aumentar limite de warning se necessário
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 1600,
   },
 });

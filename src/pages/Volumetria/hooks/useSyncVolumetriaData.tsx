@@ -10,7 +10,7 @@ export const useSyncVolumetriaData = () => {
   const { submittedFilters, setData, setLoading, setError } =
     useVolumetriaFiltersState();
 
-  const { isLoading, error, data, isSuccess } = useQuery<
+  const { isLoading, error, data, isSuccess, isError } = useQuery<
     VolumetriaItem[],
     Error
   >({
@@ -32,25 +32,26 @@ export const useSyncVolumetriaData = () => {
     enabled: !!submittedFilters,
   });
 
-  // Sincroniza loading
   useEffect(() => {
     setLoading(isLoading);
-  }, [isLoading, setLoading]);
-
-  // Sincroniza sucesso
-  useEffect(() => {
+    if (isError && error) {
+      console.error("Erro ao buscar dados de volumetria:", error);
+      setError(error);
+      setData(null);
+      return;
+    }
     if (isSuccess) {
       setData(data ?? null);
       setError(null);
     }
-  }, [isSuccess, data, setData, setError]);
-
-  // Sincroniza erro
-  useEffect(() => {
-    if (error) {
-      console.error("Erro ao buscar dados de volumetria:", error);
-      setError(error);
-      setData(null);
-    }
-  }, [error, setError, setData]);
+  }, [
+    isLoading,
+    isSuccess,
+    isError,
+    error,
+    data,
+    setLoading,
+    setData,
+    setError,
+  ]);
 };
