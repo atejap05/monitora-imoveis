@@ -11,8 +11,7 @@ import { FileText, User, Building2, Factory, FileDown, Loader2 } from "lucide-re
 import DashCard from "@/components/DashCard";
 import BarLoader from "react-spinners/BarLoader";
 import {
-  CONTAINER_MAX_WIDTH,
-  RESPONSIVE_PADDING,
+  PAGE_SHELL_CLASSES,
   RESPONSIVE_GAP,
   KPI_GRID_CLASSES,
 } from "@/lib/constants";
@@ -103,7 +102,7 @@ const VisaoGeralDashboard = () => {
   }
 
   return (
-    <div className={`${CONTAINER_MAX_WIDTH} ${RESPONSIVE_PADDING} py-6`}>
+    <div className={PAGE_SHELL_CLASSES}>
       <div className="flex items-center justify-center gap-3 mb-4 md:mb-6 lg:mb-8">
         <h1 className="text-2xl font-semibold text-gray-800">
           Visão Geral da Base NFSe

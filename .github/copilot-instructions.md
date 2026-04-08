@@ -36,6 +36,7 @@ Estas instruções são a **mesma base** que [.cursor/rules/painelnfse-rules.mdc
 - **Estado global de filtros**: `src/state`.
 - **Tipos**: `src/@types`.
 - **Filtros reutilizáveis**: `src/filters/`.
+- **Shell de página**: container raiz das páginas com `PAGE_SHELL_CLASSES` em `src/lib/constants.ts` (equivalente a `CONTAINER_MAX_WIDTH` + `RESPONSIVE_PADDING` + `py-6`). Evitar `max-w-*` hardcoded na raiz salvo requisito explícito.
 
 ---
 

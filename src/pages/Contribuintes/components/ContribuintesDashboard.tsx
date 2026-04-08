@@ -7,8 +7,7 @@ import { MapSkeleton } from "./MapSkeleton";
 import { Suspense, lazy } from "react";
 import ContribuintesSkeletons from "./ContribuintesSkeletons";
 import {
-  CONTAINER_MAX_WIDTH,
-  RESPONSIVE_PADDING,
+  PAGE_SHELL_CLASSES,
   RESPONSIVE_GAP,
   KPI_GRID_CLASSES,
 } from "@/lib/constants";
@@ -76,7 +75,7 @@ const ContribuintesDashboard = () => {
 
   if (error) {
     return (
-      <div className={`${CONTAINER_MAX_WIDTH} ${RESPONSIVE_PADDING} py-6`}>
+      <div className={PAGE_SHELL_CLASSES}>
         <h1 className="text-2xl text-center font-semibold text-gray-800 mb-4 md:mb-6 lg:mb-8">
           Dashboard de Contribuintes
         </h1>
@@ -89,7 +88,7 @@ const ContribuintesDashboard = () => {
   }
 
   return (
-    <div className={`${CONTAINER_MAX_WIDTH} ${RESPONSIVE_PADDING} py-6`}>
+    <div className={PAGE_SHELL_CLASSES}>
       <div className="flex items-center justify-center gap-3 mb-4 md:mb-6 lg:mb-8">
         <h1 className="text-2xl font-semibold text-gray-800">
           Dashboard de Contribuintes

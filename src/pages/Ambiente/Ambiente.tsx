@@ -16,7 +16,7 @@ import {
 } from "./components/AmbienteSkeletons";
 import { FiltroHeader } from "@/components/Layout/FiltroHeader";
 import { useAmbienteFiltersState } from "@/state/ambienteFiltersSate";
-import { CONTAINER_MAX_WIDTH, RESPONSIVE_PADDING } from "@/lib/constants";
+import { PAGE_SHELL_CLASSES } from "@/lib/constants";
 import { useState } from "react";
 import { toast } from "sonner";
 import { FileDown, Loader2 } from "lucide-react";
@@ -135,7 +135,7 @@ const Ambiente: React.FC = () => {
   };
 
   return (
-    <div className={`${CONTAINER_MAX_WIDTH} ${RESPONSIVE_PADDING} py-6`}>
+    <div className={PAGE_SHELL_CLASSES}>
       <div className="flex items-center justify-center gap-3 mb-4 md:mb-6 lg:mb-8">
         <h1 className="text-2xl font-semibold text-gray-800">
           Ambiente de Emissão

@@ -34,14 +34,14 @@ export function ConveniosTableToolbar({
   const { CSVDownloader, Type } = useCSVDownloader();
 
   return (
-    <div className="flex items-center justify-between mt-4">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mt-4 min-w-0">
       <Input
         placeholder="Pesquisar em todas as colunas..."
         value={globalFilter}
         onChange={e => setGlobalFilter(e.target.value)}
-        className="max-w-sm"
+        className="w-full sm:max-w-sm min-w-0"
       />
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center justify-end gap-2 shrink-0">
         {hasData && (
           <>
             <BasicTooltip content="Exportar CSV" asChild>
@@ -77,7 +77,7 @@ export function ConveniosTableToolbar({
         )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
+            <Button variant="outline" className="w-full sm:w-auto">
               Colunas <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>

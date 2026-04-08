@@ -37,11 +37,7 @@ import { generateAndDownloadPdf, buildReportFilename } from "@/lib/pdf";
 import { ConsultasReport } from "./report/ConsultasReport";
 import { ModoConsultaToggle } from "./components/ModoConsultaToggle";
 import { NfseDetalhada } from "./components/NfseDetalhada";
-import {
-  CONTAINER_MAX_WIDTH,
-  RESPONSIVE_PADDING,
-  RESPONSIVE_GAP,
-} from "@/lib/constants";
+import { PAGE_SHELL_CLASSES, RESPONSIVE_GAP } from "@/lib/constants";
 
 const Consultas = () => {
   const {
@@ -128,7 +124,7 @@ const Consultas = () => {
   });
 
   return (
-    <div className={`${CONTAINER_MAX_WIDTH} ${RESPONSIVE_PADDING} py-6`}>
+    <div className={PAGE_SHELL_CLASSES}>
       <h1 className="text-2xl text-center font-semibold text-gray-800 mb-4 md:mb-6 lg:mb-8">
         Consulta Contribuinte
       </h1>
@@ -239,8 +235,8 @@ const Consultas = () => {
                 )}
               </div>
             </CardHeader>
-            <CardContent className="overflow-hidden">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+            <CardContent className="overflow-hidden min-w-0">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4 min-w-0 w-full">
                 <Input
                   placeholder="Pesquisar em todas as colunas..."
                   value={globalFilter}

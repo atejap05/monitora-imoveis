@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import BasicTooltip from "@/components/BasicTooltip";
 import { generateAndDownloadPdf, buildReportFilename } from "@/lib/pdf";
 import { NotasFiscaisReport } from "./report/NotasFiscaisReport";
+import { PAGE_SHELL_CLASSES } from "@/lib/constants";
 
 export const NotasFiscais = () => {
   const { submittedFilters, isLoading, error } = useNotasFiscaisFiltersState();
@@ -100,7 +101,7 @@ export const NotasFiscais = () => {
       : [];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6">
+    <div className={PAGE_SHELL_CLASSES}>
       <div className="flex items-center justify-center gap-3 mb-4">
         <h1 className="text-2xl font-semibold text-gray-800">
           Notas Fiscais

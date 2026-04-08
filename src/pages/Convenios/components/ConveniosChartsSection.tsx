@@ -88,8 +88,8 @@ export const ConveniosChartsSection: React.FC<ConveniosChartsSectionProps> = ({ 
     }, [data, agrupamento]);
 
     return (
-        <div className="w-full flex flex-col md:flex-row gap-6 mb-8">
-            <div className="flex-1 min-w-[320px]">
+        <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div className="min-w-0">
                 <Card className="flex flex-col h-full">
                     <CardHeader>
                         <CardTitle>Distribuição por Status de Convênio</CardTitle>
@@ -102,11 +102,11 @@ export const ConveniosChartsSection: React.FC<ConveniosChartsSectionProps> = ({ 
                     </CardContent>
                 </Card>
             </div>
-            <div className="flex-1 min-w-[320px]">
+            <div className="min-w-0">
                 <Card className="flex flex-col h-full">
                     <CardHeader>
-                        <div className="flex justify-between items-start">
-                            <div>
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 min-w-0">
+                            <div className="min-w-0">
                                 <CardTitle>Distribuição por {agrupamento === "regiaoFiscal" ? "Região Fiscal" : "Região Geográfica"}</CardTitle>
                                 <CardDescription>
                                     Percentual de municípios por status de convênio, agrupados por região.
@@ -114,7 +114,7 @@ export const ConveniosChartsSection: React.FC<ConveniosChartsSectionProps> = ({ 
                             </div>
                             <EficienciaChartModal data={data} />
                         </div>
-                        <div className="flex gap-2 mb-2">
+                        <div className="flex flex-wrap gap-2 mb-2">
                             <Button
                                 variant={agrupamento === "regiaoFiscal" ? "default" : "outline"}
                                 onClick={() => setAgrupamento("regiaoFiscal")}

@@ -1,6 +1,7 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PAGE_SHELL_CLASSES } from "@/lib/constants";
 
 export const ContribuintesKpiSkeleton: React.FC = () => (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
@@ -172,7 +173,7 @@ export const ContribuintesGroupedBarChartSkeleton: React.FC = () => (
 );
 
 const ContribuintesSkeletons: React.FC = () => (
-    <div className="px-4 py-4 space-y-6">
+    <div className={`${PAGE_SHELL_CLASSES} space-y-6`}>
         <ContribuintesKpiSkeleton />
         <div className="w-full">
             <Skeleton className="h-[400px] w-full" />

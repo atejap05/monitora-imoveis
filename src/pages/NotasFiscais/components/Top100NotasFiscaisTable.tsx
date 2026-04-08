@@ -66,15 +66,15 @@ export const Top100NotasFiscaisTable = ({
     }));
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-4">
+    <div className="w-full min-w-0">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4 min-w-0">
         <Input
           placeholder="Pesquisar..."
           value={globalFilter}
           onChange={e => setGlobalFilter(e.target.value)}
-          className="max-w-sm"
+          className="w-full sm:max-w-sm min-w-0"
         />
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center justify-end gap-2 shrink-0">
           <CSVDownloader
             type={Type.Button}
             data={data}
@@ -106,7 +106,7 @@ export const Top100NotasFiscaisTable = ({
           </BasicTooltip>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
+              <Button variant="outline" className="w-full sm:w-auto">
                 Colunas <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>

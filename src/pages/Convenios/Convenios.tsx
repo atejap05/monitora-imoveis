@@ -26,11 +26,7 @@ import { ConveniosKpiCards } from "./components/ConveniosKpiCards";
 import { ConveniosChartsSection } from "./components/ConveniosChartsSection";
 import { useConveniosFiltersState } from "@/state/conveniosFiltersState";
 import { ConveniosSkeleton } from "./components/ConveniosSkeleton";
-import {
-  CONTAINER_MAX_WIDTH,
-  RESPONSIVE_PADDING,
-  RESPONSIVE_GAP,
-} from "@/lib/constants";
+import { PAGE_SHELL_CLASSES, RESPONSIVE_GAP } from "@/lib/constants";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import BasicTooltip from "@/components/BasicTooltip";
@@ -136,7 +132,7 @@ const Convenios: React.FC = () => {
   const hasData = !!(data && data.length > 0);
 
   return (
-    <div className={`${CONTAINER_MAX_WIDTH} ${RESPONSIVE_PADDING} py-6`}>
+    <div className={PAGE_SHELL_CLASSES}>
       <div className="text-center mb-4 md:mb-6 lg:mb-8">
         <div className="flex items-center justify-center gap-3">
           <h1 className="text-2xl font-semibold text-gray-800">
