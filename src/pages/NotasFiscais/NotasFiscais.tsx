@@ -197,7 +197,7 @@ export const NotasFiscais = () => {
           <Separator />
 
           {/* Top 100 Notas Fiscais */}
-          <div className="bg-white rounded shadow p-6">
+          <div className="min-w-0 max-w-full rounded bg-white p-6 shadow">
             <h2 className="text-xl font-semibold text-gray-700 mb-4">
               Top 100 Notas Fiscais (Maiores Valores)
             </h2>

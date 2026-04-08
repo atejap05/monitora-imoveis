@@ -22,8 +22,8 @@ export const CONTAINER_MAX_WIDTH = "w-full mx-auto";
 // Classes Tailwind CSS para container centralizado com padding responsivo
 export const CONTAINER_CLASSES = `${CONTAINER_MAX_WIDTH} ${RESPONSIVE_PADDING}`;
 
-/** Shell padrão das páginas (alinhado a Visão Geral): largura fluida + padding + py */
-export const PAGE_SHELL_CLASSES = `${CONTAINER_MAX_WIDTH} ${RESPONSIVE_PADDING} py-6`;
+/** Shell padrão das páginas (alinhado a Visão Geral): largura fluida + padding + py; min-w-0 evita overflow horizontal no flex com sidebar */
+export const PAGE_SHELL_CLASSES = `${CONTAINER_MAX_WIDTH} ${RESPONSIVE_PADDING} py-6 min-w-0 max-w-full`;
 
 // Classes Tailwind CSS para seções com layout flex vertical e gap responsivo
 export const FLEX_COL_GAP_CLASSES = `flex flex-col ${RESPONSIVE_GAP}`;

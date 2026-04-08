@@ -47,7 +47,7 @@ const navItems = [
 const SidebarNav: React.FC = () => {
   const { open, toggleSidebar } = useSidebar();
   return (
-    <nav className="flex flex-row w-full px-2 sm:px-4 py-2 border-t border-b border-green-100 bg-green items-center relative shadow-md">
+    <nav className="relative flex w-full min-w-0 flex-row items-center border-b border-t border-green-100 bg-green px-2 py-2 shadow-md sm:px-4">
       <div>
         <Button
           onClick={toggleSidebar}
@@ -63,7 +63,7 @@ const SidebarNav: React.FC = () => {
           </BasicTooltip>
         </Button>
       </div>
-      <div className="flex flex-row gap-1 sm:gap-2 flex-1 justify-center">
+      <div className="flex min-w-0 flex-1 flex-row justify-center gap-1 overflow-x-auto sm:gap-2">
         {navItems.map(item => (
           <NavLink
             key={item.to}

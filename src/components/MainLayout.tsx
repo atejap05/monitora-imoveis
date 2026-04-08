@@ -23,7 +23,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
         </Sidebar>
       </div>
 
-      <div className="flex flex-col flex-1 min-w-0">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <Header
           onVisibilityChange={setHeaderVisible}
           scrollContainerRef={contentRef}
@@ -40,11 +40,13 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
         </div>
         <div
           ref={contentRef}
-          className="flex-1 min-h-0 overflow-y-auto"
+          className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden"
         >
-          <div className="flex w-full h-full relative">
-            <div className="flex-1 flex justify-center">
-              <div className="w-full px-4 sm:px-6 md:px-8 py-8">{children}</div>
+          <div className="relative flex h-full w-full min-w-0">
+            <div className="flex min-w-0 flex-1 justify-center">
+              <div className="w-full min-w-0 max-w-full px-4 py-8 sm:px-6 md:px-8">
+                {children}
+              </div>
             </div>
           </div>
         </div>
