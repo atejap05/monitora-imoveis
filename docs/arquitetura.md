@@ -6,6 +6,7 @@ O **Monitora Imóveis** separa **frontend** (Next.js), **backend** (FastAPI) e *
 
 ### 1. Frontend (Next.js — App Router)
 
+- **Autenticação:** **Clerk** (`@clerk/nextjs`) — `ClerkProvider` no layout, `middleware.ts` protege rotas de página (exceto `/sign-in` e `/sign-up`); chamadas a `/api/*` passam pelo proxy para o FastAPI com header `Authorization: Bearer <JWT>` obtido via `useAuth().getToken()`.
 - **Dashboard e formulário** são *Client Components* (`"use client"`): estado de busca/filtros, **SWR** para `GET /api/properties`, `useDeferredValue` / `useTransition` onde aplicável.
 - **Proxy de desenvolvimento:** em `next.config.ts`, requisições a `/api/:path*` são reencaminhadas para `http://localhost:8000/api/:path*`, permitindo chamadas relativas `/api/properties` no browser.
 - **Estilo:** Tailwind CSS e componentes no padrão shadcn/base.
@@ -13,8 +14,9 @@ O **Monitora Imóveis** separa **frontend** (Next.js), **backend** (FastAPI) e *
 
 ### 2. Backend (FastAPI)
 
-- **`main.py`:** aplicação FastAPI, CORS, `lifespan` que cria tabelas SQLite e dispõe o engine ao encerrar.
-- **`routers/properties.py`:** rotas REST sob prefixo `/api/properties`.
+- **`main.py`:** aplicação FastAPI, CORS, `lifespan` que cria tabelas SQLite e dispõe o engine ao encerrar; `load_dotenv()` para `CLERK_ISSUER`.
+- **`auth.py`:** validação do JWT do Clerk (JWKS em `/.well-known/jwks.json`, algoritmo RS256); dependência `get_current_user_id` em todas as rotas de imóveis.
+- **`routers/properties.py`:** rotas REST sob prefixo `/api/properties`; dados filtrados por `user_id` (multi-tenant).
 - **`scraper.py`:** `fetch_property_data(url)` assíncrono com Playwright; domínio *Primeira Porta* com extração por texto/regex; outros hosts com fallback genérico.
 - **`schemas.py`:** modelos Pydantic de resposta com `alias_generator` camelCase; campo interno `property_type` serializado como **`type`** no JSON.
 

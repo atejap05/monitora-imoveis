@@ -9,6 +9,7 @@ import {
 } from "react";
 import dynamic from "next/dynamic";
 import useSWR from "swr";
+import { useAuth, UserButton } from "@clerk/nextjs";
 import { Search, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -109,12 +110,19 @@ const EMPTY_STATE_ICON = (
 );
 
 export function Dashboard() {
+  const { getToken } = useAuth();
+
+  const swrFetcher = useCallback(
+    (url: string) => fetcher<Property[]>(url, getToken),
+    [getToken],
+  );
+
   const {
     data: properties = [],
     error,
     isLoading,
     mutate,
-  } = useSWR<Property[]>(PROPERTIES_ENDPOINT, fetcher, {
+  } = useSWR<Property[]>(PROPERTIES_ENDPOINT, swrFetcher, {
     revalidateOnFocus: true,
   });
 
@@ -183,6 +191,13 @@ export function Dashboard() {
             onMouseEnter={importAddPropertyDialog}
             onFocus={importAddPropertyDialog}
           >
+            <UserButton
+              appearance={{
+                elements: {
+                  avatarBox: "size-8 ring-1 ring-border/50",
+                },
+              }}
+            />
             <ModeToggle />
             <AddPropertyDialog onPropertyAdded={handlePropertyAdded} />
           </div>

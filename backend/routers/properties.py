@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, field_validator
 from sqlmodel import Session, select
 
+from auth import get_current_user_id
 from database import get_session
 from models import Property, PropertyHistory
 from schemas import PropertyResponse, property_to_response
@@ -40,8 +41,13 @@ def _histories_for(session: Session, property_id: int) -> list[PropertyHistory]:
     response_model=list[PropertyResponse],
     response_model_by_alias=True,
 )
-def list_properties(session: Annotated[Session, Depends(get_session)]):
-    props = list(session.exec(select(Property)).all())
+def list_properties(
+    session: Annotated[Session, Depends(get_session)],
+    user_id: Annotated[str, Depends(get_current_user_id)],
+):
+    props = list(
+        session.exec(select(Property).where(Property.user_id == user_id)).all(),
+    )
     return [
         property_to_response(p, _histories_for(session, p.id))
         for p in props
@@ -57,9 +63,10 @@ def list_properties(session: Annotated[Session, Depends(get_session)]):
 def get_property(
     property_id: int,
     session: Annotated[Session, Depends(get_session)],
+    user_id: Annotated[str, Depends(get_current_user_id)],
 ):
     prop = session.get(Property, property_id)
-    if not prop:
+    if not prop or prop.user_id != user_id:
         raise HTTPException(status_code=404, detail="Imóvel não encontrado")
     return property_to_response(prop, _histories_for(session, property_id))
 
@@ -73,12 +80,15 @@ def get_property(
 async def create_property(
     body: PropertyCreateBody,
     session: Annotated[Session, Depends(get_session)],
+    user_id: Annotated[str, Depends(get_current_user_id)],
 ):
     url = body.url.strip()
     if not url:
         raise HTTPException(status_code=422, detail="URL é obrigatória")
 
-    existing = session.exec(select(Property).where(Property.url == url)).first()
+    existing = session.exec(
+        select(Property).where(Property.user_id == user_id, Property.url == url),
+    ).first()
     if existing:
         raise HTTPException(
             status_code=409,
@@ -98,6 +108,7 @@ async def create_property(
         db_status = "inactive"
 
     prop = Property(
+        user_id=user_id,
         url=url,
         title=data.get("title"),
         price=data.get("price"),
@@ -140,9 +151,10 @@ async def create_property(
 def delete_property(
     property_id: int,
     session: Annotated[Session, Depends(get_session)],
+    user_id: Annotated[str, Depends(get_current_user_id)],
 ):
     prop = session.get(Property, property_id)
-    if not prop:
+    if not prop or prop.user_id != user_id:
         raise HTTPException(status_code=404, detail="Imóvel não encontrado")
 
     for h in _histories_for(session, property_id):

@@ -24,7 +24,8 @@ Diariamente (ou em outra frequência), os *cron jobs* revisitam essas páginas p
 - **Frontend:** Next.js (App Router), React, Tailwind CSS e componentes Shadcn UI para garantia de uma interface moderna e Premium.
 - **Backend:** Python e FastAPI para garantir execuções assíncronas ágeis.
 - **Web Scraping:** Playwright para Python (lidando eficientemente com SPAs e SSR de imobiliárias).
-- **Banco de Dados:** SQLite (SQLModel) durante a fase de prototipação/Single-User, escalável para PostgreSQL + pgvector (Supabase/Neon).
+- **Banco de Dados:** SQLite (SQLModel), com dados por usuário (`user_id`); escalável para PostgreSQL + pgvector (Supabase/Neon).
+- **Autenticação:** [Clerk](https://clerk.com) (login no frontend, JWT validado no FastAPI).
 - **IA e Buscas Avançadas:** NLP e vetores a serem definidos usando bibliotecas de embeddings do ecossistema RAG.
 
 ## 💻 Configurando e Executando (Multiplataforma)
@@ -35,7 +36,7 @@ Você precisa de **dois terminais**: um para o backend (API na porta **8000**) e
 
 | Ferramenta | Observação |
 |------------|------------|
-| **Node.js** | 18 ou superior (recomendado LTS). [nodejs.org](https://nodejs.org/) ou, no Windows, `winget install OpenJS.NodeJS.LTS`. |
+| **Node.js** | 20 ou superior recomendado para Next.js 16 (mínimo comum: 18+). [nodejs.org](https://nodejs.org/) ou, no Windows, `winget install OpenJS.NodeJS.LTS`. |
 | **Python** | 3.11 ou superior, com suporte a **SSL** (instalação oficial em [python.org](https://www.python.org/downloads/windows/) no Windows; marque *“Add python.exe to PATH”* no instalador). |
 | **npm** | Vem com o Node. |
 
@@ -43,7 +44,9 @@ Você precisa de **dois terminais**: um para o backend (API na porta **8000**) e
 
 ### 1. Backend (FastAPI + Playwright)
 
-Entre na pasta `backend`, crie o ambiente virtual, instale dependências e os binários do Playwright (Chromium).
+Entre na pasta `backend`, crie o ambiente virtual, instale dependências e os binários do Playwright (Chromium). **Antes de subir a API**, crie `backend/.env` a partir de `backend/.env.example` e defina `CLERK_ISSUER` (detalhes na secção **Autenticação (Clerk)** abaixo); sem isso, as rotas `/api/properties` não validam o JWT corretamente.
+
+Sempre que atualizar o repositório (`git pull`), execute de novo `pip install -r requirements.txt` no venv para pegar dependências novas (por exemplo PyJWT para validação de tokens).
 
 #### Windows (PowerShell ou CMD)
 
@@ -97,12 +100,28 @@ Em **outro terminal**, na raiz do repositório:
 ```bash
 cd frontend
 npm install
+```
+
+**Antes de `npm run dev`:** copie `frontend/.env.example` para `frontend/.env.local` e preencha as chaves do Clerk (obrigatório — o painel exige login). Depois:
+
+```bash
 npm run dev
 ```
 
-Abra o painel em **http://localhost:3000**. As requisições a `/api/properties` são enviadas ao FastAPI em `http://localhost:8000` pelo proxy do Next.js.
+Abra o painel em **http://localhost:3000**. As requisições a `/api/properties` são enviadas ao FastAPI em `http://localhost:8000` pelo proxy em [`frontend/next.config.ts`](frontend/next.config.ts).
 
-**Variável opcional:** se precisar apontar para outra URL da API, defina `NEXT_PUBLIC_API_URL` (caso contrário, use caminhos relativos `/api/...` com o dev server).
+### Autenticação (Clerk)
+
+Configure uma aplicação no [Clerk Dashboard](https://dashboard.clerk.com):
+
+1. Ative **Email** e **Google** (User & Authentication → Social connections).
+2. **Frontend:** em **API Keys**, copie `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` e `CLERK_SECRET_KEY` para `frontend/.env.local` (a partir de `frontend/.env.example`).
+3. **Backend:** o **`CLERK_ISSUER`** em `backend/.env` deve ser igual à **Frontend API URL** (e ao claim `iss` do JWT), na mesma página **API Keys** — não são as chaves `pk_` / `sk_`. Referência: [Manual JWT verification](https://clerk.com/docs/guides/sessions/manual-jwt-verification).
+4. **SQLite:** se você já tinha um `database.db` antigo sem a coluna `user_id`, apague `backend/database.db` para recriar o schema na próxima subida da API.
+
+A API valida o JWT em todas as rotas `/api/properties`; cada usuário vê apenas os próprios imóveis.
+
+**Variável opcional:** `NEXT_PUBLIC_API_URL` — só se a API não estiver no mesmo host com rewrite para `localhost:8000` em desenvolvimento.
 
 ---
 
@@ -117,6 +136,8 @@ Abra o painel em **http://localhost:3000**. As requisições a `/api/properties`
 |---------|-----|
 | Frontend | http://localhost:3000 |
 | API FastAPI | http://localhost:8000 |
+
+**Testes (opcional, backend):** com o venv ativo e `CLERK_ISSUER` definido, `cd backend && python -m pytest tests/ -v`.
 
 ## 📂 Estrutura do Repositório
 

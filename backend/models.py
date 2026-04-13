@@ -1,11 +1,18 @@
 from typing import Optional, List
-from sqlmodel import Field, SQLModel, Relationship
 from datetime import datetime
+
+from sqlalchemy import UniqueConstraint
+from sqlmodel import Field, Relationship, SQLModel
 
 
 class Property(SQLModel, table=True):
+    __table_args__ = (
+        UniqueConstraint("user_id", "url", name="uq_property_user_url"),
+    )
+
     id: Optional[int] = Field(default=None, primary_key=True)
-    url: str = Field(index=True, unique=True)
+    user_id: str = Field(index=True)
+    url: str = Field(index=True)
     title: Optional[str] = None
     price: Optional[float] = None
     previous_price: Optional[float] = None

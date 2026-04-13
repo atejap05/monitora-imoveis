@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth } from "@clerk/nextjs";
 import { Plus, Link2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,6 +44,7 @@ export interface AddPropertyDialogProps {
 }
 
 export function AddPropertyDialog({ onPropertyAdded }: AddPropertyDialogProps) {
+  const { getToken } = useAuth();
   const [url, setUrl] = useState("");
   const [open, setOpen] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -57,7 +59,7 @@ export function AddPropertyDialog({ onPropertyAdded }: AddPropertyDialogProps) {
     setIsSubmitting(true);
 
     try {
-      const property = await addProperty(url);
+      const property = await addProperty(url, getToken);
       setIsSuccess(true);
       onPropertyAdded?.(property);
       setTimeout(() => {
