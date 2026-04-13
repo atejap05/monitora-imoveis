@@ -120,8 +120,26 @@
   background: oklch(0.4 0.015 260);
 }
 
-/* Subtle noise texture overlay */
+/* ─── Atmosphere ─── */
+
+.noise-bg {
+  position: relative;
+}
+
+/* Radial gradient mesh — emerald glow top-left, faint blue bottom-right */
 .noise-bg::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 10% 0%, oklch(0.696 0.17 162.48 / 6%) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 90% 100%, oklch(0.685 0.169 237.323 / 4%) 0%, transparent 70%);
+}
+
+/* Noise texture overlay */
+.noise-bg::after {
   content: "";
   position: fixed;
   inset: 0;
@@ -133,7 +151,8 @@
   background-size: 256px 256px;
 }
 
-/* Glow effect for cards on hover */
+/* ─── Card glow on hover ─── */
+
 .card-glow {
   position: relative;
 }
@@ -152,7 +171,51 @@
   opacity: 1;
 }
 
-/* Staggered entrance animations */
+/* ─── Stat card accent border ─── */
+
+.stat-card-glow {
+  position: relative;
+  overflow: hidden;
+}
+.stat-card-glow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    var(--stat-accent, oklch(0.696 0.17 162.48 / 20%)) 0%,
+    transparent 50%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.stat-card-glow:hover::before {
+  opacity: 1;
+}
+
+/* ─── Search input focus glow ─── */
+
+.search-glow:focus-within {
+  box-shadow:
+    0 0 0 1px oklch(0.696 0.17 162.48 / 30%),
+    0 0 20px -4px oklch(0.696 0.17 162.48 / 15%);
+  border-color: oklch(0.696 0.17 162.48 / 40%);
+}
+
+/* ─── Property card status accent border ─── */
+
+.status-border-left {
+  border-left: 2px solid var(--status-color, transparent);
+}
+
+/* ─── Staggered entrance animations ─── */
+
 @keyframes fade-up {
   from {
     opacity: 0;
@@ -167,7 +230,8 @@
   animation: fade-up 0.5s ease-out both;
 }
 
-/* Pulse ring for status indicators */
+/* ─── Pulse ring for status indicators ─── */
+
 @keyframes pulse-ring {
   0% {
     box-shadow: 0 0 0 0 oklch(0.696 0.17 162.48 / 40%);
@@ -181,4 +245,50 @@
 }
 .animate-pulse-ring {
   animation: pulse-ring 2s infinite;
+}
+
+/* ─── Success checkmark animation ─── */
+
+@keyframes check-draw {
+  from {
+    stroke-dashoffset: 24;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.animate-check-draw {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: check-draw 0.4s ease-out 0.15s forwards;
+}
+
+@keyframes success-ring {
+  from {
+    stroke-dashoffset: 100;
+    opacity: 0;
+  }
+  to {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+.animate-success-ring {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: success-ring 0.5s ease-out forwards;
+}
+
+/* ─── Loading progress bar ─── */
+
+@keyframes progress-indeterminate {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(250%);
+  }
+}
+.animate-progress {
+  animation: progress-indeterminate 1.4s ease-in-out infinite;
 }

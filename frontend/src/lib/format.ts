@@ -1,20 +1,24 @@
 import type { PropertyStatus } from "@/lib/mock-data";
 
+const currencyFormatter = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
+});
+
+const dateFormatter = new Intl.DateTimeFormat("pt-BR", {
+  day: "2-digit",
+  month: "short",
+  year: "numeric",
+});
+
 export function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value);
+  return currencyFormatter.format(value);
 }
 
 export function formatDate(dateStr: string): string {
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(new Date(dateStr));
+  return dateFormatter.format(new Date(dateStr));
 }
 
 export function getRelativeTime(dateStr: string): string {
@@ -39,36 +43,41 @@ export function getPriceChangePercent(
   return ((current - previous) / previous) * 100;
 }
 
+const STATUS_CONFIGS = {
+  active: {
+    label: "Ativo",
+    color: "text-emerald-400",
+    bgColor: "bg-emerald-500/10",
+    borderColor: "border-emerald-500/20",
+    dotColor: "bg-emerald-400",
+    rawColor: "#34d399",
+  },
+  inactive: {
+    label: "Indisponível",
+    color: "text-rose-400",
+    bgColor: "bg-rose-500/10",
+    borderColor: "border-rose-500/20",
+    dotColor: "bg-rose-400",
+    rawColor: "#fb7185",
+  },
+  price_drop: {
+    label: "Preço caiu",
+    color: "text-emerald-400",
+    bgColor: "bg-emerald-500/10",
+    borderColor: "border-emerald-500/20",
+    dotColor: "bg-emerald-400",
+    rawColor: "#34d399",
+  },
+  price_up: {
+    label: "Preço subiu",
+    color: "text-amber-400",
+    bgColor: "bg-amber-500/10",
+    borderColor: "border-amber-500/20",
+    dotColor: "bg-amber-400",
+    rawColor: "#fbbf24",
+  },
+} as const;
+
 export function getStatusConfig(status: PropertyStatus) {
-  const configs = {
-    active: {
-      label: "Ativo",
-      color: "text-emerald-400",
-      bgColor: "bg-emerald-500/10",
-      borderColor: "border-emerald-500/20",
-      dotColor: "bg-emerald-400",
-    },
-    inactive: {
-      label: "Indisponível",
-      color: "text-rose-400",
-      bgColor: "bg-rose-500/10",
-      borderColor: "border-rose-500/20",
-      dotColor: "bg-rose-400",
-    },
-    price_drop: {
-      label: "Preço caiu",
-      color: "text-emerald-400",
-      bgColor: "bg-emerald-500/10",
-      borderColor: "border-emerald-500/20",
-      dotColor: "bg-emerald-400",
-    },
-    price_up: {
-      label: "Preço subiu",
-      color: "text-amber-400",
-      bgColor: "bg-amber-500/10",
-      borderColor: "border-amber-500/20",
-      dotColor: "bg-amber-400",
-    },
-  };
-  return configs[status];
+  return STATUS_CONFIGS[status];
 }
