@@ -27,6 +27,43 @@ Diariamente (ou em outra frequência), os *cron jobs* revisitam essas páginas p
 - **Banco de Dados:** SQLite (SQLModel) durante a fase de prototipação/Single-User, escalável para PostgreSQL + pgvector (Supabase/Neon).
 - **IA e Buscas Avançadas:** NLP e vetores a serem definidos usando bibliotecas de embeddings do ecossistema RAG.
 
+## 💻 Configurando e Executando (Multiplataforma)
+
+O projeto foi construído nativamente agnóstico para rodar tanto em Windows quanto Mac/Linux. O único passo que difere é a ativação do ambiente virtual de Python.
+
+### 1. Inicializando o Backend (FastAPI + Playwright)
+
+**No Windows:**
+```bash
+cd backend
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+playwright install
+fastapi dev main.py
+```
+
+**No macOS / Linux:**
+```bash
+cd backend
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+playwright install
+fastapi dev main.py
+```
+
+### 2. Inicializando o Frontend (Next.js)
+
+Isso vale independentemente do seu sistema operacional.
+Abra outro terminal na pasta raiz e execute:
+```bash
+cd frontend
+npm install
+npm run dev
+```
+O Dashboard poderá ser acessado em `http://localhost:3000`.
+
 ## 📂 Estrutura do Repositório
 
 \`\`\`bash
