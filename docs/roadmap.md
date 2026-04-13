@@ -9,7 +9,7 @@ Este documento descreve a visão de produto, o estado das fases e o backlog pós
 | Fase | Tema | Estado |
 |------|------|--------|
 | **1** | Fundação backend (FastAPI, SQLite, Playwright, scraper) | Concluída |
-| **2** | Frontend (Next.js, Dashboard, UI) | Concluída |
+| **2** | Frontend (Next.js, Dashboard, UI, tema claro/escuro) | Concluída |
 | **2b** | Integração API (REST, CORS, painel com dados reais) | Concluída |
 | **3** | Jobs em background, re-scrape periódico, histórico de preço evolutivo | Em andamento / pendente |
 | **4** | Busca semântica (IA) | Planejada |
@@ -30,6 +30,13 @@ Este documento descreve a visão de produto, o estado das fases e o backlog pós
 - Dashboard com listagem, filtros, cartões e diálogo “Monitorar imóvel”.
 - **Dados reais:** o frontend chama `GET /api/properties` via **SWR**; o Next.js faz **rewrite** de `/api/*` para `http://localhost:8000/api/*`.
 - **Cadastro:** `POST /api/properties` com `{ "url": "..." }` dispara o scraper, persiste no SQLite e devolve o imóvel em JSON **camelCase** (inclui campo `type` para venda/aluguel).
+
+#### Tema claro/escuro (dark mode) — implementado
+
+- **`next-themes`** com `ThemeProvider` no layout raiz (`attribute="class"`, `defaultTheme="dark"`, `enableSystem`, `disableTransitionOnChange`).
+- **Tokens e estilos** em `globals.css` para modo claro e escuro (variáveis CSS / Tailwind `dark:`).
+- **Controle na UI:** componente `ModeToggle` (ícones sol/lua) para alternar entre claro e escuro; preferência persistida pelo `next-themes`.
+- **Hidratação:** `suppressHydrationWarning` em `<html>` e `<body>` para evitar avisos quando extensões do navegador alteram atributos do DOM antes da hidratação.
 
 ### Fase 3: Comunicação avançada e jobs (Pendente)
 
@@ -56,10 +63,10 @@ O que **ainda não** está implementado:
 ## Backlog futuro (pós-MVP)
 
 - **Autenticação e cadastro de usuários:** sistema completo de registro, login, gerenciamento de sessão e multi-tenant (JWT ou Clerk no Next.js).
-- **Dark mode:** implementar switch de tema claro/escuro no frontend.
 - **Tempo de anúncio ativo:** monitorar e exibir há quanto tempo cada anúncio está publicado.
 - **Testes automatizados:** cobertura de testes unitários e de integração (backend e frontend).
 - **Job de scraping:** implementação completa e testes do job recorrente de re-scrape.
 - **Deploy:** PostgreSQL (Supabase/Neon), FastAPI em Docker/VPS, frontend na Vercel.
 - **Notificações:** e-mail (ex.: Resend) ou Web Push quando o preço mudar ou o anúncio sumir.
 - **Scraping multi-portal:** adaptadores para ZAP, VivaReal, etc., além da Primeira Porta.
+- **Ampliar tipos de plataformas com segurança (pesquisa regional):** antes de generalizar scrapers, fazer um levantamento sistemático de **portais relevantes**, com ênfase na **região do Vale do Paraíba** (e outros grandes hubs nacionais quando fizer sentido). Objetivos: mapear **padrões de página e estrutura de dados** (HTML, JSON embutido, APIs públicas), **termos de uso e riscos legais/técnicos**, e definir **quais domínios e fluxos** podem ser suportados de forma responsável. Com isso, evoluir o scraper com **adaptadores explícitos por portal**, testes e limites claros — em vez de heurísticas frágeis em massa.

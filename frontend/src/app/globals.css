@@ -56,8 +56,54 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Dark-first — real estate monitoring dashboard aesthetic */
+/* Light theme — real estate monitoring dashboard */
 :root {
+  --background: oklch(0.98 0.002 260);
+  --foreground: oklch(0.18 0.012 260);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.012 260);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.012 260);
+  --primary: oklch(0.696 0.17 162.48);
+  --primary-foreground: oklch(0.98 0.002 260);
+  --secondary: oklch(0.94 0.01 260);
+  --secondary-foreground: oklch(0.25 0.015 260);
+  --muted: oklch(0.94 0.01 260);
+  --muted-foreground: oklch(0.45 0.02 260);
+  --accent: oklch(0.93 0.015 260);
+  --accent-foreground: oklch(0.18 0.012 260);
+  --destructive: oklch(0.55 0.22 25);
+  --border: oklch(0.88 0.01 260);
+  --input: oklch(0.92 0.01 260);
+  --ring: oklch(0.696 0.17 162.48);
+  --chart-1: oklch(0.696 0.17 162.48);
+  --chart-2: oklch(0.685 0.169 237.323);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.712 0.194 13.428);
+  --chart-5: oklch(0.5 0.02 260);
+  --radius: 0.75rem;
+  --sidebar: oklch(0.97 0.005 260);
+  --sidebar-foreground: oklch(0.22 0.012 260);
+  --sidebar-primary: oklch(0.696 0.17 162.48);
+  --sidebar-primary-foreground: oklch(0.98 0.002 260);
+  --sidebar-accent: oklch(0.94 0.01 260);
+  --sidebar-accent-foreground: oklch(0.18 0.012 260);
+  --sidebar-border: oklch(0.88 0.01 260);
+  --sidebar-ring: oklch(0.696 0.17 162.48);
+  /* Atmosphere / scrollbar */
+  --scrollbar-track: oklch(0.94 0.01 260);
+  --scrollbar-thumb: oklch(0.78 0.02 260);
+  --scrollbar-thumb-hover: oklch(0.65 0.025 260);
+  --noise-mesh-1: oklch(0.696 0.17 162.48 / 8%);
+  --noise-mesh-2: oklch(0.685 0.169 237.323 / 6%);
+  --noise-overlay-opacity: 0.02;
+  --search-glow-ring: oklch(0.696 0.17 162.48 / 35%);
+  --search-glow-shadow: oklch(0.696 0.17 162.48 / 18%);
+  --search-glow-border: oklch(0.696 0.17 162.48 / 45%);
+}
+
+/* Dark theme — default app look (next-themes adds .dark on html) */
+.dark {
   --background: oklch(0.13 0.005 260);
   --foreground: oklch(0.93 0.01 260);
   --card: oklch(0.17 0.008 260);
@@ -81,7 +127,6 @@
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.712 0.194 13.428);
   --chart-5: oklch(0.6 0.02 260);
-  --radius: 0.75rem;
   --sidebar: oklch(0.15 0.006 260);
   --sidebar-foreground: oklch(0.85 0.01 260);
   --sidebar-primary: oklch(0.696 0.17 162.48);
@@ -90,6 +135,15 @@
   --sidebar-accent-foreground: oklch(0.93 0.01 260);
   --sidebar-border: oklch(0.28 0.012 260);
   --sidebar-ring: oklch(0.696 0.17 162.48);
+  --scrollbar-track: oklch(0.15 0.006 260);
+  --scrollbar-thumb: oklch(0.3 0.012 260);
+  --scrollbar-thumb-hover: oklch(0.4 0.015 260);
+  --noise-mesh-1: oklch(0.696 0.17 162.48 / 6%);
+  --noise-mesh-2: oklch(0.685 0.169 237.323 / 4%);
+  --noise-overlay-opacity: 0.03;
+  --search-glow-ring: oklch(0.696 0.17 162.48 / 30%);
+  --search-glow-shadow: oklch(0.696 0.17 162.48 / 15%);
+  --search-glow-border: oklch(0.696 0.17 162.48 / 40%);
 }
 
 @layer base {
@@ -110,14 +164,14 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: oklch(0.15 0.006 260);
+  background: var(--scrollbar-track);
 }
 ::-webkit-scrollbar-thumb {
-  background: oklch(0.3 0.012 260);
+  background: var(--scrollbar-thumb);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.4 0.015 260);
+  background: var(--scrollbar-thumb-hover);
 }
 
 /* ─── Atmosphere ─── */
@@ -134,8 +188,8 @@
   pointer-events: none;
   z-index: 0;
   background:
-    radial-gradient(ellipse 60% 50% at 10% 0%, oklch(0.696 0.17 162.48 / 6%) 0%, transparent 70%),
-    radial-gradient(ellipse 50% 40% at 90% 100%, oklch(0.685 0.169 237.323 / 4%) 0%, transparent 70%);
+    radial-gradient(ellipse 60% 50% at 10% 0%, var(--noise-mesh-1) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 90% 100%, var(--noise-mesh-2) 0%, transparent 70%);
 }
 
 /* Noise texture overlay */
@@ -145,7 +199,7 @@
   inset: 0;
   pointer-events: none;
   z-index: 9999;
-  opacity: 0.03;
+  opacity: var(--noise-overlay-opacity);
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-repeat: repeat;
   background-size: 256px 256px;
@@ -203,9 +257,9 @@
 
 .search-glow:focus-within {
   box-shadow:
-    0 0 0 1px oklch(0.696 0.17 162.48 / 30%),
-    0 0 20px -4px oklch(0.696 0.17 162.48 / 15%);
-  border-color: oklch(0.696 0.17 162.48 / 40%);
+    0 0 0 1px var(--search-glow-ring),
+    0 0 20px -4px var(--search-glow-shadow);
+  border-color: var(--search-glow-border);
 }
 
 /* ─── Property card status accent border ─── */

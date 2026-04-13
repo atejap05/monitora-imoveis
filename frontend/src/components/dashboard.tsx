@@ -37,6 +37,17 @@ const AddPropertyDialog = dynamic(
   },
 );
 
+const ModeToggle = dynamic(
+  () =>
+    import("@/components/mode-toggle").then((mod) => ({
+      default: mod.ModeToggle,
+    })),
+  {
+    ssr: false,
+    loading: () => <div className="size-8 shrink-0" aria-hidden />,
+  },
+);
+
 type FilterStatus = "all" | PropertyStatus;
 
 const STATUS_FILTERS: { value: FilterStatus; label: string }[] = [
@@ -168,9 +179,11 @@ export function Dashboard() {
             </div>
           </div>
           <div
+            className="flex shrink-0 items-center gap-1 sm:justify-end"
             onMouseEnter={importAddPropertyDialog}
             onFocus={importAddPropertyDialog}
           >
+            <ModeToggle />
             <AddPropertyDialog onPropertyAdded={handlePropertyAdded} />
           </div>
         </div>
