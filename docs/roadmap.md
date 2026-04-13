@@ -55,7 +55,11 @@ O que **ainda não** está implementado:
 
 ## Backlog futuro (pós-MVP)
 
-- **Autenticação:** multi-tenant, JWT ou Clerk no Next.js.
+- **Autenticação e cadastro de usuários:** sistema completo de registro, login, gerenciamento de sessão e multi-tenant (JWT ou Clerk no Next.js).
+- **Dark mode:** implementar switch de tema claro/escuro no frontend.
+- **Tempo de anúncio ativo:** monitorar e exibir há quanto tempo cada anúncio está publicado.
+- **Testes automatizados:** cobertura de testes unitários e de integração (backend e frontend).
+- **Job de scraping:** implementação completa e testes do job recorrente de re-scrape.
 - **Deploy:** PostgreSQL (Supabase/Neon), FastAPI em Docker/VPS, frontend na Vercel.
 - **Notificações:** e-mail (ex.: Resend) ou Web Push quando o preço mudar ou o anúncio sumir.
 - **Scraping multi-portal:** adaptadores para ZAP, VivaReal, etc., além da Primeira Porta.
