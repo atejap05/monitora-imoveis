@@ -1,10 +1,20 @@
 {
   "version": 1,
   "skills": {
+    "database-schema-designer": {
+      "source": "softaworks/agent-toolkit",
+      "sourceType": "github",
+      "computedHash": "f23c909d45c6207e974dbce0db4c648de13d586abb37057cfec34d62f25bb526"
+    },
     "frontend-design": {
       "source": "anthropics/skills",
       "sourceType": "github",
       "computedHash": "516bd2154eb843a8240e43d5b285229129853114ad7075a5e141e1c08e408c84"
+    },
+    "playwright-cli": {
+      "source": "microsoft/playwright-cli",
+      "sourceType": "github",
+      "computedHash": "ea1535abf75c983725431fe1a464a063356b1405ed89e163005687b30522a2bb"
     },
     "vercel-react-best-practices": {
       "source": "vercel-labs/agent-skills",

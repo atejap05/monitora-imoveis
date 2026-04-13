@@ -9,9 +9,9 @@
 
 ## Fase 2: Configuração do Frontend (Painel do Usuário)
 - [x] Criar pasta `frontend` e inicializar projeto Next.js (App Router, TS, Tailwind)
-- [/] Instalar dependências visuais (lucide-react, UI components - prever uso de *shadcn ui*)
-- [ ] Criar Dashboard Principal (listagem de imóveis cadastrados)
-- [ ] Criar componente de Inserção de Nova URL para monitorar
+- [x] Instalar dependências visuais (lucide-react, UI components - prever uso de *shadcn ui*)
+- [x] Criar Dashboard Principal (listagem de imóveis cadastrados)
+- [x] Criar componente de Inserção de Nova URL para monitorar
 - [ ] Conectar Frontend com API FastAPI (CORS, fetch/axios)
 
 ## Fase 3: Background Jobs e Regras de Negócio

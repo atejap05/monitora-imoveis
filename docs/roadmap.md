@@ -9,14 +9,14 @@ Este documento dita a visão de produto e mapeia as Sprints / Fases do MVP e Fut
 - Definir Banco de Dados `SQLite` e models via `SQLModel`.
 - Criar a primeira prova de conceito de extração assíncrona (`scraper.py`) para bypassar o anti-bot da *Primeira Porta*.
 
-### Fase 2: Configuração e Base do Frontend (Atual 🚧)
+### Fase 2: Configuração e Base do Frontend (Concluído ✅)
 - Subir boilerplate Next.js App Router.
 - Inserir Tailwind CSS.
-- **Backlog**: Conectar Shadcn UI e construir componentes de interface padrão.
-- **Backlog**: Desenvolver a página principal de listagem (Dashboard) exibindo os retornos do BD.
-- **Backlog**: Componente visual do Form para adicionar nova URL que interage de fato com os POSTs da API.
+- Conectar Shadcn UI e construir componentes de interface padrão.
+- Desenvolver a página principal de listagem (Dashboard) exibindo os retornos dinâmicos e mockados provisórios.
+- Componente visual do Form para adicionar nova URL preparado.
 
-### Fase 3: Escalonador em Background (Em Breve)
+### Fase 3: Comunicação API e Background Jobs (Atual 🚧)
 - Acoplar `APScheduler` ao `main.py` de forma consistente (on_startup).
 - Ler dados do DB ativos.
 - Detectar status (diferença entre o preço do banco de dados e o preço que a página retorna).
