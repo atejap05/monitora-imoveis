@@ -1,27 +1,37 @@
-# Task List - Monitora Imóveis MVP
+# Task List — Monitora Imóveis MVP
 
-## Fase 1: Setup da Fundação (Backend)
-- [x] Criar pasta `backend`
-- [x] Configurar ambiente virtual Python e dependências (FastAPI, Uvicorn, SQLModel/SQLAlchemy, SQLite, Playwright)
-- [x] Criar estrutura base do FastAPI (`main.py`, routers, models)
-- [x] Configurar Banco de Dados SQLite em memória ou arquivo local e gerar schema inicial (`Property`, `PropertyHistory`)
-- [x] Implementar Script de Scraping Base usando Playwright Headless para extrair dados da *Primeira Porta*
+Última revisão alinhada ao código em `backend/` e `frontend/`.
 
-## Fase 2: Configuração do Frontend (Painel do Usuário)
-- [x] Criar pasta `frontend` e inicializar projeto Next.js (App Router, TS, Tailwind)
-- [x] Instalar dependências visuais (lucide-react, UI components - prever uso de *shadcn ui*)
-- [x] Criar Dashboard Principal (listagem de imóveis cadastrados)
-- [x] Criar componente de Inserção de Nova URL para monitorar
-- [x] Conectar Frontend com API FastAPI (CORS, fetch/axios)
+## Fase 1: Setup da fundação (Backend)
 
-## Fase 3: Background Jobs e Regras de Negócio
-- [ ] Integrar APScheduler no FastAPI
-- [ ] Criar job recorrente que busca URLs do DB e roda o Scraper
-- [ ] Implementar detecção de quedas de preço e registrar histórico
-- [ ] Implementar tratamento para imóveis "Vendidos/Alugados" (Status 410 / Não Encontrado)
+- [x] Pasta `backend` e dependências (FastAPI, Uvicorn, SQLModel/SQLAlchemy, SQLite, Playwright)
+- [x] `main.py` com lifespan, CORS para `localhost:3000` / `127.0.0.1:3000`
+- [x] `database.py` (engine SQLite, `get_session`)
+- [x] Modelos `Property` e `PropertyHistory` com campos usados pelo painel
+- [x] `schemas.py` — respostas Pydantic com nomes JSON em camelCase (ex.: `previousPrice`, campo `type` para venda/aluguel)
+- [x] `routers/properties.py` — `GET /api/properties`, `GET /api/properties/{id}`, `POST /api/properties`, `DELETE /api/properties/{id}`
+- [x] `scraper.py` — Playwright assíncrono; extração estruturada (Primeira Porta + fallback)
 
-## Fase 4: Refinamento e Busca Semântica
-- [ ] Instalar libs de IA (`sentence-transformers` ou LlamaIndex)
-- [ ] Vetorizar descrições de novos imóveis e inseridos
-- [ ] Expor endpoint de busca semântica livre
-- [ ] Criar input de busca avançada ("imóveis até 1.500 que aceitam pets") no Frontend
+## Fase 2: Frontend (painel)
+
+- [x] Next.js (App Router, TypeScript, Tailwind)
+- [x] UI (lucide-react, componentes base estilo shadcn)
+- [x] Dashboard: lista, busca, filtros por status, barra de estatísticas
+- [x] Diálogo para colar URL e adicionar imóvel
+- [x] Integração com API: **SWR** + `fetch` em `src/lib/api.ts`; tipos em `src/lib/types.ts`
+- [x] Proxy Next.js (`next.config.ts`): `/api/*` → `http://localhost:8000/api/*`
+- [x] Dados mock opcionais em `src/lib/mock-data.ts` (não usados pelo fluxo principal)
+
+## Fase 3: Background jobs e regras de negócio
+
+- [ ] Integrar **APScheduler** no FastAPI (`lifespan` / startup)
+- [ ] Job periódico: listar `Property` ativos, reexecutar scraper por URL
+- [ ] Atualizar `previous_price`, `price`, status e inserir novas entradas em `PropertyHistory` quando o preço ou disponibilidade mudar
+- [ ] Tratamento consistente de anúncio indisponível (404/410/erro) no job (não só no POST inicial)
+
+## Fase 4: Refinamento e busca semântica
+
+- [ ] Bibliotecas de IA (ex.: `sentence-transformers` ou LlamaIndex)
+- [ ] Vetorizar descrições na ingestão
+- [ ] Endpoint de busca semântica
+- [ ] Campo de busca avançada no frontend

@@ -1,12 +1,12 @@
 # Monitora Imóveis 🏠📊
 
-Bem-vindo ao **Monitora Imóveis**, uma plataforma inteligente projetada para o acompanhamento e monitoramento de imóveis para aluguel ou venda. 
+Bem-vindo ao **Monitora Imóveis**, uma plataforma inteligente projetada para o acompanhamento e monitoramento de imóveis para aluguel ou venda.
 
 ## 🎯 Objetivos do Projeto
 
 A busca por um imóvel é muitas vezes um processo exaustivo. Os valores flutuam, bons negócios desaparecem rapidamente, e acompanhar múltiplos anúncios em diferentes imobiliárias manualmente é quase impossível.
 
-O **Monitora Imóveis** nasce com a missão de automatizar esse processo. A plataforma permite que o usuário acompanhe anúncios de seu interesse e receba inteligência sobre eles. 
+O **Monitora Imóveis** nasce com a missão de automatizar esse processo. A plataforma permite que o usuário acompanhe anúncios de seu interesse e receba inteligência sobre eles.
 
 **O que resolvemos:**
 - **Rastreabilidade de Preços:** Monitora a queda ou o aumento do valor do imóvel (ex: identificando rapidamente quando o proprietário dá um desconto no aluguel).
@@ -22,56 +22,110 @@ Diariamente (ou em outra frequência), os *cron jobs* revisitam essas páginas p
 ## 🛠️ Tecnologias Utilizadas
 
 - **Frontend:** Next.js (App Router), React, Tailwind CSS e componentes Shadcn UI para garantia de uma interface moderna e Premium.
-- **Backend:** Python e FastAPI para garantir execuções assíncronas ágeis. 
+- **Backend:** Python e FastAPI para garantir execuções assíncronas ágeis.
 - **Web Scraping:** Playwright para Python (lidando eficientemente com SPAs e SSR de imobiliárias).
 - **Banco de Dados:** SQLite (SQLModel) durante a fase de prototipação/Single-User, escalável para PostgreSQL + pgvector (Supabase/Neon).
 - **IA e Buscas Avançadas:** NLP e vetores a serem definidos usando bibliotecas de embeddings do ecossistema RAG.
 
 ## 💻 Configurando e Executando (Multiplataforma)
 
-O projeto foi construído nativamente agnóstico para rodar tanto em Windows quanto Mac/Linux. O único passo que difere é a ativação do ambiente virtual de Python.
+Você precisa de **dois terminais**: um para o backend (API na porta **8000**) e outro para o frontend (Next.js na porta **3000**). O frontend encaminha chamadas `/api/*` para o FastAPI via rewrite em `frontend/next.config.ts`.
 
-### 1. Inicializando o Backend (FastAPI + Playwright)
+### Pré-requisitos
 
-**No Windows:**
-```bash
+| Ferramenta | Observação |
+|------------|------------|
+| **Node.js** | 18 ou superior (recomendado LTS). [nodejs.org](https://nodejs.org/) ou, no Windows, `winget install OpenJS.NodeJS.LTS`. |
+| **Python** | 3.11 ou superior, com suporte a **SSL** (instalação oficial em [python.org](https://www.python.org/downloads/windows/) no Windows; marque *“Add python.exe to PATH”* no instalador). |
+| **npm** | Vem com o Node. |
+
+---
+
+### 1. Backend (FastAPI + Playwright)
+
+Entre na pasta `backend`, crie o ambiente virtual, instale dependências e os binários do Playwright (Chromium).
+
+#### Windows (PowerShell ou CMD)
+
+Use barras invertidas no `activate` no CMD; no PowerShell o comando é o mesmo com `.\`.
+
+```powershell
 cd backend
 python -m venv venv
-venv\Scripts\activate
+.\venv\Scripts\activate
+python -m pip install -U pip
 pip install -r requirements.txt
-playwright install
+playwright install chromium
+```
+
+Se `python` não for encontrado, tente `py -3.11 -m venv venv` e depois ative o `venv` como acima.
+
+Para subir a API:
+
+```powershell
 fastapi dev main.py
 ```
 
-**No macOS / Linux:**
+A API ficará em `http://127.0.0.1:8000` (health: `http://127.0.0.1:8000/`).
+
+**Dicas Windows**
+
+- **Firewall:** na primeira execução, autorize o Python se o Windows perguntar sobre rede local.
+- **Antivírus:** em raros casos, escaneamento em tempo real pode atrasar o Playwright; adicione exceção para a pasta do projeto se necessário.
+- **CORS:** o backend aceita origem `http://localhost:3000`; use esse endereço no navegador para o painel.
+
+#### macOS / Linux
+
 ```bash
 cd backend
 python3 -m venv venv
 source venv/bin/activate
+python -m pip install -U pip
 pip install -r requirements.txt
-playwright install
+playwright install chromium
 fastapi dev main.py
 ```
 
-### 2. Inicializando o Frontend (Next.js)
+**macOS (pyenv / OpenSSL):** se `pip install` falhar com erro de SSL ou `_ssl` apontando para OpenSSL 1.1 inexistente, reinstale o Python com OpenSSL 3 (Homebrew `openssl@3` + `pyenv install 3.11.x` com `LDFLAGS`/`CPPFLAGS` apontando para o `openssl@3`). O repositório pode incluir um arquivo `backend/.python-version` para fixar a versão do pyenv.
 
-Isso vale independentemente do seu sistema operacional.
-Abra outro terminal na pasta raiz e execute:
+---
+
+### 2. Frontend (Next.js)
+
+Em **outro terminal**, na raiz do repositório:
+
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-O Dashboard poderá ser acessado em `http://localhost:3000`.
+
+Abra o painel em **http://localhost:3000**. As requisições a `/api/properties` são enviadas ao FastAPI em `http://localhost:8000` pelo proxy do Next.js.
+
+**Variável opcional:** se precisar apontar para outra URL da API, defina `NEXT_PUBLIC_API_URL` (caso contrário, use caminhos relativos `/api/...` com o dev server).
+
+---
+
+### Resumo rápido
+
+| Ambiente | Ativar venv | Backend |
+|----------|-------------|---------|
+| **Windows** | `venv\Scripts\activate` | `fastapi dev main.py` |
+| **macOS / Linux** | `source venv/bin/activate` | `fastapi dev main.py` |
+
+| Serviço | URL |
+|---------|-----|
+| Frontend | http://localhost:3000 |
+| API FastAPI | http://localhost:8000 |
 
 ## 📂 Estrutura do Repositório
 
-\`\`\`bash
+```text
 monitora-imoveis/
-├── backend/          # API FastAPI, Robôs de Scraping, e DB
-├── frontend/         # App Next.js + React (Dashboard do Usuário)
-├── docs/             # Documentação do projeto (Arquitetura, Roadmap, Tasks)
+├── backend/          # API FastAPI, scraping (Playwright), SQLite
+├── frontend/         # App Next.js (Dashboard)
+├── docs/             # Roadmap, tasks, documentação
 └── README.md
-\`\`\`
+```
 
-Consulte a pasta \`/docs\` para visões aprofundadas sobre o Fluxo de Dados e o Backlog das próximas Sprints.
+Consulte a pasta `/docs` para visões aprofundadas sobre o fluxo de dados e o backlog das próximas sprints.

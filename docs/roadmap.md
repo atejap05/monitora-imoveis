@@ -1,36 +1,61 @@
 # Roadmap e Backlog (Monitora Imóveis)
 
-Este documento dita a visão de produto e mapeia as Sprints / Fases do MVP e Futuro, mantendo um Backlog das features pendentes e aprimoramentos técnicos.
-
-### Fase 1: Fundação do Sistema (Concluído ✅)
-- Inicializar repositório e pasta `backend/` e `frontend/`.
-- Configurar dependências e ambiente FastAPI.
-- Configurar Playwright no backend.
-- Definir Banco de Dados `SQLite` e models via `SQLModel`.
-- Criar a primeira prova de conceito de extração assíncrona (`scraper.py`) para bypassar o anti-bot da *Primeira Porta*.
-
-### Fase 2: Configuração e Base do Frontend (Concluído ✅)
-- Subir boilerplate Next.js App Router.
-- Inserir Tailwind CSS.
-- Conectar Shadcn UI e construir componentes de interface padrão.
-- Desenvolver a página principal de listagem (Dashboard) exibindo os retornos dinâmicos e mockados provisórios.
-- Componente visual do Form para adicionar nova URL preparado.
-
-### Fase 3: Comunicação API e Background Jobs (Atual 🚧)
-- Acoplar `APScheduler` ao `main.py` de forma consistente (on_startup).
-- Ler dados do DB ativos.
-- Detectar status (diferença entre o preço do banco de dados e o preço que a página retorna).
-- Alertar "Status Inativo" quando o site retornar falha ou não renderizar a casa.
-
-### Fase 4: Inteligência Artificial (Busca Semântica)
-- Modelar campo extra JSON de facilidades ou Description na `Property`.
-- Integrar `sentence-transformers` ou endpoint LlamaIndex.
-- Interface customizada no Next.js do tipo "Search AI".
+Este documento descreve a visão de produto, o estado das fases e o backlog pós-MVP.
 
 ---
 
-## 📋 Lista de Backlog Futuro (Pós-MVP)
-- **Autenticação**: Permitir Multi-tenant (vários usuários), alterando as tabelas e adicionando JWT / Clerk (Next auth).
-- **Deploy**: Migrar do SQLite para PostgreSQL hospedado (Supabase/Neon), subir FastAPI via Docker em um VPS de baixo custo, e frontend na Vercel.
-- **Notificações**: Disparos de envio via Vercel Webpush ou email com o provider `Resend` avisando que "Seu imóvel baixou de preço!".
-- **Integração ZAP/VivaReal**: Aumentar as regras de *scraping* para analisar outros hosts além de provedores focais, desenvolvendo adaptadores de scraping para múltiplas árvores de DOM diferentes.
+## Estado das fases (visão geral)
+
+| Fase | Tema | Estado |
+|------|------|--------|
+| **1** | Fundação backend (FastAPI, SQLite, Playwright, scraper) | Concluída |
+| **2** | Frontend (Next.js, Dashboard, UI) | Concluída |
+| **2b** | Integração API (REST, CORS, painel com dados reais) | Concluída |
+| **3** | Jobs em background, re-scrape periódico, histórico de preço evolutivo | Em andamento / pendente |
+| **4** | Busca semântica (IA) | Planejada |
+
+---
+
+### Fase 1: Fundação do Sistema (Concluída)
+
+- Repositório com `backend/` e `frontend/`.
+- FastAPI, SQLModel/SQLAlchemy, SQLite (`database.db`).
+- Playwright (Chromium headless) em `scraper.py`.
+- Extração estruturada com foco em **Primeira Porta** (regex e texto da página; fallback genérico para outros hosts).
+- Modelos `Property` e `PropertyHistory`; campos alinhados ao painel (preço, localização, tipo venda/aluguel, etc.).
+
+### Fase 2: Frontend e integração (Concluída)
+
+- Next.js App Router, Tailwind, componentes estilo Shadcn.
+- Dashboard com listagem, filtros, cartões e diálogo “Monitorar imóvel”.
+- **Dados reais:** o frontend chama `GET /api/properties` via **SWR**; o Next.js faz **rewrite** de `/api/*` para `http://localhost:8000/api/*`.
+- **Cadastro:** `POST /api/properties` com `{ "url": "..." }` dispara o scraper, persiste no SQLite e devolve o imóvel em JSON **camelCase** (inclui campo `type` para venda/aluguel).
+
+### Fase 3: Comunicação avançada e jobs (Pendente)
+
+O que **já existe** hoje:
+
+- API REST: listar, obter por id, criar (com scrape) e excluir imóveis.
+- Primeiro registro em `PropertyHistory` na criação.
+- Scraper trata HTTP 404/410 como indisponível; falhas de execução retornam erro ao cliente.
+
+O que **ainda não** está implementado:
+
+- **APScheduler** acoplado ao `lifespan` do FastAPI.
+- Job recorrente que relê todas as URLs ativas, compara preço, grava novas linhas em `PropertyHistory` e atualiza `previous_price` / status derivado no painel.
+- Notificações ou alertas fora do próprio refresh da página.
+
+### Fase 4: Inteligência Artificial (Busca Semântica) — Planejada
+
+- Campo extra (JSON) em `Property` para descrição/facilidades.
+- Embeddings (`sentence-transformers` ou serviço externo) e endpoint de busca.
+- UI de busca em linguagem natural no Next.js.
+
+---
+
+## Backlog futuro (pós-MVP)
+
+- **Autenticação:** multi-tenant, JWT ou Clerk no Next.js.
+- **Deploy:** PostgreSQL (Supabase/Neon), FastAPI em Docker/VPS, frontend na Vercel.
+- **Notificações:** e-mail (ex.: Resend) ou Web Push quando o preço mudar ou o anúncio sumir.
+- **Scraping multi-portal:** adaptadores para ZAP, VivaReal, etc., além da Primeira Porta.

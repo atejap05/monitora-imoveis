@@ -1,62 +1,122 @@
-# Arquitetura e Fluxo de Dados
+# Arquitetura e fluxo de dados
 
-A arquitetura do **Monitora Imóveis** é baseada na separação de responsabilidades (Frontend e Backend) com uma camada de Background Jobs atuando de forma invisível.
+O **Monitora Imóveis** separa **frontend** (Next.js), **backend** (FastAPI) e **persistência** (SQLite). A atualização periódica em massa (**cron** interno) ainda não está implementada; o fluxo principal hoje é **cadastro sob demanda** + **leitura** da lista.
 
-## 🧱 Componentes da Arquitetura
+## Componentes
 
-### 1. Frontend (Next.js App Router)
-O Frontend atua como a interface de consumo e input de dados. Ele realiza chamadas à API via REST (`fetch` / Axios).
-- **Client Components**: Gerenciam estado local (como o formulário de colar o URL, modais e feedback de erro da UI).
-- **Server Components**: Para listagem imedata (SSR/SSG) das propriedades já cacheadas do usuário no painel central, permitindo carregamento veloz.
-- **Styling**: Tailwind CSS garantindo layout responsivo de imediato, acoplado à paleta de cores unificada do Shadcn UI.
+### 1. Frontend (Next.js — App Router)
 
-### 2. Backend (FastAPI + Python)
-Core responsável por toda a ingestão e provimento dos dados.
-- **API Routers**: Endpoints `/api/properties` (CRUD do usuário na plataforma), e no futuro roteadores `/api/search` para RAG.
-- **Orquestrador de Scraper**: O FastAPI delega o trabalho pesado de web scraping para execuções assíncronas usando a biblioteca `Playwright`. Isso impede que o servidor bloqueie enquanto espera a imobiliária carregar os scripts no navegador *headless*.
-- **Task Scheduler (APScheduler)**: Serviço embutido no processo do Uvicorn que dispara de tempos em tempos (ex: de 12 em 12 horas) a releitura dos links do Banco de Dados para detectar mudanças ativas.
+- **Dashboard e formulário** são *Client Components* (`"use client"`): estado de busca/filtros, **SWR** para `GET /api/properties`, `useDeferredValue` / `useTransition` onde aplicável.
+- **Proxy de desenvolvimento:** em `next.config.ts`, requisições a `/api/:path*` são reencaminhadas para `http://localhost:8000/api/:path*`, permitindo chamadas relativas `/api/properties` no browser.
+- **Estilo:** Tailwind CSS e componentes no padrão shadcn/base.
+- **Tipos:** `src/lib/types.ts` espelha o contrato JSON da API (camelCase).
 
-### 3. Persistência (SQLite / SQLModel)
-Para agilidade do MVP, o SQLite salva em um arquivo plano toda a arquitetura de tabelas:
-- Tabela de Propriedades (`Property`)
-- Tabela de Histórico (`PropertyHistory`) para criar os gráficos de variação de preço.
+### 2. Backend (FastAPI)
+
+- **`main.py`:** aplicação FastAPI, CORS, `lifespan` que cria tabelas SQLite e dispõe o engine ao encerrar.
+- **`routers/properties.py`:** rotas REST sob prefixo `/api/properties`.
+- **`scraper.py`:** `fetch_property_data(url)` assíncrono com Playwright; domínio *Primeira Porta* com extração por texto/regex; outros hosts com fallback genérico.
+- **`schemas.py`:** modelos Pydantic de resposta com `alias_generator` camelCase; campo interno `property_type` serializado como **`type`** no JSON.
+
+### 3. Persistência (SQLite + SQLModel)
+
+- Arquivo típico: `backend/database.db` (criado na primeira subida da API).
+- **`Property`:** URL única, dados do anúncio, `status` de saúde do scrape (`active` / `inactive` / etc., conforme modelo).
+- **`PropertyHistory`:** histórico de preço por verificação; na prática MVP, entradas adicionais dependem da **Fase 3** (job periódico).
+
+#### Normalização e dados derivados
+
+O modelo segue um relacionamento **1:N** clássico (imóvel → várias linhas de histórico), adequado à **3NF** para a série temporal: não há grupos repetidos nem dependências parciais entre colunas da mesma linha de histórico.
+
+A tabela **`Property`** mantém o **último estado conhecido** do anúncio (preço, status operacional, etc.), enquanto **`PropertyHistory`** guarda a **série** de verificações. Essa duplicação do “preço atual” em relação ao último ponto da série é uma **denormalização leve** voltada ao padrão de leitura do painel (OLTP: listagem e cartões sem agregar histórico em toda requisição). Faz sentido manter enquanto o domínio for single-user e o volume for modesto.
+
+Para uma auditoria detalhada frente às boas práticas de schema (FK, índices, tipos monetários, migrações), ver **[database-evaluation.md](database-evaluation.md)**.
+
+### 4. Jobs em background (planejado)
+
+- **APScheduler** (dependência já no `requirements.txt`) ainda **não** está ligado ao `main.py`.
+- Objetivo futuro: rodar o scraper em intervalos fixos, atualizar preços e status sem ação do usuário.
 
 ---
 
-## 🔄 Fluxo de Dados (Data Flow)
+## Fluxo de dados
 
-### A. Fluxo de Inserção de Novo Monitoramento
-\`\`\`mermaid
+### A. Incluir imóvel (fluxo implementado)
+
+```mermaid
 sequenceDiagram
-    participant User as Usuário (Next.js)
-    participant API as FastAPI Backend
-    participant Scraper as Playwright / Robô
+    participant Browser as Navegador
+    participant Next as Next.js
+    participant API as FastAPI
+    participant PW as Playwright
     participant DB as SQLite
 
-    User->>API: POST /api/properties (URL do Anúncio)
-    API->>Scraper: parse_url(URL)
-    Scraper-->>API: Extracted JSON (title, price, sqft)
-    API->>DB: INSERT into Property (data)
-    API->>DB: INSERT into PropertyHistory (initial price)
-    API-->>User: 201 Created (Success)
-\`\`\`
+    Browser->>Next: Usuário cola URL e envia formulário
+    Next->>API: POST /api/properties
+    API->>PW: fetch_property_data(url)
+    PW-->>API: dados estruturados ou erro
+    API->>DB: INSERT Property e PropertyHistory
+    API-->>Next: 201 + JSON camelCase
+    Next->>Next: SWR mutate atualiza lista
+```
 
-### B. Fluxo Job de Atualização em Background
-\`\`\`mermaid
+### B. Listar imóveis (fluxo implementado)
+
+```mermaid
 sequenceDiagram
-    participant Job as APScheduler Cron
+    participant Browser as Navegador
+    participant Next as Next.js dev server
+    participant API as FastAPI
     participant DB as SQLite
-    participant Scraper as Playwright / Robô
 
-    Job->>DB: SELECT url FROM Property where status='active'
-    loop Para cada URL
-        Job->>Scraper: parse_url(URL)
-        alt 410 Gone / 404
-            Scraper-->>Job: Status Unavailable
-            Job->>DB: UPDATE Property SET status='inactive'
-        else 200 OK
-            Scraper-->>Job: Novo Preço
-            Job->>DB: INSERT into PropertyHistory (novo preço)
-        end
+    Browser->>Next: GET /api/properties
+    Next->>API: rewrite para localhost:8000
+    API->>DB: SELECT Property + histories
+    API-->>Browser: JSON lista
+```
+
+### C. Atualização periódica (não implementado)
+
+```mermaid
+sequenceDiagram
+    participant Cron as APScheduler
+    participant DB as SQLite
+    participant PW as Playwright
+
+    Note over Cron,PW: Planejado na Fase 3
+    Cron->>DB: SELECT propriedades ativas
+    loop Cada URL
+        Cron->>PW: Re-scrape
+        PW-->>Cron: Novo preço ou indisponível
+        Cron->>DB: UPDATE Property e INSERT PropertyHistory
     end
-\`\`\`
+```
+
+---
+
+## Contrato da API (resumo)
+
+| Método | Caminho | Descrição |
+|--------|---------|-----------|
+| `GET` | `/api/properties` | Lista imóveis com histórico agregado na resposta |
+| `GET` | `/api/properties/{id}` | Detalhe de um imóvel |
+| `POST` | `/api/properties` | Corpo `{"url": "https://..."}` — scrape + persistência |
+| `DELETE` | `/api/properties/{id}` | Remove monitoramento |
+
+Health check: `GET /` na raiz do FastAPI.
+
+---
+
+## Referências no repositório
+
+| Pasta / arquivo | Papel |
+|-------------------|--------|
+| `backend/main.py` | App, CORS, lifespan |
+| `backend/database.py` | Engine e sessão |
+| `backend/models.py` | Entidades SQLModel |
+| `backend/schemas.py` | Serialização da API |
+| `backend/routers/properties.py` | Rotas REST |
+| `backend/scraper.py` | Playwright |
+| `frontend/src/lib/api.ts` | Chamadas HTTP |
+| `frontend/next.config.ts` | Rewrite `/api` → backend |
+| `docs/database-evaluation.md` | Aderência à skill database-schema-designer (checklist, backlog, go/no-go) |
