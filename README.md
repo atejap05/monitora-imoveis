@@ -15,9 +15,9 @@ O **Monitora Imóveis** nasce com a missão de automatizar esse processo. A plat
 
 ## 🚀 Como Funciona?
 
-O usuário acessa o Painel através de uma interface muito intuitiva, cola o link de um anúncio de imobiliária (ex: *Primeira Porta*) e clica em Monitorar.
-Em background, nosso sistema adota robôs autônomos (Headless Browsers via Playwright) que navegam ativamente na página, processam os dados (mesmo lidando com javascript e proteções anti-bot), extraem Preço, Quartos, Título e adicionam esse registro em nosso banco de dados.
-Diariamente (ou em outra frequência), os *cron jobs* revisitam essas páginas para averiguar se houve alteração nos cenários registrados anteriormente.
+O usuário **faz login** (email/senha ou Google via Clerk), acessa o Painel, cola o link de um anúncio de imobiliária (ex.: *Primeira Porta*) e clica em Monitorar. Cada conta vê **apenas os próprios imóveis** monitorados.
+Em background, o sistema usa Playwright (headless) para extrair dados da página e gravar no SQLite associado ao seu `user_id`.
+A **revisão periódica automática** de todos os anúncios (job agendado) está prevista na Fase 3 do roadmap; hoje o foco é cadastro sob demanda e leitura da lista.
 
 ## 🛠️ Tecnologias Utilizadas
 
@@ -143,10 +143,17 @@ A API valida o JWT em todas as rotas `/api/properties`; cada usuário vê apenas
 
 ```text
 monitora-imoveis/
-├── backend/          # API FastAPI, scraping (Playwright), SQLite
-├── frontend/         # App Next.js (Dashboard)
-├── docs/             # Roadmap, tasks, documentação
+├── backend/          # API FastAPI, auth JWT (Clerk), scraping (Playwright), SQLite — ver backend/README.md
+├── frontend/         # App Next.js (Clerk, Dashboard) — ver frontend/README.md
+├── docs/             # Roadmap, tasks, arquitetura, avaliação de schema
 └── README.md
 ```
 
-Consulte a pasta `/docs` para visões aprofundadas sobre o fluxo de dados e o backlog das próximas sprints.
+Documentação detalhada:
+
+| Documento | Conteúdo |
+|-----------|----------|
+| [docs/roadmap.md](docs/roadmap.md) | Fases do produto (1–4), Fase 2c auth, backlog |
+| [docs/tasks.md](docs/tasks.md) | Checklist de tarefas por fase |
+| [docs/arquitetura.md](docs/arquitetura.md) | Componentes, fluxos, contrato da API com Bearer |
+| [docs/database-evaluation.md](docs/database-evaluation.md) | Schema SQLite vs boas práticas |

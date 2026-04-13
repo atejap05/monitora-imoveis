@@ -14,9 +14,9 @@ Este documento aplica a *Verification Checklist* e os princípios da skill [.age
 | Relacionamentos com FK | **Média** | `PropertyHistory.property_id` → `property.id` declarado em SQLModel; DDL SQLite contém `FOREIGN KEY(property_id) REFERENCES property (id)`. |
 | Enforcement de FK em runtime | **Baixa** | `PRAGMA foreign_keys` retorna **0** na conexão do engine atual — integridade referencial **não** é aplicada pelo SQLite até ativar o pragma por conexão. |
 | ON DELETE definido por FK | **Baixa** | DDL sem `ON DELETE CASCADE/RESTRICT`. Exclusão em [routers/properties.py](../backend/routers/properties.py): aplicação remove `PropertyHistory` antes de `Property` (cascade manual). |
-| Índice em colunas FK | **Baixa** | Não há índice dedicado a `propertyhistory.property_id`; apenas PK em `id` e índice único `ix_property_url` em `property.url`. JOINs/filtros por `property_id` podem usar scan sem índice auxiliar em volume alto. |
+| Índice em colunas FK | **Baixa** | Não há índice dedicado a `propertyhistory.property_id`; em `property` há índice em `user_id` e em `url`, e constraint única composta `uq_property_user_url` (`user_id` + `url`). JOINs/filtros por `property_id` no histórico podem usar scan sem índice auxiliar em volume alto. |
 | Tipos monetários (DECIMAL, não FLOAT) | **Baixa** | Colunas `price` / `previous_price` mapeiam para **FLOAT** / SQLite **REAL**; a skill recomenda DECIMAL para dinheiro. |
-| UNIQUE onde necessário | **Alta** | `url` com `unique=True` → `CREATE UNIQUE INDEX ix_property_url`. |
+| UNIQUE onde necessário | **Alta** | Unicidade de **URL por usuário:** `UniqueConstraint("user_id", "url")` (`uq_property_user_url`); não há mais índice único global só em `url`. |
 | CHECK / validação no BD | **Baixa** | `status`, `property_type` são VARCHAR sem constraint CHECK; validação na aplicação/Pydantic. |
 | Timestamps | **Alta** | `Property`: `created_at`, `updated_at`; `PropertyHistory`: `checked_at`. |
 | Migrações reversíveis | **Baixa** | Apenas `SQLModel.metadata.create_all`; sem Alembic ou scripts UP/DOWN. |
@@ -30,7 +30,7 @@ Este documento aplica a *Verification Checklist* e os princípios da skill [.age
 | Verificação | Resultado |
 |-------------|-----------|
 | `PRAGMA foreign_keys` (conexão SQLAlchemy `engine`) | **0** (off) |
-| Índices explícitos (além de PK/UNIQUE url) | Nenhum em `propertyhistory.property_id` |
+| Índices explícitos | `property.user_id`, `property.url`; UNIQUE composto `(user_id, url)`. Nenhum em `propertyhistory.property_id` além do uso em FK |
 | DDL FK | Presente; sem `ON DELETE` |
 
 **Comportamento de DELETE:** o endpoint `DELETE /api/properties/{id}` remove históricos em loop e depois o imóvel — consistente mesmo com FKs não aplicadas pelo SQLite.
@@ -44,6 +44,8 @@ Este documento aplica a *Verification Checklist* e os princípios da skill [.age
 - **Denormalização intencional:** `Property` guarda “último estado” (preço, status, etc.) enquanto `PropertyHistory` guarda série temporal — duplicação leve para leitura rápida e API; aceitável para padrão de acesso OLTP do painel (skill: denormalizar para leitura quando o padrão justifica).
 
 Tabela `Portal` separada para `source` só faria sentido com metadados ricos por domínio — **fora do escopo do MVP**.
+
+**Multi-tenant:** `user_id` em `property` isola dados por conta Clerk; a API aplica o filtro em todas as queries.
 
 *(Texto resumido também em [arquitetura.md](arquitetura.md).)*
 

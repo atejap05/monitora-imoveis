@@ -18,14 +18,22 @@
 - [x] UI (lucide-react, componentes base estilo shadcn)
 - [x] Dashboard: lista, busca, filtros por status, barra de estatísticas
 - [x] Diálogo para colar URL e adicionar imóvel
-- [x] Integração com API: **SWR** + `fetch` em `src/lib/api.ts`; tipos em `src/lib/types.ts`
+- [x] Integração com API: **SWR** + `fetch` em `src/lib/api.ts` (com token Clerk); tipos em `src/lib/types.ts`
 - [x] Proxy Next.js (`next.config.ts`): `/api/*` → `http://localhost:8000/api/*`
 - [x] Dados mock opcionais em `src/lib/mock-data.ts` (não usados pelo fluxo principal)
+
+## Fase 2c: Autenticação e multi-tenant
+
+- [x] Clerk (`@clerk/nextjs`): `ClerkProvider`, páginas `/sign-in` e `/sign-up`, `middleware.ts`
+- [x] `Property.user_id` + constraint única (`user_id`, `url`); rotas filtradas por usuário
+- [x] `backend/auth.py` — JWT Clerk (JWKS), `get_current_user_id`
+- [x] Dependências: `PyJWT`, `cryptography`; `backend/.env.example` com `CLERK_ISSUER`
+- [x] Smoke tests: `backend/tests/test_auth_properties.py` (401 sem token / token inválido)
 
 ## Fase 3: Background jobs e regras de negócio
 
 - [ ] Integrar **APScheduler** no FastAPI (`lifespan` / startup)
-- [ ] Job periódico: listar `Property` ativos, reexecutar scraper por URL
+- [ ] Job periódico: listar `Property` ativos (por `user_id` ou global com filtro), reexecutar scraper por URL
 - [ ] Atualizar `previous_price`, `price`, status e inserir novas entradas em `PropertyHistory` quando o preço ou disponibilidade mudar
 - [ ] Tratamento consistente de anúncio indisponível (404/410/erro) no job (não só no POST inicial)
 

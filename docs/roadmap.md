@@ -11,6 +11,7 @@ Este documento descreve a visão de produto, o estado das fases e o backlog pós
 | **1** | Fundação backend (FastAPI, SQLite, Playwright, scraper) | Concluída |
 | **2** | Frontend (Next.js, Dashboard, UI, tema claro/escuro) | Concluída |
 | **2b** | Integração API (REST, CORS, painel com dados reais) | Concluída |
+| **2c** | Autenticação (Clerk), JWT no FastAPI, multi-tenant por `user_id` | Concluída |
 | **3** | Jobs em background, re-scrape periódico, histórico de preço evolutivo | Em andamento / pendente |
 | **4** | Busca semântica (IA) | Planejada |
 
@@ -38,18 +39,25 @@ Este documento descreve a visão de produto, o estado das fases e o backlog pós
 - **Controle na UI:** componente `ModeToggle` (ícones sol/lua) para alternar entre claro e escuro; preferência persistida pelo `next-themes`.
 - **Hidratação:** `suppressHydrationWarning` em `<html>` e `<body>` para evitar avisos quando extensões do navegador alteram atributos do DOM antes da hidratação.
 
+### Fase 2c: Autenticação e multi-tenant (Concluída)
+
+- **Clerk** no frontend (`@clerk/nextjs`): `ClerkProvider`, rotas `/sign-in` e `/sign-up`, `middleware.ts` protegendo páginas (exceto auth), `UserButton`, token via `useAuth().getToken()`.
+- **FastAPI:** `auth.py` valida JWT (RS256, JWKS do issuer Clerk); todas as rotas `/api/properties` exigem `Authorization: Bearer <token>`.
+- **Dados:** `Property.user_id` (ID Clerk); unicidade de URL **por usuário** (`user_id` + `url`); listagem e CRUD filtrados por usuário.
+- **Variáveis:** `frontend/.env.local` (chaves Clerk), `backend/.env` (`CLERK_ISSUER` = Frontend API URL / claim `iss`). Ver [README.md](../README.md).
+
 ### Fase 3: Comunicação avançada e jobs (Pendente)
 
 O que **já existe** hoje:
 
-- API REST: listar, obter por id, criar (com scrape) e excluir imóveis.
+- API REST: listar, obter por id, criar (com scrape) e excluir imóveis — **com autenticação** e escopo por `user_id`.
 - Primeiro registro em `PropertyHistory` na criação.
 - Scraper trata HTTP 404/410 como indisponível; falhas de execução retornam erro ao cliente.
 
 O que **ainda não** está implementado:
 
 - **APScheduler** acoplado ao `lifespan` do FastAPI.
-- Job recorrente que relê todas as URLs ativas, compara preço, grava novas linhas em `PropertyHistory` e atualiza `previous_price` / status derivado no painel.
+- Job recorrente que relê URLs ativas **por usuário** (ou global com filtro `user_id`), compara preço, grava novas linhas em `PropertyHistory` e atualiza `previous_price` / status derivado no painel.
 - Notificações ou alertas fora do próprio refresh da página.
 
 ### Fase 4: Inteligência Artificial (Busca Semântica) — Planejada
@@ -62,11 +70,10 @@ O que **ainda não** está implementado:
 
 ## Backlog futuro (pós-MVP)
 
-- **Autenticação e cadastro de usuários:** sistema completo de registro, login, gerenciamento de sessão e multi-tenant (JWT ou Clerk no Next.js).
 - **Tempo de anúncio ativo:** monitorar e exibir há quanto tempo cada anúncio está publicado.
-- **Testes automatizados:** cobertura de testes unitários e de integração (backend e frontend).
+- **Testes automatizados:** ampliar cobertura além dos smoke tests de auth em `backend/tests/` (integração, frontend).
 - **Job de scraping:** implementação completa e testes do job recorrente de re-scrape.
-- **Deploy:** PostgreSQL (Supabase/Neon), FastAPI em Docker/VPS, frontend na Vercel.
+- **Deploy:** PostgreSQL (Supabase/Neon), FastAPI em Docker/VPS, frontend na Vercel; variáveis Clerk e CORS de produção.
 - **Notificações:** e-mail (ex.: Resend) ou Web Push quando o preço mudar ou o anúncio sumir.
 - **Scraping multi-portal:** adaptadores para ZAP, VivaReal, etc., além da Primeira Porta.
 - **Ampliar tipos de plataformas com segurança (pesquisa regional):** antes de generalizar scrapers, fazer um levantamento sistemático de **portais relevantes**, com ênfase na **região do Vale do Paraíba** (e outros grandes hubs nacionais quando fizer sentido). Objetivos: mapear **padrões de página e estrutura de dados** (HTML, JSON embutido, APIs públicas), **termos de uso e riscos legais/técnicos**, e definir **quais domínios e fluxos** podem ser suportados de forma responsável. Com isso, evoluir o scraper com **adaptadores explícitos por portal**, testes e limites claros — em vez de heurísticas frágeis em massa.
