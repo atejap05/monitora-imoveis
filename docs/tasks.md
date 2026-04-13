@@ -12,7 +12,7 @@
 - [x] Instalar dependências visuais (lucide-react, UI components - prever uso de *shadcn ui*)
 - [x] Criar Dashboard Principal (listagem de imóveis cadastrados)
 - [x] Criar componente de Inserção de Nova URL para monitorar
-- [ ] Conectar Frontend com API FastAPI (CORS, fetch/axios)
+- [x] Conectar Frontend com API FastAPI (CORS, fetch/axios)
 
 ## Fase 3: Background Jobs e Regras de Negócio
 - [ ] Integrar APScheduler no FastAPI

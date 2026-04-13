@@ -8,7 +8,7 @@ import {
   AlertTriangle,
   Activity,
 } from "lucide-react";
-import type { Property } from "@/lib/mock-data";
+import type { Property } from "@/lib/types";
 
 interface StatsBarProps {
   properties: Property[];

@@ -1,4 +1,4 @@
-import type { PropertyStatus } from "@/lib/mock-data";
+import type { PropertyStatus } from "@/lib/types";
 
 const currencyFormatter = new Intl.NumberFormat("pt-BR", {
   style: "currency",

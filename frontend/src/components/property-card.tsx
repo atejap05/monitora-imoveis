@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import type { Property } from "@/lib/mock-data";
+import type { Property } from "@/lib/types";
 import {
   formatCurrency,
   getPriceChangePercent,
@@ -27,13 +27,21 @@ interface PropertyCardProps {
   index: number;
 }
 
-function MiniSparkline({ history }: { history: Property["history"] }) {
-  if (history.length < 2) return null;
-
+function MiniSparkline({
+  history,
+  propertyId,
+}: {
+  history: Property["history"];
+  propertyId: number;
+}) {
   const width = 80;
   const height = 28;
   const padding = 2;
   const len = history.length;
+
+  if (len < 2) {
+    return null;
+  }
 
   let min = history[0].price;
   let max = min;
@@ -54,6 +62,7 @@ function MiniSparkline({ history }: { history: Property["history"] }) {
   }
 
   const isDown = history[len - 1].price < history[0].price;
+  const gradId = `spark-${propertyId}-${isDown ? "down" : "up"}`;
 
   return (
     <svg
@@ -63,13 +72,7 @@ function MiniSparkline({ history }: { history: Property["history"] }) {
       className="shrink-0"
     >
       <defs>
-        <linearGradient
-          id={`gradient-${isDown ? "down" : "up"}`}
-          x1="0"
-          y1="0"
-          x2="0"
-          y2="1"
-        >
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
           <stop
             offset="0%"
             stopColor={isDown ? "#34d399" : "#fbbf24"}
@@ -84,7 +87,7 @@ function MiniSparkline({ history }: { history: Property["history"] }) {
       </defs>
       <polygon
         points={`${padding},${height} ${points.join(" ")} ${width - padding},${height}`}
-        fill={`url(#gradient-${isDown ? "down" : "up"})`}
+        fill={`url(#${gradId})`}
       />
       <polyline
         points={points.join(" ")}
@@ -113,6 +116,8 @@ export const PropertyCard = memo(function PropertyCard({ property, index }: Prop
       style={{
         animationDelay: `${300 + index * 80}ms`,
         "--status-color": statusConfig.rawColor,
+        contentVisibility: "auto",
+        containIntrinsicSize: "0 320px",
       } as React.CSSProperties}
     >
       <CardContent className="relative z-10 p-5">
@@ -135,7 +140,7 @@ export const PropertyCard = memo(function PropertyCard({ property, index }: Prop
               {property.type === "sale" ? "Venda" : "Aluguel"}
             </Badge>
           </div>
-          <MiniSparkline history={property.history} />
+          <MiniSparkline history={property.history} propertyId={property.id} />
         </div>
 
         {/* Title */}
@@ -156,7 +161,7 @@ export const PropertyCard = memo(function PropertyCard({ property, index }: Prop
           <span className="font-heading text-2xl tabular-nums tracking-tight text-foreground italic">
             {formatCurrency(property.price)}
           </span>
-          {priceChange !== null && (
+          {priceChange !== null ? (
             <span
               className={`flex items-center gap-0.5 text-sm font-semibold tabular-nums ${priceChange < 0 ? "text-emerald-400" : "text-amber-400"}`}
             >
@@ -167,7 +172,7 @@ export const PropertyCard = memo(function PropertyCard({ property, index }: Prop
               )}
               {Math.abs(priceChange).toFixed(1)}%
             </span>
-          )}
+          ) : null}
         </div>
 
         {/* Specs Grid */}

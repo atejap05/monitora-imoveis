@@ -1,33 +1,35 @@
-from fastapi import FastAPI, Depends, HTTPException, BackgroundTasks
-from sqlmodel import SQLModel, Session, create_engine, select
-from typing import List
-import os
-import asyncio
+from contextlib import asynccontextmanager
 
-# Setup DB
-sqlite_file_name = "database.db"
-sqlite_url = f"sqlite:///{sqlite_file_name}"
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-connect_args = {"check_same_thread": False}
-engine = create_engine(sqlite_url, echo=True, connect_args=connect_args)
+from database import create_db_and_tables, engine
+from routers.properties import router as properties_router
 
-def create_db_and_tables():
-    from models import Property, PropertyHistory # imports the models to create them
-    SQLModel.metadata.create_all(engine)
 
-def get_session():
-    with Session(engine) as session:
-        yield session
-
-# Initialize FastAPI app
-app = FastAPI(title="Monitora Imóveis API")
-
-@app.on_event("startup")
-def on_startup():
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
     create_db_and_tables()
+    yield
+    engine.dispose()
+
+
+app = FastAPI(title="Monitora Imóveis API", lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(properties_router)
+
 
 @app.get("/")
 def read_root():
     return {"message": "Monitora Imóveis API is running"}
-
-# In the future we will import routers here

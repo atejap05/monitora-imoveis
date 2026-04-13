@@ -12,39 +12,66 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { addProperty } from "@/lib/api";
+import type { Property } from "@/lib/types";
 
 function SuccessCheckmark() {
   return (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="shrink-0">
-      <circle cx="10" cy="10" r="9" stroke="currentColor" strokeWidth="1.5" className="animate-success-ring" />
-      <path d="M6 10.5L9 13.5L14 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="animate-check-draw" />
+      <circle
+        cx="10"
+        cy="10"
+        r="9"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        className="animate-success-ring"
+      />
+      <path
+        d="M6 10.5L9 13.5L14 7"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="animate-check-draw"
+      />
     </svg>
   );
 }
 
-export function AddPropertyDialog() {
+export interface AddPropertyDialogProps {
+  onPropertyAdded?: (property: Property) => void;
+}
+
+export function AddPropertyDialog({ onPropertyAdded }: AddPropertyDialogProps) {
   const [url, setUrl] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
   const [open, setOpen] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!url.trim()) return;
 
-    setIsLoading(true);
+    setError(null);
+    setIsSubmitting(true);
 
-    // Simulate API call — will connect to FastAPI backend later
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    setIsLoading(false);
-    setIsSuccess(true);
-
-    setTimeout(() => {
-      setOpen(false);
-      setUrl("");
-      setIsSuccess(false);
-    }, 1500);
+    try {
+      const property = await addProperty(url);
+      setIsSuccess(true);
+      onPropertyAdded?.(property);
+      setTimeout(() => {
+        setOpen(false);
+        setUrl("");
+        setIsSuccess(false);
+      }, 1500);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Erro ao adicionar imóvel.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -71,12 +98,20 @@ export function AddPropertyDialog() {
           </DialogDescription>
         </DialogHeader>
 
-        {/* Loading progress bar */}
-        {isLoading && (
+        {isSubmitting ? (
           <div className="absolute top-0 left-0 right-0 h-0.5 overflow-hidden bg-primary/10">
             <div className="animate-progress h-full w-1/3 rounded-full bg-primary" />
           </div>
-        )}
+        ) : null}
+
+        {error ? (
+          <p
+            role="alert"
+            className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+          >
+            {error}
+          </p>
+        ) : null}
 
         <form onSubmit={handleSubmit} className="mt-2 space-y-4">
           <div className="search-glow relative rounded-lg transition-all duration-300">
@@ -88,7 +123,7 @@ export function AddPropertyDialog() {
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               className="h-12 border-border/50 bg-secondary/50 pl-10 font-mono text-sm placeholder:text-muted-foreground/50 focus-visible:ring-0 focus-visible:border-transparent"
-              disabled={isLoading || isSuccess}
+              disabled={isSubmitting || isSuccess}
               required
             />
           </div>
@@ -96,18 +131,38 @@ export function AddPropertyDialog() {
           <Button
             id="submit-property-button"
             type="submit"
-            disabled={isLoading || isSuccess || !url.trim()}
+            disabled={isSubmitting || isSuccess || !url.trim()}
             className={`w-full gap-2 font-semibold transition-all duration-300 ${
               isSuccess
                 ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
                 : "bg-primary text-primary-foreground"
             }`}
           >
-            {isLoading ? (
+            {isSubmitting ? (
               <>
-                <svg width="16" height="16" viewBox="0 0 16 16" className="animate-spin" aria-hidden="true">
-                  <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.5" fill="none" opacity="0.25" />
-                  <path d="M14.5 8a6.5 6.5 0 00-6.5-6.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  className="animate-spin"
+                  aria-hidden="true"
+                >
+                  <circle
+                    cx="8"
+                    cy="8"
+                    r="6.5"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    fill="none"
+                    opacity="0.25"
+                  />
+                  <path
+                    d="M14.5 8a6.5 6.5 0 00-6.5-6.5"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    fill="none"
+                  />
                 </svg>
                 Extraindo dados...
               </>
