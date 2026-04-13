@@ -40,14 +40,16 @@ export function AddPropertyDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          id="add-property-button"
-          className="gap-2 bg-primary text-primary-foreground font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-200 hover:scale-[1.02]"
-        >
-          <Plus className="h-4 w-4" />
-          Monitorar Imóvel
-        </Button>
+      <DialogTrigger
+        render={
+          <Button
+            id="add-property-button"
+            className="gap-2 bg-primary text-primary-foreground font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-200 hover:scale-[1.02]"
+          />
+        }
+      >
+        <Plus className="h-4 w-4" />
+        Monitorar Imóvel
       </DialogTrigger>
       <DialogContent className="border-border/50 bg-card backdrop-blur-xl sm:max-w-lg">
         <DialogHeader>
