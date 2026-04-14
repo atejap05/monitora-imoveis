@@ -3,11 +3,18 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
+from dotenv import load_dotenv
 from sqlalchemy import event
 from sqlmodel import Session, SQLModel, create_engine
 
-DATABASE_URL = os.environ.get("DATABASE_URL", "").strip() or None
+load_dotenv(Path(__file__).resolve().parent / ".env")
+
+from db_url import normalize_postgres_dialect_url
+
+_raw_db = os.environ.get("DATABASE_URL", "").strip() or None
+DATABASE_URL = normalize_postgres_dialect_url(_raw_db) if _raw_db else None
 
 if DATABASE_URL:
     engine = create_engine(

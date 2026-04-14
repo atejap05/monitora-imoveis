@@ -15,7 +15,8 @@ from sqlmodel import SQLModel
 # Load backend/.env before reading DATABASE_URL
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
-from models import Property, PropertyHistory  # noqa: F401
+from db_url import normalize_postgres_dialect_url  # noqa: E402
+from models import Property, PropertyHistory  # noqa: F401, E402
 
 config = context.config
 
@@ -32,7 +33,7 @@ def get_url() -> str:
             "DATABASE_URL must be set for Alembic (PostgreSQL). "
             "SQLite dev uses create_all instead.",
         )
-    return url
+    return normalize_postgres_dialect_url(url)
 
 
 def run_migrations_offline() -> None:
