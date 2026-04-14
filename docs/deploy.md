@@ -139,6 +139,8 @@ Com base na [documentação Render](https://render.com/docs/web-services) (web s
 
 11. **Create Web Service** e aguarda o primeiro deploy (build Docker + Playwright pode demorar vários minutos).
 
+    **Alternativa (IaC):** o repositório inclui [`render.yaml`](../render.yaml) na raiz com `dockerfilePath: backend/Dockerfile` e `dockerContext: backend` (caminhos relativos à raiz do repo). Podes criar o serviço via [Blueprint](https://render.com/docs/infrastructure-as-code) para evitar erros de configuração manual.
+
 12. Copia o URL público (ex.: `https://monitora-imoveis-api.onrender.com`) e usa-o em **`NEXT_PUBLIC_API_URL`** no frontend (sem `/` final).
 
 ### Free tier
@@ -147,6 +149,7 @@ Serviços **free** podem **hibernar** após inatividade; o primeiro pedido após
 
 ### Problemas comuns
 
+- **`failed to read dockerfile: ... backend: is a directory`:** o Render está a usar a pasta `backend` como se fosse o ficheiro Dockerfile. Com **Root Directory** = `backend`, o **Dockerfile Path** tem de ser o ficheiro **`Dockerfile`** (não `backend` nem `backend/Dockerfile` nesse campo). Se preferires raiz do repo vazia, usa **Dockerfile Path** = `backend/Dockerfile` e contexto `backend`, ou o [`render.yaml`](../render.yaml).
 - **Deploy failed / health check:** confirma que a app faz bind em **`0.0.0.0`** e na variável **`PORT`** (já coberto no Dockerfile).
 - **CORS no browser:** `CORS_ORIGINS` tem de coincidir **exatamente** com a origem do site (esquema + host).
 

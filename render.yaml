@@ -1,0 +1,18 @@
+# Render Blueprint — API FastAPI (Docker) no monorepo.
+# Evita confundir a pasta `backend` com o Dockerfile no painel.
+# https://render.com/docs/blueprint-spec
+#
+# dockerfilePath e dockerContext são relativos à RAIZ do repositório.
+
+version: "1"
+
+services:
+  - type: web
+    name: monitora-imoveis-api
+    runtime: docker
+    plan: free
+    branch: master
+    dockerfilePath: backend/Dockerfile
+    dockerContext: backend
+    healthCheckPath: /
+    # Variáveis sensíveis: definir no Dashboard (DATABASE_URL, CLERK_ISSUER, CORS_ORIGINS, …)
