@@ -5,7 +5,7 @@
 ## Fase 1: Setup da fundação (Backend)
 
 - [x] Pasta `backend` e dependências (FastAPI, Uvicorn, SQLModel/SQLAlchemy, SQLite, Playwright)
-- [x] `main.py` com lifespan, CORS para `localhost:3000` / `127.0.0.1:3000`
+- [x] `main.py` com lifespan, CORS (localhost por defeito; `CORS_ORIGINS` em produção)
 - [x] `database.py` (engine SQLite, `get_session`)
 - [x] Modelos `Property` e `PropertyHistory` com campos usados pelo painel
 - [x] `schemas.py` — respostas Pydantic com nomes JSON em camelCase (ex.: `previousPrice`, campo `type` para venda/aluguel)
@@ -43,6 +43,16 @@
 - [x] Atualizar `previous_price`, `price`, status e `PropertyHistory` em mudança de preço, indisponível ou reativação — [`jobs.py`](../backend/jobs.py)
 - [x] Tratamento de indisponível (404/410), erro de scrape e reativação; `GET /api/jobs/status`
 - [x] Frontend: toolbar **Atualizar todos** — [`dashboard-toolbar.tsx`](../frontend/src/components/dashboard-toolbar.tsx)
+
+## Fase 5: Deploy e pipeline
+
+- [x] CI GitHub Actions: backend `pytest`, frontend `lint` + `build`, `docker build` do backend ([`.github/workflows/ci.yml`](../.github/workflows/ci.yml))
+- [x] `CORS_ORIGINS` no FastAPI e documentação em `backend/.env.example`
+- [x] `backend/Dockerfile` + `backend/.dockerignore`
+- [x] Documentação [deploy.md](deploy.md) e atualização de [arquitetura.md](arquitetura.md)
+- [ ] Hospedar API em ambiente escolhido (Railway, Fly.io, Render, etc.) com HTTPS
+- [ ] Hospedar frontend na Vercel (ou similar) com env de produção
+- [ ] Clerk: domínio e URLs de produção alinhados a `CLERK_ISSUER`
 
 ## Fase 4: Refinamento e busca semântica
 

@@ -1,6 +1,6 @@
 # Arquitetura e fluxo de dados
 
-O **Monitora Imóveis** separa **frontend** (Next.js), **backend** (FastAPI) e **persistência** (SQLite). A autenticação é feita pelo **Clerk** no browser; o **FastAPI** valida o JWT e aplica **multi-tenant** por `user_id` em `Property`. O painel permite **listar, adicionar por URL, editar campos manuais, favoritar e excluir** (Fase 2d), **atualizar todos os imóveis ativos** via toolbar (**Fase 3**), além do **job agendado** no servidor que re-scrapeia anúncios `active` e evolui `PropertyHistory`.
+O **Monitora Imóveis** separa **frontend** (Next.js), **backend** (FastAPI) e **persistência** (**SQLite** em dev local ou **PostgreSQL** em produção, ex.: Neon, via `DATABASE_URL`). A autenticação é feita pelo **Clerk** no browser; o **FastAPI** valida o JWT e aplica **multi-tenant** por `user_id` em `Property`. O painel permite **listar, adicionar por URL, editar campos manuais, favoritar e excluir** (Fase 2d), **atualizar todos os imóveis ativos** via toolbar (**Fase 3**), além do **job agendado** no servidor que re-scrapeia anúncios `active` e evolui `PropertyHistory`.
 
 ## Componentes
 
@@ -9,13 +9,13 @@ O **Monitora Imóveis** separa **frontend** (Next.js), **backend** (FastAPI) e *
 - **Autenticação:** **Clerk** (`@clerk/nextjs`) — `ClerkProvider` no layout, `src/proxy.ts` (convenção Next.js 16+) protege rotas de página (exceto `/sign-in` e `/sign-up`); o rewrite `/api/*` **não** passa por `auth.protect()` no proxy (a API valida o Bearer). Chamadas ao backend usam `Authorization: Bearer <JWT>` via `useAuth().getToken()` em `src/lib/api.ts`.
 - **Dashboard e formulário** são *Client Components* (`"use client"`): estado de busca/filtros (inclui filtro **Favoritos** e busca por comentário), **SWR** para `GET /api/properties`, `useDeferredValue` / `useTransition` onde aplicável. **Toolbar** (`dashboard-toolbar.tsx`): **Atualizar todos** chama `POST /api/properties/rescrape` (fila no servidor) e atualiza a lista. **Sonner** para *toasts* após ações (edição, favorito, exclusão, batch de re-scrape).
 - **CRUD no painel:** cada cartão oferece favoritar, abrir **edição** (`edit-property-dialog.tsx`: bairro, preço, comentário, status persistido) e **excluir** com confirmação; após sucesso chama-se `mutate()` do SWR.
-- **Proxy de desenvolvimento:** em `next.config.ts`, requisições a `/api/:path*` são reencaminhadas para `http://localhost:8000/api/:path*`, permitindo chamadas relativas `/api/properties` no browser.
+- **Proxy de desenvolvimento:** em `next.config.ts`, requisições a `/api/:path*` são reencaminhadas para `http://localhost:8000/api/:path*`, permitindo chamadas relativas `/api/properties` no browser. Em **produção**, `NEXT_PUBLIC_API_URL` deve apontar para a API pública (ver [deploy.md](deploy.md)).
 - **Estilo:** Tailwind CSS e componentes no padrão shadcn/base.
 - **Tipos:** `src/lib/types.ts` espelha o contrato JSON da API (camelCase).
 
 ### 2. Backend (FastAPI)
 
-- **`main.py`:** aplicação FastAPI, CORS, `lifespan` que cria tabelas SQLite, executa **migração idempotente** SQLite ([migrations_sqlite.py](../backend/migrations_sqlite.py)), inicia o **APScheduler** ([`scheduler.py`](../backend/scheduler.py)) e dispõe o engine ao encerrar; `load_dotenv()` para `CLERK_ISSUER` e variáveis de re-scrape.
+- **`main.py`:** aplicação FastAPI, **CORS** (`CORS_ORIGINS` em produção; localhost se vazio), `lifespan` que aplica schema: com **`DATABASE_URL`** corre **Alembic** `upgrade head`; sem URL usa **SQLite** (`create_all` + migração idempotente em [migrations_sqlite.py](../backend/migrations_sqlite.py)); inicia o **APScheduler** ([`scheduler.py`](../backend/scheduler.py)) e dispõe o engine ao encerrar; `load_dotenv()`. URLs Postgres do tipo `postgresql://` são normalizadas para **psycopg 3** em [`db_url.py`](../backend/db_url.py).
 - **`auth.py`:** validação do JWT do Clerk (JWKS em `{CLERK_ISSUER}/.well-known/jwks.json`, algoritmo RS256); dependência `get_current_user_id` nas rotas de imóveis e em `/api/jobs`.
 - **`routers/properties.py`:** rotas REST sob prefixo `/api/properties`; dados filtrados por `user_id` (multi-tenant); `PATCH` para atualização parcial (campos manuais); `POST /rescrape` para batch manual por usuário.
 - **`routers/jobs.py`:** `GET /api/jobs/status` — métricas do último ciclo agendado e próxima execução (quando o scheduler está ativo).
@@ -23,9 +23,10 @@ O **Monitora Imóveis** separa **frontend** (Next.js), **backend** (FastAPI) e *
 - **`scraper.py`:** `fetch_property_data(url)` assíncrono com Playwright; **Primeira Porta** (`primeiraporta.com.br`) com extração por texto/regex; **i9vale** (`i9vale.com.br`, plataforma Kenlo) com rotina dedicada (rótulos colados ao número, linha “Localização”, slug `...-N-quartos-M-m...` na URL); demais hosts com fallback genérico e os mesmos padrões de URL quando aplicável.
 - **`schemas.py`:** modelos Pydantic de resposta com `alias_generator` camelCase; campo interno `property_type` serializado como **`type`** no JSON; **`listingStatus`** expõe o status persistido no banco; **`status`** continua **derivado** para o painel (ativo, indisponível, preço subiu/caiu).
 
-### 3. Persistência (SQLite + SQLModel)
+### 3. Persistência (SQLModel)
 
-- Arquivo típico: `backend/database.db` (criado na primeira subida da API).
+- **Desenvolvimento local (sem `DATABASE_URL`):** ficheiro `backend/database.db` + `PRAGMA foreign_keys=ON` (ver [`database.py`](../backend/database.py)).
+- **Produção:** **PostgreSQL** (ex.: Neon); conexão via `DATABASE_URL`; migrações **Alembic** em [`backend/alembic/`](../backend/alembic/). Valores monetários: `Numeric`/`Decimal` no modelo; JSON da API continua em float para o frontend.
 - **`Property`:** `user_id` (string Clerk), URL **única por usuário** (constraint composta `user_id` + `url`), demais dados do anúncio, `comment` e `favorite` (edição manual), `status` de saúde do scrape/listagem (`active` / `inactive` / `error`, conforme modelo).
 - **`PropertyHistory`:** histórico de preço por verificação; novas linhas são gravadas pelo **job agendado** e pelo **`POST /api/properties/rescrape`** quando há mudança de preço, indisponibilidade ou reativação.
 
@@ -56,7 +57,7 @@ sequenceDiagram
     participant Next as Next.js
     participant API as FastAPI
     participant PW as Playwright
-    participant DB as SQLite
+    participant DB as DB
 
     Browser->>Clerk: Sessão ativa
     Browser->>Next: Cola URL e envia formulário
@@ -77,7 +78,7 @@ sequenceDiagram
     participant Browser as Navegador
     participant Next as Next.js dev server
     participant API as FastAPI
-    participant DB as SQLite
+    participant DB as DB
 
     Browser->>Next: GET /api/properties + Bearer JWT
     Next->>API: rewrite para localhost:8000
@@ -91,7 +92,7 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     participant Cron as APScheduler
-    participant DB as SQLite
+    participant DB as DB
     participant PW as Playwright
 
     Cron->>DB: SELECT Property WHERE status=active
@@ -126,7 +127,7 @@ sequenceDiagram
     participant Browser as Navegador
     participant Next as Next.js
     participant API as FastAPI
-    participant DB as SQLite
+    participant DB as DB
 
     Browser->>Next: PATCH ou DELETE /api/properties/id + Bearer JWT
     Next->>API: rewrite para localhost:8000
@@ -160,7 +161,10 @@ Health check: `GET /` na raiz do FastAPI.
 
 | Pasta / arquivo | Papel |
 |-----------------|--------|
-| `backend/main.py` | App, CORS, lifespan, migração SQLite, scheduler no startup |
+| `backend/main.py` | App, CORS, lifespan, Alembic ou SQLite + `migrations_sqlite`, scheduler no startup |
+| `backend/db_url.py` | Normalização `DATABASE_URL` → driver psycopg 3 |
+| `backend/alembic/` | Migrações PostgreSQL |
+| `backend/Dockerfile` | Imagem de produção (uvicorn + Playwright Chromium) |
 | `backend/scheduler.py` | APScheduler, intervalo de re-scrape global |
 | `backend/jobs.py` | Lógica de re-scrape, métricas em memória |
 | `backend/routers/jobs.py` | `GET /api/jobs/status` |

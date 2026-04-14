@@ -2,6 +2,10 @@
 
 API **FastAPI** com **SQLModel** / **SQLAlchemy**, validação de **JWT do Clerk** (`auth.py`), scraping com **Playwright** (`scraper.py`).
 
+## Próximo passo: deploy em produção
+
+Guia completo (CORS, `NEXT_PUBLIC_API_URL`, Docker, Neon, Clerk, checklist): **[docs/deploy.md](../docs/deploy.md)**. CI no repositório: [`.github/workflows/ci.yml`](../.github/workflows/ci.yml).
+
 ## Persistência
 
 | Modo | Quando | Comportamento |

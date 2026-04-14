@@ -21,6 +21,20 @@ from routers.jobs import router as jobs_router
 from routers.properties import router as properties_router
 from scheduler import shutdown_scheduler, start_scheduler
 
+_DEFAULT_DEV_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+
+def _cors_allow_origins() -> list[str]:
+    """Production: CORS_ORIGINS (comma-separated). Dev: localhost if unset."""
+    raw = os.environ.get("CORS_ORIGINS", "").strip()
+    if not raw:
+        return list(_DEFAULT_DEV_ORIGINS)
+    parts = [p.strip() for p in raw.split(",")]
+    return [p for p in parts if p]
+
 
 def _run_startup_schema() -> None:
     """SQLite dev: create_all + idempotent ALTERs. PostgreSQL: Alembic upgrade."""
@@ -49,10 +63,7 @@ app = FastAPI(title="Monitora Imóveis API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    ],
+    allow_origins=_cors_allow_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
