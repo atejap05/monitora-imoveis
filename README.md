@@ -73,6 +73,7 @@ A API ficará em `http://127.0.0.1:8000` (health: `http://127.0.0.1:8000/`).
 
 **Dicas Windows**
 
+- **Playwright (`acesso negado` / Access Denied):** use sempre o venv ativo e o módulo Python: `python -m playwright install chromium` (não precisa de `cmd /c`). Se ainda falhar, instale os browsers numa pasta do projeto (evita bloqueio em `%LOCALAPPDATA%`): no PowerShell, dentro de `backend`, execute `$env:PLAYWRIGHT_BROWSERS_PATH = "$PWD\pw-browsers"; python -m playwright install chromium`. Sempre que for subir a API (`fastapi dev`), defina a mesma variável na sessão (ou como variável de usuário no Windows), senão o Playwright não achará o Chromium. Exceções no antivírus: `backend\pw-browsers` e `%LOCALAPPDATA%\ms-playwright`. Se `Documentos` estiver no OneDrive, prefira o repo em `C:\dev\...` ou outro caminho fora da sincronização.
 - **Firewall:** na primeira execução, autorize o Python se o Windows perguntar sobre rede local.
 - **Antivírus:** em raros casos, escaneamento em tempo real pode atrasar o Playwright; adicione exceção para a pasta do projeto se necessário.
 - **CORS:** o backend aceita origem `http://localhost:3000`; use esse endereço no navegador para o painel.

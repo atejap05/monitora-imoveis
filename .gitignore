@@ -3,6 +3,8 @@ backend/venv/
 backend/__pycache__/
 backend/*.pyc
 backend/database.db
+backend/pw-browsers/
+backend/.env
 
 # Frontend
 frontend/node_modules/
