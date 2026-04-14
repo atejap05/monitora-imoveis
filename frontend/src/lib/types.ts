@@ -43,3 +43,32 @@ export type PropertyUpdatePayload = {
   favorite?: boolean;
   status?: "active" | "inactive" | "error";
 };
+
+/** Resposta de POST /api/properties/rescrape */
+export interface RescrapeResultItem {
+  id: number;
+  status: string;
+  detail?: string;
+  oldPrice?: number | null;
+  newPrice?: number | null;
+}
+
+export interface RescrapeBatchResult {
+  total: number;
+  updated: number;
+  priceChanges: number;
+  errors: number;
+  inactiveListings: number;
+  results: RescrapeResultItem[];
+}
+
+/** GET /api/jobs/status */
+export interface JobStatus {
+  lastRunAt: string | null;
+  nextRunAt: string | null;
+  intervalHours: number;
+  propertiesChecked: number;
+  priceChanges: number;
+  errors: number;
+  inactiveListings: number;
+}

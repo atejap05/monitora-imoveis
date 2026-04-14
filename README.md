@@ -44,7 +44,7 @@ Você precisa de **dois terminais**: um para o backend (API na porta **8000**) e
 
 ### 1. Backend (FastAPI + Playwright)
 
-Entre na pasta `backend`, crie o ambiente virtual, instale dependências e os binários do Playwright (Chromium). **Antes de subir a API**, crie `backend/.env` a partir de `backend/.env.example` e defina `CLERK_ISSUER` (detalhes na secção **Autenticação (Clerk)** abaixo); sem isso, as rotas `/api/properties` não validam o JWT corretamente.
+Entre na pasta `backend`, crie o ambiente virtual, instale dependências e os binários do Playwright (Chromium). **Antes de subir a API**, crie `backend/.env` a partir de `backend/.env.example` e defina `CLERK_ISSUER` (detalhes na secção **Autenticação (Clerk)** abaixo); sem isso, as rotas `/api/properties` não validam o JWT corretamente. Opcional: `RESCRAPE_INTERVAL_HOURS` e `RESCRAPE_MAX_CONCURRENT` (job agendado de re-scrape; ver `.env.example`). Para desativar o APScheduler (ex.: testes), use `DISABLE_SCHEDULER=1`.
 
 Sempre que atualizar o repositório (`git pull`), execute de novo `pip install -r requirements.txt` no venv para pegar dependências novas (por exemplo PyJWT para validação de tokens).
 

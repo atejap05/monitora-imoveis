@@ -1,3 +1,7 @@
+/**
+ * Next.js 16+: o ficheiro era `middleware.ts` e foi renomeado para `proxy.ts`.
+ * Clerk continua a expor `clerkMiddleware` (nome histórico); a função corre no boundary de proxy.
+ */
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
 const isPublicRoute = createRouteMatcher([

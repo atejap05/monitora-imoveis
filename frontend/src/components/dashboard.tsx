@@ -7,47 +7,16 @@ import {
   useTransition,
   useCallback,
 } from "react";
-import dynamic from "next/dynamic";
 import useSWR from "swr";
-import { useAuth, UserButton } from "@clerk/nextjs";
-import { Search, Plus } from "lucide-react";
+import { useAuth } from "@clerk/nextjs";
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { DashboardToolbar } from "@/components/dashboard-toolbar";
 import { PropertyCard } from "@/components/property-card";
 import { StatsBar } from "@/components/stats-bar";
 import { fetcher, PROPERTIES_ENDPOINT } from "@/lib/api";
 import type { Property, PropertyStatus } from "@/lib/types";
-
-const importAddPropertyDialog = () =>
-  import("@/components/add-property-dialog");
-
-const AddPropertyDialog = dynamic(
-  () =>
-    importAddPropertyDialog().then((mod) => ({
-      default: mod.AddPropertyDialog,
-    })),
-  {
-    ssr: false,
-    loading: () => (
-      <Button className="gap-2 bg-primary text-primary-foreground font-semibold shadow-lg shadow-primary/20 opacity-80">
-        <Plus className="h-4 w-4" />
-        Monitorar Imóvel
-      </Button>
-    ),
-  },
-);
-
-const ModeToggle = dynamic(
-  () =>
-    import("@/components/mode-toggle").then((mod) => ({
-      default: mod.ModeToggle,
-    })),
-  {
-    ssr: false,
-    loading: () => <div className="size-8 shrink-0" aria-hidden />,
-  },
-);
 
 type FilterStatus = "all" | PropertyStatus | "favorites";
 
@@ -196,21 +165,11 @@ export function Dashboard() {
               </p>
             </div>
           </div>
-          <div
-            className="flex shrink-0 items-center gap-1 sm:justify-end"
-            onMouseEnter={importAddPropertyDialog}
-            onFocus={importAddPropertyDialog}
-          >
-            <UserButton
-              appearance={{
-                elements: {
-                  avatarBox: "size-8 ring-1 ring-border/50",
-                },
-              }}
-            />
-            <ModeToggle />
-            <AddPropertyDialog onPropertyAdded={handlePropertyAdded} />
-          </div>
+          <DashboardToolbar
+            getToken={getToken}
+            onListRefresh={handleListRefresh}
+            onPropertyAdded={handlePropertyAdded}
+          />
         </div>
       </header>
 
@@ -321,8 +280,9 @@ export function Dashboard() {
       </section>
 
       <footer className="mt-12 mb-6 text-center text-[11px] text-muted-foreground/40">
-        Monitora Imóveis © {new Date().getFullYear()} — Dados extraídos
-        automaticamente a cada 12h
+        Monitora Imóveis © {new Date().getFullYear()} — Use &quot;Atualizar
+        todos&quot; para reconsultar os anúncios; o servidor também executa
+        verificações periódicas automáticas.
       </footer>
     </div>
   );

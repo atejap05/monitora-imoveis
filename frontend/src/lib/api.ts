@@ -1,4 +1,9 @@
-import type { Property, PropertyUpdatePayload } from "@/lib/types";
+import type {
+  JobStatus,
+  Property,
+  PropertyUpdatePayload,
+  RescrapeBatchResult,
+} from "@/lib/types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 
@@ -91,6 +96,31 @@ export async function deleteProperty(
     const err = await res.json().catch(() => ({}));
     throw new Error(parseErrorDetail(err));
   }
+}
+
+export async function rescrapeAll(
+  getToken: GetTokenFn,
+): Promise<RescrapeBatchResult> {
+  const headers = {
+    "Content-Type": "application/json",
+    ...(await authHeader(getToken)),
+  };
+  const res = await fetch(`${API_BASE}/api/properties/rescrape`, {
+    method: "POST",
+    headers,
+  });
+  if (!res.ok) {
+    if (res.status === 401) {
+      throw new Error("Não autorizado. Faça login novamente.");
+    }
+    const err = await res.json().catch(() => ({}));
+    throw new Error(parseErrorDetail(err));
+  }
+  return res.json() as Promise<RescrapeBatchResult>;
+}
+
+export async function fetchJobStatus(getToken: GetTokenFn): Promise<JobStatus> {
+  return fetcher<JobStatus>("/api/jobs/status", getToken);
 }
 
 export async function updateProperty(

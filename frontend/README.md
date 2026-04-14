@@ -14,7 +14,7 @@ Resumo:
 ## Estrutura relevante
 
 - `src/app/` — rotas (`/`, `/sign-in`, `/sign-up`)
-- `src/middleware.ts` — proteção de páginas com Clerk
+- `src/proxy.ts` — proteção de páginas com Clerk (convenção Next.js 16+)
 - `src/lib/api.ts` — chamadas à API com `Authorization: Bearer` (`fetchProperties`, `addProperty`, `updateProperty`, `deleteProperty`)
 - `src/components/property-card.tsx`, `edit-property-dialog.tsx` — ações de favorito, edição e exclusão
 - `next.config.ts` — rewrite `/api/*` → backend em desenvolvimento

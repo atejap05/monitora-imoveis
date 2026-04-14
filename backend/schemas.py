@@ -19,6 +19,41 @@ class PropertyHistoryItemResponse(BaseModel):
     status: PropertyStatus
 
 
+class RescrapeResultItemResponse(BaseModel):
+    """Um item do batch POST /api/properties/rescrape."""
+
+    model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
+
+    id: int
+    status: str
+    detail: Optional[str] = None
+    old_price: Optional[float] = None
+    new_price: Optional[float] = None
+
+
+class RescrapeBatchResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
+
+    total: int
+    updated: int
+    price_changes: int
+    errors: int
+    inactive_listings: int
+    results: list[RescrapeResultItemResponse]
+
+
+class JobStatusResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
+
+    last_run_at: Optional[str] = None
+    next_run_at: Optional[str] = None
+    interval_hours: float
+    properties_checked: int
+    price_changes: int
+    errors: int
+    inactive_listings: int
+
+
 class PropertyResponse(BaseModel):
     model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
 

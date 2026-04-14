@@ -13,7 +13,7 @@ Este documento descreve a visão de produto, o estado das fases e o backlog pós
 | **2b** | Integração API (REST, CORS, painel com dados reais) | Concluída |
 | **2c** | Autenticação (Clerk), JWT no FastAPI, multi-tenant por `user_id` | Concluída |
 | **2d** | CRUD completo (edição manual, favoritos, exclusão na UI) | Concluída |
-| **3** | Jobs em background, re-scrape periódico, histórico de preço evolutivo | Em andamento / pendente |
+| **3** | Jobs em background, re-scrape periódico, histórico de preço evolutivo | Concluída |
 | **4** | Busca semântica (IA) | Planejada |
 
 ---
@@ -42,7 +42,7 @@ Este documento descreve a visão de produto, o estado das fases e o backlog pós
 
 ### Fase 2c: Autenticação e multi-tenant (Concluída)
 
-- **Clerk** no frontend (`@clerk/nextjs`): `ClerkProvider`, rotas `/sign-in` e `/sign-up`, `middleware.ts` protegendo páginas (exceto auth), `UserButton`, token via `useAuth().getToken()`.
+- **Clerk** no frontend (`@clerk/nextjs`): `ClerkProvider`, rotas `/sign-in` e `/sign-up`, `src/proxy.ts` protegendo páginas (exceto auth), `UserButton`, token via `useAuth().getToken()`.
 - **FastAPI:** `auth.py` valida JWT (RS256, JWKS do issuer Clerk); todas as rotas `/api/properties` exigem `Authorization: Bearer <token>`.
 - **Dados:** `Property.user_id` (ID Clerk); unicidade de URL **por usuário** (`user_id` + `url`); listagem e CRUD filtrados por usuário.
 - **Variáveis:** `frontend/.env.local` (chaves Clerk), `backend/.env` (`CLERK_ISSUER` = Frontend API URL / claim `iss`). Ver [README.md](../README.md).
@@ -56,19 +56,16 @@ Este documento descreve a visão de produto, o estado das fases e o backlog pós
 
 **Semântica de status:** o painel continua usando `status` derivado (ex.: `price_drop`). O usuário ajusta o cadastro via `listingStatus` / campo `status` no PATCH; marcar como **indisponível** grava `inactive` no banco e reflete na UI.
 
-### Fase 3: Comunicação avançada e jobs (Pendente)
+### Fase 3: Comunicação avançada e jobs (Concluída)
 
-O que **já existe** hoje:
+- **APScheduler** (`AsyncIOScheduler`) no `lifespan` do FastAPI ([`scheduler.py`](../backend/scheduler.py)).
+- Job **global** (`rescrape_all_active_global` em [`jobs.py`](../backend/jobs.py)): `SELECT` imóveis `status = active`, re-scrape com Playwright; semáforo `RESCRAPE_MAX_CONCURRENT`; intervalo `RESCRAPE_INTERVAL_HOURS` (default 12h).
+- **Histórico evolutivo:** `apply_scrape_to_property` atualiza `previous_price` / `price`, grava `PropertyHistory` em mudança de preço, indisponível (404/410) ou reativação; erros de scrape marcam `status = error` sem poluir histórico.
+- **API manual:** `POST /api/properties/rescrape` — batch **por usuário** (fila sequencial de todos os ativos do `user_id`); resposta com resumo e `results` por imóvel.
+- **Observabilidade:** `GET /api/jobs/status` — última execução agendada, próxima execução, métricas do último ciclo (requer JWT).
+- **Frontend:** toolbar no dashboard ([`dashboard-toolbar.tsx`](../frontend/src/components/dashboard-toolbar.tsx)) com **Atualizar todos** (toast + `mutate` SWR); `rescrapeAll` e `fetchJobStatus` em [`api.ts`](../frontend/src/lib/api.ts).
 
-- API REST: listar, obter por id, criar (com scrape), **atualizar parcialmente (`PATCH`)** e excluir imóveis — **com autenticação** e escopo por `user_id`.
-- Primeiro registro em `PropertyHistory` na criação.
-- Scraper trata HTTP 404/410 como indisponível; falhas de execução retornam erro ao cliente.
-
-O que **ainda não** está implementado:
-
-- **APScheduler** acoplado ao `lifespan` do FastAPI.
-- Job recorrente que relê URLs ativas **por usuário** (ou global com filtro `user_id`), compara preço, grava novas linhas em `PropertyHistory` e atualiza `previous_price` / status derivado no painel.
-- Notificações ou alertas fora do próprio refresh da página.
+**Backlog (pós-Fase 3):** notificações por e-mail/Web Push fora do painel; métricas persistidas em banco.
 
 ### Fase 4: Inteligência Artificial (Busca Semântica) — Planejada
 
@@ -82,7 +79,7 @@ O que **ainda não** está implementado:
 
 - **Tempo de anúncio ativo:** monitorar e exibir há quanto tempo cada anúncio está publicado.
 - **Testes automatizados:** ampliar cobertura além dos smoke tests de auth em `backend/tests/` (integração, frontend).
-- **Job de scraping:** implementação completa e testes do job recorrente de re-scrape.
+- **Job de scraping:** evoluções (WAL SQLite, filas externas, testes de integração com Playwright mockado).
 - **Deploy:** PostgreSQL (Supabase/Neon), FastAPI em Docker/VPS, frontend na Vercel; variáveis Clerk e CORS de produção.
 - **Notificações:** e-mail (ex.: Resend) ou Web Push quando o preço mudar ou o anúncio sumir.
 - **Scraping multi-portal:** adaptadores para ZAP, VivaReal, etc., além da Primeira Porta.

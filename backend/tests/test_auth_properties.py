@@ -43,3 +43,13 @@ def test_patch_property_with_invalid_bearer_returns_401(client: TestClient):
         json={"comment": "x"},
     )
     assert r.status_code == 401
+
+
+def test_jobs_status_without_auth_returns_401(client: TestClient):
+    r = client.get("/api/jobs/status")
+    assert r.status_code == 401
+
+
+def test_rescrape_batch_without_auth_returns_401(client: TestClient):
+    r = client.post("/api/properties/rescrape")
+    assert r.status_code == 401

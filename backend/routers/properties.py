@@ -11,9 +11,15 @@ from pydantic.alias_generators import to_camel
 from sqlmodel import Session, select
 
 from auth import get_current_user_id
-from database import get_session
+from database import engine, get_session
+from jobs import rescrape_properties_for_user
 from models import Property, PropertyHistory
-from schemas import PropertyResponse, property_to_response
+from schemas import (
+    PropertyResponse,
+    RescrapeBatchResponse,
+    RescrapeResultItemResponse,
+    property_to_response,
+)
 from scraper import fetch_property_data
 
 router = APIRouter(prefix="/api/properties", tags=["properties"])
@@ -114,6 +120,27 @@ def get_property(
     if not prop or prop.user_id != user_id:
         raise HTTPException(status_code=404, detail="Imóvel não encontrado")
     return property_to_response(prop, _histories_for(session, property_id))
+
+
+@router.post(
+    "/rescrape",
+    response_model=RescrapeBatchResponse,
+    response_model_by_alias=True,
+)
+async def rescrape_all_user_properties(
+    user_id: Annotated[str, Depends(get_current_user_id)],
+):
+    """Re-scrape em fila todos os imóveis com status `active` do usuário autenticado."""
+    raw = await rescrape_properties_for_user(engine, user_id)
+    items = [RescrapeResultItemResponse.model_validate(x) for x in raw["results"]]
+    return RescrapeBatchResponse(
+        total=raw["total"],
+        updated=raw["updated"],
+        price_changes=raw["price_changes"],
+        errors=raw["errors"],
+        inactive_listings=raw["inactive_listings"],
+        results=items,
+    )
 
 
 @router.post(

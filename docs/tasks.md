@@ -24,7 +24,7 @@
 
 ## Fase 2c: Autenticação e multi-tenant
 
-- [x] Clerk (`@clerk/nextjs`): `ClerkProvider`, páginas `/sign-in` e `/sign-up`, `middleware.ts`
+- [x] Clerk (`@clerk/nextjs`): `ClerkProvider`, páginas `/sign-in` e `/sign-up`, `src/proxy.ts` (Next.js 16+)
 - [x] `Property.user_id` + constraint única (`user_id`, `url`); rotas filtradas por usuário
 - [x] `backend/auth.py` — JWT Clerk (JWKS), `get_current_user_id`
 - [x] Dependências: `PyJWT`, `cryptography`; `backend/.env.example` com `CLERK_ISSUER`
@@ -38,10 +38,11 @@
 
 ## Fase 3: Background jobs e regras de negócio
 
-- [ ] Integrar **APScheduler** no FastAPI (`lifespan` / startup)
-- [ ] Job periódico: listar `Property` ativos (por `user_id` ou global com filtro), reexecutar scraper por URL
-- [ ] Atualizar `previous_price`, `price`, status e inserir novas entradas em `PropertyHistory` quando o preço ou disponibilidade mudar
-- [ ] Tratamento consistente de anúncio indisponível (404/410/erro) no job (não só no POST inicial)
+- [x] Integrar **APScheduler** no FastAPI (`lifespan` / startup) — [`scheduler.py`](../backend/scheduler.py), `DISABLE_SCHEDULER` para testes
+- [x] Job periódico global: `Property` com `status=active`, re-scrape com semáforo; batch manual `POST /api/properties/rescrape` por `user_id`
+- [x] Atualizar `previous_price`, `price`, status e `PropertyHistory` em mudança de preço, indisponível ou reativação — [`jobs.py`](../backend/jobs.py)
+- [x] Tratamento de indisponível (404/410), erro de scrape e reativação; `GET /api/jobs/status`
+- [x] Frontend: toolbar **Atualizar todos** — [`dashboard-toolbar.tsx`](../frontend/src/components/dashboard-toolbar.tsx)
 
 ## Fase 4: Refinamento e busca semântica
 
