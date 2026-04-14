@@ -80,6 +80,10 @@ class PropertyResponse(BaseModel):
     image_url: str
     comment: str
     favorite: bool
+    condo_fee: Optional[float] = None
+    iptu: Optional[float] = None
+    description: Optional[str] = None
+    reference_code: Optional[str] = None
     created_at: str
     updated_at: str
     history: list[PropertyHistoryItemResponse]
@@ -172,6 +176,10 @@ def property_to_response(
         image_url=prop.image_url or "",
         comment=getattr(prop, "comment", None) or "",
         favorite=bool(getattr(prop, "favorite", False)),
+        condo_fee=getattr(prop, "condo_fee", None),
+        iptu=getattr(prop, "iptu", None),
+        description=getattr(prop, "description", None),
+        reference_code=getattr(prop, "reference_code", None),
         created_at=prop.created_at.isoformat().replace("+00:00", "Z"),
         updated_at=prop.updated_at.isoformat().replace("+00:00", "Z"),
         history=history_items,

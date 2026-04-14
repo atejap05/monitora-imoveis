@@ -30,6 +30,10 @@ export interface Property {
   imageUrl: string;
   comment: string;
   favorite: boolean;
+  condoFee?: number | null;
+  iptu?: number | null;
+  description?: string | null;
+  referenceCode?: string | null;
   createdAt: string;
   updatedAt: string;
   history: PropertyHistory[];

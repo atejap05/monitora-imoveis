@@ -196,6 +196,10 @@ async def create_property(
         property_type=data.get("property_type") or "sale",
         source=data.get("source"),
         image_url=data.get("image_url"),
+        condo_fee=data.get("condo_fee"),
+        iptu=data.get("iptu"),
+        description=data.get("description"),
+        reference_code=data.get("reference_code"),
         status=db_status,
     )
 

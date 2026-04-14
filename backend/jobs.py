@@ -126,6 +126,14 @@ def _merge_listing_fields(prop: Property, data: dict[str, Any]) -> None:
         prop.source = data.get("source")
     if data.get("image_url"):
         prop.image_url = data.get("image_url")
+    if data.get("condo_fee") is not None:
+        prop.condo_fee = data.get("condo_fee")
+    if data.get("iptu") is not None:
+        prop.iptu = data.get("iptu")
+    if data.get("description"):
+        prop.description = data.get("description")
+    if data.get("reference_code"):
+        prop.reference_code = data.get("reference_code")
 
 
 def apply_scrape_to_property(

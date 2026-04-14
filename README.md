@@ -158,3 +158,4 @@ Documentação detalhada:
 | [docs/tasks.md](docs/tasks.md) | Checklist de tarefas por fase |
 | [docs/arquitetura.md](docs/arquitetura.md) | Componentes, fluxos, contrato da API com Bearer |
 | [docs/database-evaluation.md](docs/database-evaluation.md) | Schema SQLite vs boas práticas |
+| [docs/portals-scraping.md](docs/portals-scraping.md) | Portais suportados, URLs e limitações de scraping |

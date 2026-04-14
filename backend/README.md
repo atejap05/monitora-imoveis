@@ -27,7 +27,8 @@ Após `git pull`, rode de novo `pip install -r requirements.txt` para pegar depe
 | `schemas.py` | Respostas Pydantic (camelCase para o frontend) |
 | `routers/properties.py` | REST `/api/properties` |
 | `scraper.py` | Extração assíncrona com Playwright (Primeira Porta, i9vale/Kenlo, fallback) |
-| `tests/` | Smoke tests de auth e rotas protegidas (`pytest`) |
+| `adapters/` | (opcional/WIP) adaptadores por portal; o scraper principal usa rotinas dedicadas acima |
+| `tests/` | Auth e rotas (`pytest`); `test_adapters.py` para adaptadores quando em uso |
 
 O ficheiro `database.db` é criado na primeira subida (ignorado pelo Git). Schema antigo sem `user_id`: apague `database.db` e suba a API de novo.
 
@@ -39,6 +40,7 @@ O projeto não usa Alembic. Em cada arranque da API, após `create_db_and_tables
 
 - [docs/arquitetura.md](../docs/arquitetura.md) — fluxos e contrato da API (Bearer obrigatório)
 - [docs/database-evaluation.md](../docs/database-evaluation.md) — notas sobre o schema SQLite
+- [docs/portals-scraping.md](../docs/portals-scraping.md) — portais suportados e limitações de scraping
 
 ## Testes
 

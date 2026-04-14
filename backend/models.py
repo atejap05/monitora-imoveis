@@ -30,6 +30,10 @@ class Property(SQLModel, table=True):
     # User-edited free text (not from scraper)
     comment: Optional[str] = Field(default=None, max_length=2000)
     favorite: bool = Field(default=False)
+    condo_fee: Optional[float] = None
+    iptu: Optional[float] = None
+    description: Optional[str] = None
+    reference_code: Optional[str] = None
     # DB health: active, inactive (listing gone), error (scrape failed)
     status: str = Field(default="active")
     created_at: datetime = Field(default_factory=datetime.utcnow)

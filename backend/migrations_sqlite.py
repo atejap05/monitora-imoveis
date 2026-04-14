@@ -29,3 +29,25 @@ def migrate_sqlite_schema(engine) -> None:
                     f'ALTER TABLE "{table_name}" ADD COLUMN comment TEXT NULL'
                 ),
             )
+        if "condo_fee" not in existing:
+            conn.execute(
+                text(
+                    f'ALTER TABLE "{table_name}" ADD COLUMN condo_fee FLOAT NULL'
+                ),
+            )
+        if "iptu" not in existing:
+            conn.execute(
+                text(f'ALTER TABLE "{table_name}" ADD COLUMN iptu FLOAT NULL'),
+            )
+        if "description" not in existing:
+            conn.execute(
+                text(
+                    f'ALTER TABLE "{table_name}" ADD COLUMN description TEXT NULL'
+                ),
+            )
+        if "reference_code" not in existing:
+            conn.execute(
+                text(
+                    f'ALTER TABLE "{table_name}" ADD COLUMN reference_code TEXT NULL'
+                ),
+            )
