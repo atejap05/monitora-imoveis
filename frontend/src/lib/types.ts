@@ -1,5 +1,8 @@
 export type PropertyStatus = "active" | "inactive" | "price_drop" | "price_up";
 
+/** Status persistido no banco (PATCH / exibição no formulário). */
+export type ListingStatus = "active" | "inactive" | "error";
+
 export interface PropertyHistory {
   price: number;
   date: string;
@@ -22,9 +25,21 @@ export interface Property {
   city: string;
   type: "sale" | "rent";
   status: PropertyStatus;
+  listingStatus: ListingStatus;
   source: string;
   imageUrl: string;
+  comment: string;
+  favorite: boolean;
   createdAt: string;
   updatedAt: string;
   history: PropertyHistory[];
 }
+
+/** Payload for PATCH /api/properties/:id (camelCase). */
+export type PropertyUpdatePayload = {
+  neighborhood?: string;
+  price?: number;
+  comment?: string | null;
+  favorite?: boolean;
+  status?: "active" | "inactive" | "error";
+};

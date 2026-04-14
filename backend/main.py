@@ -7,12 +7,14 @@ load_dotenv()
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import create_db_and_tables, engine
+from migrations_sqlite import migrate_sqlite_schema
 from routers.properties import router as properties_router
 
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     create_db_and_tables()
+    migrate_sqlite_schema(engine)
     yield
     engine.dispose()
 

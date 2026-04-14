@@ -19,7 +19,7 @@ Este documento aplica a *Verification Checklist* e os princípios da skill [.age
 | UNIQUE onde necessário | **Alta** | Unicidade de **URL por usuário:** `UniqueConstraint("user_id", "url")` (`uq_property_user_url`); não há mais índice único global só em `url`. |
 | CHECK / validação no BD | **Baixa** | `status`, `property_type` são VARCHAR sem constraint CHECK; validação na aplicação/Pydantic. |
 | Timestamps | **Alta** | `Property`: `created_at`, `updated_at`; `PropertyHistory`: `checked_at`. |
-| Migrações reversíveis | **Baixa** | Apenas `SQLModel.metadata.create_all`; sem Alembic ou scripts UP/DOWN. |
+| Migrações reversíveis | **Baixa** | `create_all` na subida; colunas aditivas em DBs existentes via [migrations_sqlite.py](../backend/migrations_sqlite.py) (sem DOWN). **Alembic** ainda recomendado antes de PostgreSQL em produção. |
 
 **Síntese de risco:** principal lacuna vs skill é **PRAGMA foreign_keys desligado** + **REAL para dinheiro** + **ausência de migrações versionadas**; integridade de exclusão depende do código da API, não do motor.
 

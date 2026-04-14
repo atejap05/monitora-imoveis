@@ -26,3 +26,20 @@ def test_list_properties_with_invalid_bearer_returns_401(client: TestClient):
         headers={"Authorization": "Bearer not-a-real-jwt"},
     )
     assert r.status_code == 401
+
+
+def test_patch_property_without_auth_returns_401(client: TestClient):
+    r = client.patch(
+        "/api/properties/1",
+        json={"favorite": True},
+    )
+    assert r.status_code == 401
+
+
+def test_patch_property_with_invalid_bearer_returns_401(client: TestClient):
+    r = client.patch(
+        "/api/properties/1",
+        headers={"Authorization": "Bearer not-a-real-jwt"},
+        json={"comment": "x"},
+    )
+    assert r.status_code == 401

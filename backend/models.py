@@ -27,6 +27,9 @@ class Property(SQLModel, table=True):
     property_type: Optional[str] = None  # "sale" | "rent"
     source: Optional[str] = None
     image_url: Optional[str] = None
+    # User-edited free text (not from scraper)
+    comment: Optional[str] = Field(default=None, max_length=2000)
+    favorite: bool = Field(default=False)
     # DB health: active, inactive (listing gone), error (scrape failed)
     status: str = Field(default="active")
     created_at: datetime = Field(default_factory=datetime.utcnow)

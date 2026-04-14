@@ -1,6 +1,6 @@
 # Task List — Monitora Imóveis MVP
 
-Última revisão alinhada ao código em `backend/` e `frontend/`.
+Última revisão alinhada ao código em `backend/` e `frontend/` (painel com CRUD, scraper multi-domínio).
 
 ## Fase 1: Setup da fundação (Backend)
 
@@ -10,7 +10,7 @@
 - [x] Modelos `Property` e `PropertyHistory` com campos usados pelo painel
 - [x] `schemas.py` — respostas Pydantic com nomes JSON em camelCase (ex.: `previousPrice`, campo `type` para venda/aluguel)
 - [x] `routers/properties.py` — `GET /api/properties`, `GET /api/properties/{id}`, `POST /api/properties`, `DELETE /api/properties/{id}`
-- [x] `scraper.py` — Playwright assíncrono; extração estruturada (Primeira Porta + fallback)
+- [x] `scraper.py` — Playwright assíncrono; Primeira Porta; **i9vale.com.br** (Kenlo); fallback genérico com padrões de URL `...-N-quartos-M-m...` quando existir
 
 ## Fase 2: Frontend (painel)
 
@@ -28,7 +28,13 @@
 - [x] `Property.user_id` + constraint única (`user_id`, `url`); rotas filtradas por usuário
 - [x] `backend/auth.py` — JWT Clerk (JWKS), `get_current_user_id`
 - [x] Dependências: `PyJWT`, `cryptography`; `backend/.env.example` com `CLERK_ISSUER`
-- [x] Smoke tests: `backend/tests/test_auth_properties.py` (401 sem token / token inválido)
+- [x] Smoke tests: `backend/tests/test_auth_properties.py` (401 sem token / token inválido; inclui `PATCH` sem auth)
+
+## Fase 2d: CRUD completo (painel + API)
+
+- [x] Modelo `Property`: `comment`, `favorite`; migração SQLite idempotente (`migrations_sqlite.py` no startup)
+- [x] `PATCH /api/properties/{id}` — corpo parcial; resposta com `listingStatus`, `comment`, `favorite`
+- [x] Frontend: `updateProperty`, `deleteProperty` na UI; `EditPropertyDialog`; favorito e exclusão com confirmação; **Sonner**; filtro e estatística de favoritos; busca por comentário
 
 ## Fase 3: Background jobs e regras de negócio
 

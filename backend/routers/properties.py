@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Annotated
+from datetime import datetime
+from typing import Annotated, Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic.alias_generators import to_camel
 from sqlmodel import Session, select
 
 from auth import get_current_user_id
@@ -15,6 +17,9 @@ from schemas import PropertyResponse, property_to_response
 from scraper import fetch_property_data
 
 router = APIRouter(prefix="/api/properties", tags=["properties"])
+
+DbPropertyStatus = Literal["active", "inactive", "error"]
+MAX_COMMENT_LEN = 2000
 
 
 class PropertyCreateBody(BaseModel):
@@ -28,6 +33,46 @@ class PropertyCreateBody(BaseModel):
             return v
         if not v.startswith(("http://", "https://")):
             v = f"https://{v}"
+        return v
+
+
+class PropertyUpdateBody(BaseModel):
+    """Partial update; JSON keys may be camelCase (alias)."""
+
+    model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
+
+    neighborhood: Optional[str] = None
+    price: Optional[float] = None
+    comment: Optional[str] = None
+    favorite: Optional[bool] = None
+    status: Optional[DbPropertyStatus] = None
+
+    @field_validator("comment")
+    @classmethod
+    def comment_len(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return None
+        s = v.strip()
+        if len(s) > MAX_COMMENT_LEN:
+            raise ValueError(
+                f"Comentário muito longo (máximo {MAX_COMMENT_LEN} caracteres).",
+            )
+        return s if s else None
+
+    @field_validator("neighborhood")
+    @classmethod
+    def strip_neighborhood(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return None
+        return v.strip()
+
+    @field_validator("price")
+    @classmethod
+    def price_non_negative(cls, v: Optional[float]) -> Optional[float]:
+        if v is None:
+            return None
+        if v < 0:
+            raise ValueError("O preço não pode ser negativo.")
         return v
 
 
@@ -145,6 +190,45 @@ async def create_property(
 
     assert prop.id is not None
     return property_to_response(prop, _histories_for(session, prop.id))
+
+
+@router.patch(
+    "/{property_id}",
+    response_model=PropertyResponse,
+    response_model_by_alias=True,
+)
+def patch_property(
+    property_id: int,
+    body: PropertyUpdateBody,
+    session: Annotated[Session, Depends(get_session)],
+    user_id: Annotated[str, Depends(get_current_user_id)],
+):
+    """Atualiza campos manuais do imóvel. Não grava linha em PropertyHistory (histórico vem do scrape/job)."""
+    prop = session.get(Property, property_id)
+    if not prop or prop.user_id != user_id:
+        raise HTTPException(status_code=404, detail="Imóvel não encontrado")
+
+    data = body.model_dump(exclude_unset=True)
+    if not data:
+        return property_to_response(prop, _histories_for(session, property_id))
+
+    if "neighborhood" in data:
+        prop.neighborhood = data["neighborhood"] or ""
+    if "price" in data:
+        prop.price = data["price"]
+    if "comment" in data:
+        prop.comment = data["comment"]
+    if "favorite" in data:
+        prop.favorite = data["favorite"]
+    if "status" in data:
+        prop.status = data["status"]
+
+    prop.updated_at = datetime.utcnow()
+    session.add(prop)
+    session.commit()
+    session.refresh(prop)
+
+    return property_to_response(prop, _histories_for(session, property_id))
 
 
 @router.delete("/{property_id}", status_code=204)

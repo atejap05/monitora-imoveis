@@ -12,6 +12,7 @@ Este documento descreve a visão de produto, o estado das fases e o backlog pós
 | **2** | Frontend (Next.js, Dashboard, UI, tema claro/escuro) | Concluída |
 | **2b** | Integração API (REST, CORS, painel com dados reais) | Concluída |
 | **2c** | Autenticação (Clerk), JWT no FastAPI, multi-tenant por `user_id` | Concluída |
+| **2d** | CRUD completo (edição manual, favoritos, exclusão na UI) | Concluída |
 | **3** | Jobs em background, re-scrape periódico, histórico de preço evolutivo | Em andamento / pendente |
 | **4** | Busca semântica (IA) | Planejada |
 
@@ -22,7 +23,7 @@ Este documento descreve a visão de produto, o estado das fases e o backlog pós
 - Repositório com `backend/` e `frontend/`.
 - FastAPI, SQLModel/SQLAlchemy, SQLite (`database.db`).
 - Playwright (Chromium headless) em `scraper.py`.
-- Extração estruturada com foco em **Primeira Porta** (regex e texto da página; fallback genérico para outros hosts).
+- Extração estruturada: **Primeira Porta**; **i9vale.com.br** (Kenlo — rótulos, URL com `-N-quartos-M-m`); **fallback genérico** para outros hosts com regex reforçadas e dicas de URL quando o slug permitir.
 - Modelos `Property` e `PropertyHistory`; campos alinhados ao painel (preço, localização, tipo venda/aluguel, etc.).
 
 ### Fase 2: Frontend e integração (Concluída)
@@ -46,11 +47,20 @@ Este documento descreve a visão de produto, o estado das fases e o backlog pós
 - **Dados:** `Property.user_id` (ID Clerk); unicidade de URL **por usuário** (`user_id` + `url`); listagem e CRUD filtrados por usuário.
 - **Variáveis:** `frontend/.env.local` (chaves Clerk), `backend/.env` (`CLERK_ISSUER` = Frontend API URL / claim `iss`). Ver [README.md](../README.md).
 
+### Fase 2d: CRUD completo (Concluída)
+
+- **Modelo:** `Property` com `comment` (até 2000 caracteres) e `favorite` (boolean); migração SQLite idempotente em [migrations_sqlite.py](../backend/migrations_sqlite.py) no arranque da API.
+- **API:** `PATCH /api/properties/{id}` com corpo parcial (camelCase via aliases Pydantic): `neighborhood`, `price`, `comment`, `favorite`, `status` (`active` \| `inactive` \| `error`). Alterar `price` aqui **não** grava `PropertyHistory` (histórico evolutivo continua ligado ao scrape / Fase 3).
+- **Resposta JSON:** além de `status` (derivado para o painel), expõe **`listingStatus`** com o status persistido no banco (útil para o formulário de edição). Inclui `comment` e `favorite`.
+- **Frontend:** `updateProperty` em [api.ts](../frontend/src/lib/api.ts); cartões com favorito (estrela), edição em dialog ([edit-property-dialog.tsx](../frontend/src/components/edit-property-dialog.tsx)), exclusão com confirmação, **Sonner** para *toasts*, `mutate` SWR após ações; filtro **Favoritos** e estatística de favoritos na barra; busca inclui comentário.
+
+**Semântica de status:** o painel continua usando `status` derivado (ex.: `price_drop`). O usuário ajusta o cadastro via `listingStatus` / campo `status` no PATCH; marcar como **indisponível** grava `inactive` no banco e reflete na UI.
+
 ### Fase 3: Comunicação avançada e jobs (Pendente)
 
 O que **já existe** hoje:
 
-- API REST: listar, obter por id, criar (com scrape) e excluir imóveis — **com autenticação** e escopo por `user_id`.
+- API REST: listar, obter por id, criar (com scrape), **atualizar parcialmente (`PATCH`)** e excluir imóveis — **com autenticação** e escopo por `user_id`.
 - Primeiro registro em `PropertyHistory` na criação.
 - Scraper trata HTTP 404/410 como indisponível; falhas de execução retornam erro ao cliente.
 

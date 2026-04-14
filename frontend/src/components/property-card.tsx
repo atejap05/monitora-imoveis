@@ -1,6 +1,6 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useCallback, useState } from "react";
 import {
   Bed,
   Bath,
@@ -11,9 +11,24 @@ import {
   ExternalLink,
   MapPin,
   Clock,
+  Pencil,
+  Star,
+  Trash2,
 } from "lucide-react";
+import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { EditPropertyDialog } from "@/components/edit-property-dialog";
+import type { GetTokenFn } from "@/lib/api";
+import { deleteProperty, updateProperty } from "@/lib/api";
 import type { Property } from "@/lib/types";
 import {
   formatCurrency,
@@ -25,6 +40,8 @@ import {
 interface PropertyCardProps {
   property: Property;
   index: number;
+  getToken: GetTokenFn;
+  onListChange: () => void;
 }
 
 function MiniSparkline({
@@ -101,13 +118,60 @@ function MiniSparkline({
   );
 }
 
-export const PropertyCard = memo(function PropertyCard({ property, index }: PropertyCardProps) {
+export const PropertyCard = memo(function PropertyCard({
+  property,
+  index,
+  getToken,
+  onListChange,
+}: PropertyCardProps) {
+  const [editOpen, setEditOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [favPending, setFavPending] = useState(false);
+  const [deletePending, setDeletePending] = useState(false);
+
   const statusConfig = getStatusConfig(property.status);
   const priceChange = getPriceChangePercent(
     property.price,
     property.previousPrice
   );
   const isInactive = property.status === "inactive";
+
+  const handleToggleFavorite = useCallback(async () => {
+    setFavPending(true);
+    try {
+      await updateProperty(
+        property.id,
+        { favorite: !property.favorite },
+        getToken,
+      );
+      toast.success(
+        property.favorite ? "Removido dos favoritos." : "Marcado como favorito.",
+      );
+      onListChange();
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Não foi possível atualizar o favorito.",
+      );
+    } finally {
+      setFavPending(false);
+    }
+  }, [getToken, onListChange, property.favorite, property.id]);
+
+  const handleDelete = useCallback(async () => {
+    setDeletePending(true);
+    try {
+      await deleteProperty(property.id, getToken);
+      toast.success("Imóvel removido do monitoramento.");
+      setDeleteOpen(false);
+      onListChange();
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Não foi possível excluir o imóvel.",
+      );
+    } finally {
+      setDeletePending(false);
+    }
+  }, [getToken, onListChange, property.id]);
 
   return (
     <Card
@@ -121,8 +185,93 @@ export const PropertyCard = memo(function PropertyCard({ property, index }: Prop
       } as React.CSSProperties}
     >
       <CardContent className="relative z-10 p-5">
+        <div className="absolute right-3 top-3 z-20 flex items-center gap-0.5 sm:right-4 sm:top-4">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-xs"
+            className={
+              property.favorite
+                ? "text-amber-400 hover:text-amber-300"
+                : "text-muted-foreground hover:text-foreground"
+            }
+            disabled={favPending}
+            onClick={() => void handleToggleFavorite()}
+            aria-label={
+              property.favorite ? "Remover dos favoritos" : "Adicionar aos favoritos"
+            }
+            title={property.favorite ? "Remover dos favoritos" : "Favoritar"}
+          >
+            <Star
+              className={`size-3.5 ${property.favorite ? "fill-current" : ""}`}
+            />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-xs"
+            className="text-muted-foreground hover:text-foreground"
+            onClick={() => setEditOpen(true)}
+            aria-label="Editar imóvel"
+            title="Editar"
+          >
+            <Pencil className="size-3.5" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-xs"
+            className="text-muted-foreground hover:text-destructive"
+            onClick={() => setDeleteOpen(true)}
+            aria-label="Excluir imóvel"
+            title="Excluir"
+          >
+            <Trash2 className="size-3.5" />
+          </Button>
+        </div>
+
+        <EditPropertyDialog
+          property={property}
+          open={editOpen}
+          onOpenChange={setEditOpen}
+          onSaved={() => onListChange()}
+        />
+
+        <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+          <DialogContent showCloseButton className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="font-heading italic">
+                Excluir imóvel?
+              </DialogTitle>
+              <DialogDescription>
+                Esta ação remove o imóvel{" "}
+                <span className="font-medium text-foreground">{property.title}</span>{" "}
+                do monitoramento. Não é possível desfazer.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setDeleteOpen(false)}
+                disabled={deletePending}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={() => void handleDelete()}
+                disabled={deletePending}
+              >
+                {deletePending ? "Excluindo…" : "Excluir"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         {/* Header: Status + Type + Sparkline */}
-        <div className="mb-4 flex items-start justify-between gap-3">
+        <div className="mb-4 flex items-start justify-between gap-3 pr-16 sm:pr-20">
           <div className="flex flex-wrap items-center gap-2">
             <Badge
               variant="outline"
@@ -147,6 +296,12 @@ export const PropertyCard = memo(function PropertyCard({ property, index }: Prop
         <h3 className="mb-1 text-base font-semibold leading-snug text-foreground group-hover:text-primary transition-colors duration-200">
           {property.title}
         </h3>
+
+        {property.comment ? (
+          <p className="mb-2 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+            {property.comment}
+          </p>
+        ) : null}
 
         {/* Address */}
         <div className="mb-4 flex items-center gap-1.5 text-xs text-muted-foreground">

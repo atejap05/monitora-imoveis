@@ -7,6 +7,7 @@ import {
   TrendingUp,
   AlertTriangle,
   Activity,
+  Star,
 } from "lucide-react";
 import type { Property } from "@/lib/types";
 
@@ -52,7 +53,9 @@ export function StatsBar({ properties }: StatsBarProps) {
   let priceDrops = 0;
   let priceUps = 0;
   let inactive = 0;
+  let favorites = 0;
   for (const p of properties) {
+    if (p.favorite) favorites++;
     if (p.status === "price_drop") priceDrops++;
     else if (p.status === "price_up") priceUps++;
     else if (p.status === "inactive") inactive++;
@@ -60,13 +63,21 @@ export function StatsBar({ properties }: StatsBarProps) {
   const active = total - inactive;
 
   return (
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+    <div className="grid grid-cols-2 gap-3 lg:grid-cols-6">
       <StatCard
         icon={<Building2 className="h-5 w-5" />}
         label="Monitorados"
         value={total}
         glowColor="oklch(0.696 0.17 162.48 / 25%)"
         delay={0}
+      />
+      <StatCard
+        icon={<Star className="h-5 w-5" />}
+        label="Favoritos"
+        value={favorites}
+        accent="bg-amber-500/10 text-amber-400"
+        glowColor="oklch(0.769 0.188 70.08 / 25%)"
+        delay={30}
       />
       <StatCard
         icon={<Activity className="h-5 w-5" />}

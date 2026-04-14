@@ -15,13 +15,13 @@ O **Monitora Imóveis** nasce com a missão de automatizar esse processo. A plat
 
 ## 🚀 Como Funciona?
 
-O usuário **faz login** (email/senha ou Google via Clerk), acessa o Painel, cola o link de um anúncio de imobiliária (ex.: *Primeira Porta*) e clica em Monitorar. Cada conta vê **apenas os próprios imóveis** monitorados.
-Em background, o sistema usa Playwright (headless) para extrair dados da página e gravar no SQLite associado ao seu `user_id`.
+O usuário **faz login** (email/senha ou Google via Clerk), acessa o Painel, cola o link de um anúncio (ex.: **Primeira Porta**, **i9vale** ou outro portal suportado pelo scraper) e clica em Monitorar. Cada conta vê **apenas os próprios imóveis** monitorados.
+Em background, o sistema usa Playwright (headless) para extrair dados da página e gravar no SQLite associado ao seu `user_id`. No painel é possível **editar** bairro, preço, comentário e status do cadastro, **favoritar** e **excluir** imóveis (Fase 2d).
 A **revisão periódica automática** de todos os anúncios (job agendado) está prevista na Fase 3 do roadmap; hoje o foco é cadastro sob demanda e leitura da lista.
 
 ## 🛠️ Tecnologias Utilizadas
 
-- **Frontend:** Next.js (App Router), React, Tailwind CSS e componentes Shadcn UI para garantia de uma interface moderna e Premium.
+- **Frontend:** Next.js (App Router), React, Tailwind CSS e componentes Shadcn UI para garantia de uma interface moderna e Premium; **SWR**, **Sonner** (*toasts*).
 - **Backend:** Python e FastAPI para garantir execuções assíncronas ágeis.
 - **Web Scraping:** Playwright para Python (lidando eficientemente com SPAs e SSR de imobiliárias).
 - **Banco de Dados:** SQLite (SQLModel), com dados por usuário (`user_id`); escalável para PostgreSQL + pgvector (Supabase/Neon).
@@ -118,9 +118,9 @@ Configure uma aplicação no [Clerk Dashboard](https://dashboard.clerk.com):
 1. Ative **Email** e **Google** (User & Authentication → Social connections).
 2. **Frontend:** em **API Keys**, copie `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` e `CLERK_SECRET_KEY` para `frontend/.env.local` (a partir de `frontend/.env.example`).
 3. **Backend:** o **`CLERK_ISSUER`** em `backend/.env` deve ser igual à **Frontend API URL** (e ao claim `iss` do JWT), na mesma página **API Keys** — não são as chaves `pk_` / `sk_`. Referência: [Manual JWT verification](https://clerk.com/docs/guides/sessions/manual-jwt-verification).
-4. **SQLite:** se você já tinha um `database.db` antigo sem a coluna `user_id`, apague `backend/database.db` para recriar o schema na próxima subida da API.
+4. **SQLite:** se você já tinha um `database.db` antigo sem a coluna `user_id`, apague `backend/database.db` para recriar o schema na próxima subida da API. Colunas posteriores (`comment`, `favorite`) são aplicadas por migração idempotente no startup — ver [backend/README.md](backend/README.md).
 
-A API valida o JWT em todas as rotas `/api/properties`; cada usuário vê apenas os próprios imóveis.
+A API valida o JWT em todas as rotas `/api/properties`; cada usuário vê apenas os próprios imóveis. **CRUD completo (Fase 2d):** além de `GET`, `POST` e `DELETE`, existe **`PATCH /api/properties/{id}`** (JSON parcial em camelCase) para bairro, preço, comentário (`comment`), favorito (`favorite`) e status persistido (`status`: `active` \| `inactive` \| `error`). A resposta inclui **`listingStatus`** (valor no banco) e **`status`** (derivado para o painel: ativo, indisponível, preço subiu/caiu). No dashboard: editar, favoritar e excluir (com confirmação e *toast*).
 
 **Variável opcional:** `NEXT_PUBLIC_API_URL` — só se a API não estiver no mesmo host com rewrite para `localhost:8000` em desenvolvimento.
 
@@ -154,7 +154,7 @@ Documentação detalhada:
 
 | Documento | Conteúdo |
 |-----------|----------|
-| [docs/roadmap.md](docs/roadmap.md) | Fases do produto (1–4), Fase 2c auth, backlog |
+| [docs/roadmap.md](docs/roadmap.md) | Fases do produto (1–4), auth, CRUD (2d), backlog |
 | [docs/tasks.md](docs/tasks.md) | Checklist de tarefas por fase |
 | [docs/arquitetura.md](docs/arquitetura.md) | Componentes, fluxos, contrato da API com Bearer |
 | [docs/database-evaluation.md](docs/database-evaluation.md) | Schema SQLite vs boas práticas |

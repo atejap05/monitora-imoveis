@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
 PropertyStatus = Literal["active", "inactive", "price_drop", "price_up"]
+ListingStatus = Literal["active", "inactive", "error"]
 
 
 class PropertyHistoryItemResponse(BaseModel):
@@ -37,8 +38,13 @@ class PropertyResponse(BaseModel):
     # JSON key must be "type" for the frontend (not propertyType)
     property_type: Literal["sale", "rent"] = Field(serialization_alias="type")
     status: PropertyStatus
+    listing_status: ListingStatus = Field(
+        description="Status persistido no banco (edição manual / scraper).",
+    )
     source: str
     image_url: str
+    comment: str
+    favorite: bool
     created_at: str
     updated_at: str
     history: list[PropertyHistoryItemResponse]
@@ -105,6 +111,11 @@ def property_to_response(
     if pt not in ("sale", "rent"):
         pt = "sale"
 
+    db_raw = prop.status or "active"
+    listing_status: ListingStatus = (
+        db_raw if db_raw in ("active", "inactive", "error") else "active"
+    )
+
     return PropertyResponse(
         id=prop.id,
         url=prop.url,
@@ -121,8 +132,11 @@ def property_to_response(
         city=prop.city or "",
         property_type=pt,  # alias "type" in JSON
         status=display_status,
+        listing_status=listing_status,
         source=prop.source or "—",
         image_url=prop.image_url or "",
+        comment=getattr(prop, "comment", None) or "",
+        favorite=bool(getattr(prop, "favorite", False)),
         created_at=prop.created_at.isoformat().replace("+00:00", "Z"),
         updated_at=prop.updated_at.isoformat().replace("+00:00", "Z"),
         history=history_items,

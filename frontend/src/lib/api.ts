@@ -1,4 +1,4 @@
-import type { Property } from "@/lib/types";
+import type { Property, PropertyUpdatePayload } from "@/lib/types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 
@@ -91,4 +91,28 @@ export async function deleteProperty(
     const err = await res.json().catch(() => ({}));
     throw new Error(parseErrorDetail(err));
   }
+}
+
+export async function updateProperty(
+  id: number,
+  body: PropertyUpdatePayload,
+  getToken: GetTokenFn,
+): Promise<Property> {
+  const headers = {
+    "Content-Type": "application/json",
+    ...(await authHeader(getToken)),
+  };
+  const res = await fetch(`${API_BASE}/api/properties/${id}`, {
+    method: "PATCH",
+    headers,
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    if (res.status === 401) {
+      throw new Error("Não autorizado. Faça login novamente.");
+    }
+    const err = await res.json().catch(() => ({}));
+    throw new Error(parseErrorDetail(err));
+  }
+  return res.json() as Promise<Property>;
 }

@@ -1,6 +1,6 @@
 # Frontend — Monitora Imóveis
 
-App **Next.js 16** (App Router) com **Clerk** para autenticação, **SWR** para dados e proxy de `/api/*` para o FastAPI.
+App **Next.js 16** (App Router) com **Clerk** para autenticação, **SWR** para dados, **Sonner** para notificações e proxy de `/api/*` para o FastAPI.
 
 ## Configuração e execução
 
@@ -15,5 +15,6 @@ Resumo:
 
 - `src/app/` — rotas (`/`, `/sign-in`, `/sign-up`)
 - `src/middleware.ts` — proteção de páginas com Clerk
-- `src/lib/api.ts` — chamadas à API com `Authorization: Bearer`
+- `src/lib/api.ts` — chamadas à API com `Authorization: Bearer` (`fetchProperties`, `addProperty`, `updateProperty`, `deleteProperty`)
+- `src/components/property-card.tsx`, `edit-property-dialog.tsx` — ações de favorito, edição e exclusão
 - `next.config.ts` — rewrite `/api/*` → backend em desenvolvimento

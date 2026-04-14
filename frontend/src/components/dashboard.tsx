@@ -49,10 +49,11 @@ const ModeToggle = dynamic(
   },
 );
 
-type FilterStatus = "all" | PropertyStatus;
+type FilterStatus = "all" | PropertyStatus | "favorites";
 
 const STATUS_FILTERS: { value: FilterStatus; label: string }[] = [
   { value: "all", label: "Todos" },
+  { value: "favorites", label: "Favoritos" },
   { value: "active", label: "Ativos" },
   { value: "price_drop", label: "Preço caiu" },
   { value: "price_up", label: "Preço subiu" },
@@ -145,10 +146,15 @@ export function Dashboard() {
         q === "" ||
         property.title.toLowerCase().includes(q) ||
         property.neighborhood.toLowerCase().includes(q) ||
-        property.city.toLowerCase().includes(q);
+        property.city.toLowerCase().includes(q) ||
+        property.comment.toLowerCase().includes(q);
 
       const matchesStatus =
-        statusFilter === "all" || property.status === statusFilter;
+        statusFilter === "all"
+          ? true
+          : statusFilter === "favorites"
+            ? property.favorite
+            : property.status === statusFilter;
 
       return matchesSearch && matchesStatus;
     });
@@ -164,6 +170,10 @@ export function Dashboard() {
     },
     [mutate],
   );
+
+  const handleListRefresh = useCallback(() => {
+    void mutate();
+  }, [mutate]);
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -229,7 +239,7 @@ export function Dashboard() {
           <Input
             id="search-properties-input"
             type="search"
-            placeholder="Buscar por título, bairro..."
+            placeholder="Buscar por título, bairro, comentário..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="h-10 border-border/40 bg-secondary/30 pl-10 text-sm placeholder:text-muted-foreground/50 focus-visible:ring-0 focus-visible:border-transparent"
@@ -254,13 +264,15 @@ export function Dashboard() {
                 {filter.value !== "all" ? (
                   <span
                     className={`h-1.5 w-1.5 rounded-full ${
-                      filter.value === "active"
-                        ? "bg-emerald-400"
-                        : filter.value === "price_drop"
+                      filter.value === "favorites"
+                        ? "bg-amber-400"
+                        : filter.value === "active"
                           ? "bg-emerald-400"
-                          : filter.value === "price_up"
-                            ? "bg-amber-400"
-                            : "bg-rose-400"
+                          : filter.value === "price_drop"
+                            ? "bg-emerald-400"
+                            : filter.value === "price_up"
+                              ? "bg-amber-400"
+                              : "bg-rose-400"
                     } ${isActive ? "opacity-100" : "opacity-50"}`}
                   />
                 ) : null}
@@ -286,7 +298,13 @@ export function Dashboard() {
             className={`grid gap-4 sm:grid-cols-2 lg:grid-cols-3 ${isFilterPending ? "opacity-80" : ""}`}
           >
             {filteredProperties.map((property, index) => (
-              <PropertyCard key={property.id} property={property} index={index} />
+              <PropertyCard
+                key={property.id}
+                property={property}
+                index={index}
+                getToken={getToken}
+                onListChange={handleListRefresh}
+              />
             ))}
           </div>
         ) : (
