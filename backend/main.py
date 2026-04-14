@@ -1,5 +1,7 @@
 import logging
+import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
@@ -9,19 +11,34 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 for _name in ("monitora.jobs", "monitora.scheduler"):
     logging.getLogger(_name).setLevel(logging.INFO)
+from alembic import command
+from alembic.config import Config
 from fastapi.middleware.cors import CORSMiddleware
 
-from database import create_db_and_tables, engine
+from database import DATABASE_URL, create_db_and_tables, engine
 from migrations_sqlite import migrate_sqlite_schema
 from routers.jobs import router as jobs_router
 from routers.properties import router as properties_router
 from scheduler import shutdown_scheduler, start_scheduler
 
 
+def _run_startup_schema() -> None:
+    """SQLite dev: create_all + idempotent ALTERs. PostgreSQL: Alembic upgrade."""
+    if os.environ.get("TESTING") == "1":
+        create_db_and_tables()
+        migrate_sqlite_schema(engine)
+        return
+    if DATABASE_URL:
+        alembic_cfg = Config(str(Path(__file__).resolve().parent / "alembic.ini"))
+        command.upgrade(alembic_cfg, "head")
+    else:
+        create_db_and_tables()
+        migrate_sqlite_schema(engine)
+
+
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    create_db_and_tables()
-    migrate_sqlite_schema(engine)
+    _run_startup_schema()
     start_scheduler()
     yield
     shutdown_scheduler()

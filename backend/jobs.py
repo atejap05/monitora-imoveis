@@ -7,6 +7,7 @@ import logging
 import math
 import os
 from datetime import datetime, timezone
+from decimal import Decimal
 from typing import Any
 
 from sqlalchemy.engine import Engine
@@ -95,10 +96,17 @@ def _price_equal(a: float | None, b: float | None) -> bool:
     return math.isclose(float(a), float(b), rel_tol=0.0, abs_tol=0.01)
 
 
-def _normalize_active_price(price: float | None) -> float:
+def _normalize_active_price(price: object | None) -> float:
     if price is None:
         return 0.0
     return float(price)
+
+
+def _decimal_money(value: object | None) -> Decimal:
+    """Persist scraper / ORM numeric values as Decimal for Numeric columns."""
+    if value is None:
+        return Decimal("0")
+    return Decimal(str(float(value)))
 
 
 def _merge_listing_fields(prop: Property, data: dict[str, Any]) -> None:
@@ -127,9 +135,9 @@ def _merge_listing_fields(prop: Property, data: dict[str, Any]) -> None:
     if data.get("image_url"):
         prop.image_url = data.get("image_url")
     if data.get("condo_fee") is not None:
-        prop.condo_fee = data.get("condo_fee")
+        prop.condo_fee = _decimal_money(data.get("condo_fee"))
     if data.get("iptu") is not None:
-        prop.iptu = data.get("iptu")
+        prop.iptu = _decimal_money(data.get("iptu"))
     if data.get("description"):
         prop.description = data.get("description")
     if data.get("reference_code"):
@@ -166,7 +174,7 @@ def apply_scrape_to_property(
 
     if data.get("status") == "inactive":
         logger.debug("apply_scrape: property_id=%s listing inactive (404/410)", prop_id)
-        hist_price = _normalize_active_price(prop.price)
+        hist_price = _decimal_money(prop.price)
         prop.status = "inactive"
         prop.updated_at = now
         session.add(prop)
@@ -192,13 +200,13 @@ def apply_scrape_to_property(
     if old_status == "inactive":
         _merge_listing_fields(prop, data)
         prop.status = "active"
-        prop.price = new_price_norm
+        prop.price = _decimal_money(new_price)
         prop.previous_price = old_price if old_price is not None else None
         prop.updated_at = now
         session.add(prop)
         hist = PropertyHistory(
             property_id=prop_id,
-            price=new_price_norm,
+            price=_decimal_money(new_price),
             status="active",
         )
         session.add(hist)
@@ -208,7 +216,7 @@ def apply_scrape_to_property(
             "id": prop_id,
             "status": "reactivated",
             "old_price": float(old_price) if old_price is not None else None,
-            "new_price": new_price_norm,
+            "new_price": float(new_price_norm),
         }
 
     _merge_listing_fields(prop, data)
@@ -222,13 +230,13 @@ def apply_scrape_to_property(
             new_price_norm,
         )
         prop.previous_price = old_price if old_price is not None else None
-        prop.price = new_price_norm
+        prop.price = _decimal_money(new_price)
         prop.status = "active"
         prop.updated_at = now
         session.add(prop)
         hist = PropertyHistory(
             property_id=prop_id,
-            price=new_price_norm,
+            price=_decimal_money(new_price),
             status="active",
         )
         session.add(hist)
@@ -238,7 +246,7 @@ def apply_scrape_to_property(
             "id": prop_id,
             "status": "price_changed",
             "old_price": float(old_price) if old_price is not None else None,
-            "new_price": new_price_norm,
+            "new_price": float(new_price_norm),
         }
 
     logger.debug("apply_scrape: property_id=%s unchanged price=%s", prop_id, new_price_norm)

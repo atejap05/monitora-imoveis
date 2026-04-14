@@ -1,7 +1,8 @@
-from typing import Optional, List
 from datetime import datetime
+from decimal import Decimal
+from typing import List, Optional
 
-from sqlalchemy import UniqueConstraint
+from sqlalchemy import Column, ForeignKey, Integer, Numeric, UniqueConstraint
 from sqlmodel import Field, Relationship, SQLModel
 
 
@@ -14,8 +15,14 @@ class Property(SQLModel, table=True):
     user_id: str = Field(index=True)
     url: str = Field(index=True)
     title: Optional[str] = None
-    price: Optional[float] = None
-    previous_price: Optional[float] = None
+    price: Optional[Decimal] = Field(
+        default=None,
+        sa_column=Column(Numeric(12, 2), nullable=True),
+    )
+    previous_price: Optional[Decimal] = Field(
+        default=None,
+        sa_column=Column(Numeric(12, 2), nullable=True),
+    )
     bedrooms: Optional[int] = None
     bathrooms: Optional[int] = None
     suites: Optional[int] = None
@@ -30,8 +37,14 @@ class Property(SQLModel, table=True):
     # User-edited free text (not from scraper)
     comment: Optional[str] = Field(default=None, max_length=2000)
     favorite: bool = Field(default=False)
-    condo_fee: Optional[float] = None
-    iptu: Optional[float] = None
+    condo_fee: Optional[Decimal] = Field(
+        default=None,
+        sa_column=Column(Numeric(12, 2), nullable=True),
+    )
+    iptu: Optional[Decimal] = Field(
+        default=None,
+        sa_column=Column(Numeric(12, 2), nullable=True),
+    )
     description: Optional[str] = None
     reference_code: Optional[str] = None
     # DB health: active, inactive (listing gone), error (scrape failed)
@@ -44,8 +57,18 @@ class Property(SQLModel, table=True):
 
 class PropertyHistory(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    property_id: int = Field(foreign_key="property.id")
-    price: Optional[float] = None
+    property_id: int = Field(
+        sa_column=Column(
+            Integer,
+            ForeignKey("property.id", ondelete="CASCADE"),
+            nullable=False,
+            index=True,
+        ),
+    )
+    price: Optional[Decimal] = Field(
+        default=None,
+        sa_column=Column(Numeric(12, 2), nullable=True),
+    )
     status: str = Field(default="active")
     checked_at: datetime = Field(default_factory=datetime.utcnow)
 

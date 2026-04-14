@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from decimal import Decimal
 from typing import Annotated, Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -25,6 +26,12 @@ from scraper import fetch_property_data
 router = APIRouter(prefix="/api/properties", tags=["properties"])
 
 DbPropertyStatus = Literal["active", "inactive", "error"]
+
+
+def _to_decimal(value: float | None) -> Decimal | None:
+    if value is None:
+        return None
+    return Decimal(str(value))
 MAX_COMMENT_LEN = 2000
 
 
@@ -179,11 +186,12 @@ async def create_property(
     if data.get("status") == "inactive":
         db_status = "inactive"
 
+    raw_price = data.get("price")
     prop = Property(
         user_id=user_id,
         url=url,
         title=data.get("title"),
-        price=data.get("price"),
+        price=_to_decimal(raw_price) if raw_price is not None else None,
         previous_price=None,
         bedrooms=data.get("bedrooms"),
         bathrooms=data.get("bathrooms"),
@@ -196,15 +204,15 @@ async def create_property(
         property_type=data.get("property_type") or "sale",
         source=data.get("source"),
         image_url=data.get("image_url"),
-        condo_fee=data.get("condo_fee"),
-        iptu=data.get("iptu"),
+        condo_fee=_to_decimal(data.get("condo_fee")),
+        iptu=_to_decimal(data.get("iptu")),
         description=data.get("description"),
         reference_code=data.get("reference_code"),
         status=db_status,
     )
 
     if prop.price is None and db_status == "active":
-        prop.price = 0.0
+        prop.price = Decimal("0")
 
     session.add(prop)
     session.commit()
@@ -246,7 +254,7 @@ def patch_property(
     if "neighborhood" in data:
         prop.neighborhood = data["neighborhood"] or ""
     if "price" in data:
-        prop.price = data["price"]
+        prop.price = _to_decimal(data["price"])
     if "comment" in data:
         prop.comment = data["comment"]
     if "favorite" in data:
@@ -272,8 +280,6 @@ def delete_property(
     if not prop or prop.user_id != user_id:
         raise HTTPException(status_code=404, detail="Imóvel não encontrado")
 
-    for h in _histories_for(session, property_id):
-        session.delete(h)
     session.delete(prop)
     session.commit()
     return None

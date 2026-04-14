@@ -11,6 +11,13 @@ PropertyStatus = Literal["active", "inactive", "price_drop", "price_up"]
 ListingStatus = Literal["active", "inactive", "error"]
 
 
+def _optional_money_float(value: object | None) -> Optional[float]:
+    """Serialize Decimal or float money fields to JSON float."""
+    if value is None:
+        return None
+    return float(value)
+
+
 class PropertyHistoryItemResponse(BaseModel):
     model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
 
@@ -115,13 +122,16 @@ def property_to_response(
         raise TypeError("prop must be a Property model instance")
 
     price = prop.price if prop.price is not None else 0.0
+    price_f = float(price)
     prev = prop.previous_price
+    prev_f = _optional_money_float(prev)
 
-    display_status = _frontend_status(prop.status, prop.price, prev)
+    display_status = _frontend_status(prop.status, price_f, prev_f)
 
     history_items: list[PropertyHistoryItemResponse] = []
     for h in sorted(histories, key=lambda x: x.checked_at):
-        h_price = h.price if h.price is not None else price
+        raw_hp = h.price if h.price is not None else price
+        h_price = float(raw_hp)
         h_status: PropertyStatus
         if h.status in ("inactive", "error"):
             h_status = "inactive"
@@ -138,7 +148,7 @@ def property_to_response(
     if not history_items:
         history_items.append(
             PropertyHistoryItemResponse(
-                price=float(price),
+                price=price_f,
                 date=prop.updated_at.date().isoformat(),
                 status="inactive"
                 if display_status == "inactive"
@@ -159,8 +169,8 @@ def property_to_response(
         id=prop.id,
         url=prop.url,
         title=prop.title or "Imóvel",
-        price=float(price),
-        previous_price=prev,
+        price=price_f,
+        previous_price=prev_f,
         bedrooms=prop.bedrooms or 0,
         bathrooms=prop.bathrooms or 0,
         suites=prop.suites or 0,
@@ -176,8 +186,8 @@ def property_to_response(
         image_url=prop.image_url or "",
         comment=getattr(prop, "comment", None) or "",
         favorite=bool(getattr(prop, "favorite", False)),
-        condo_fee=getattr(prop, "condo_fee", None),
-        iptu=getattr(prop, "iptu", None),
+        condo_fee=_optional_money_float(getattr(prop, "condo_fee", None)),
+        iptu=_optional_money_float(getattr(prop, "iptu", None)),
         description=getattr(prop, "description", None),
         reference_code=getattr(prop, "reference_code", None),
         created_at=prop.created_at.isoformat().replace("+00:00", "Z"),

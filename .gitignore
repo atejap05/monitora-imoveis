@@ -4,6 +4,7 @@ backend/__pycache__/
 backend/*.pyc
 backend/database.db
 backend/pw-browsers/
+backend/.env.example
 backend/.env
 
 # Frontend

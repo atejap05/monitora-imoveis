@@ -15,11 +15,11 @@ Este documento descreve a visão de produto, o estado das fases e o backlog pós
 | **2d** | CRUD completo (edição manual, favoritos, exclusão na UI)                                    | Concluída |
 | **3**  | Jobs em background, re-scrape periódico, histórico de preço evolutivo                       | Concluída |
 | **4**  | Busca semântica (IA)                                                                        | Planejada |
-| **5**  | Migração para PostgreSQL (produção), Alembic/migrações versionadas, deploy (API + frontend) | Próxima   |
+| **5**  | Migração para PostgreSQL (produção), Alembic/migrações versionadas, deploy (API + frontend) | Em andamento |
 
 ---
 
-**Estado atual (snapshot):** o MVP está funcional em desenvolvimento local: FastAPI e SQLite (`database.db`, migrações idempotentes em `migrations_sqlite.py`), Next.js com dados reais via rewrite para a API, Clerk e fluxos das Fases 2c–3 concluídos. Ainda não há banco gerenciado em produção, pipeline de deploy nem URL pública da API; o trabalho imediato concentra-se na Fase 5 antes de evoluir a Fase 4 (IA) e o restante do backlog.
+**Estado atual (snapshot):** o MVP está funcional em desenvolvimento local: FastAPI com **SQLite** (`database.db`, `migrations_sqlite.py` idempotente) quando `DATABASE_URL` não está definido; com **`DATABASE_URL`** (ex.: **Neon** + `postgresql+psycopg://...`) o backend usa **PostgreSQL** e **Alembic** (`alembic/`, `alembic upgrade head` no arranque). Script opcional `backend/scripts/migrate_data.py` para copiar dados do SQLite para o Neon. Next.js com dados reais via rewrite para a API, Clerk e fluxos das Fases 2c–3 concluídos. **Pendente na Fase 5:** pipeline de deploy (API + frontend) e URL pública da API; o trabalho seguinte concentra-se nisso antes de evoluir a Fase 4 (IA) e o restante do backlog.
 
 ---
 
@@ -86,8 +86,8 @@ Ordem sugerida: **primeiro** estabilizar dados e hospedagem (**Fase 5**); **depo
 
 ### Prioridade imediata — Fase 5 (migração + deploy)
 
-- **PostgreSQL em produção:** provisionar instância (ex.: **Neon** ou **Supabase**, alinhado ao [README.md](../README.md)); trocar o engine fixo em [`database.py`](../backend/database.py) por conexão via **`DATABASE_URL`** (ou variável equivalente); validar tipos SQLModel/SQLAlchemy com Postgres (constraints, unicidade `user_id` + `url`).
-- **Migrações versionadas:** introduzir **Alembic** (ou fluxo equivalente na plataforma) em substituição parcial ao modelo “`create_all` + `migrations_sqlite.py`” do SQLite local — necessário para evolução segura do schema em produção; ver notas em [backend/README.md](../backend/README.md) e checklist em [database-evaluation.md](database-evaluation.md) (FK, índices em `propertyhistory.property_id`, opcional `Numeric` para preços na mesma janela, se couber).
-- **Dados existentes:** planejar export/import ou cutover do SQLite de dev para o ambiente gerenciado (script one-off ou ferramenta da plataforma).
+- **PostgreSQL em produção:** **implementado** — [`database.py`](../backend/database.py) lê **`DATABASE_URL`** (ex.: **Neon** com `postgresql+psycopg://...?sslmode=require`); sem variável, mantém SQLite local. Constraints e unicidade `user_id` + `url` aplicadas no Postgres.
+- **Migrações versionadas:** **Alembic** em [`backend/alembic/`](../backend/alembic/); SQLite local continua com `create_all` + [`migrations_sqlite.py`](../backend/migrations_sqlite.py). Ver [backend/README.md](../backend/README.md) e [database-evaluation.md](database-evaluation.md).
+- **Dados existentes:** script one-off [`backend/scripts/migrate_data.py`](../backend/scripts/migrate_data.py) (SQLite → Postgres com `TRUNCATE` + `setval` das sequences).
 - **Deploy do backend:** imagem **Docker** (ou serviço com suporte a processo longo) com **Playwright/Chromium** disponível; expor HTTPS; configurar `CLERK_ISSUER`, **CORS** para a origem do frontend em produção e limite de recursos para o scheduler (`RESCRAPE_*`).
 - **Deploy do frontend:** **Vercel** (ou similar); ajustar **rewrite/proxy** de `/api/*` para a **URL base da API pública** (deixar de apontar só para `localhost:8000`); variáveis **Clerk** do ambiente de produção.

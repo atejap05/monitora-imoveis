@@ -16,15 +16,15 @@ O **Monitora Imóveis** nasce com a missão de automatizar esse processo. A plat
 ## 🚀 Como Funciona?
 
 O usuário **faz login** (email/senha ou Google via Clerk), acessa o Painel, cola o link de um anúncio (ex.: **Primeira Porta**, **i9vale** ou outro portal suportado pelo scraper) e clica em Monitorar. Cada conta vê **apenas os próprios imóveis** monitorados.
-Em background, o sistema usa Playwright (headless) para extrair dados da página e gravar no SQLite associado ao seu `user_id`. No painel é possível **editar** bairro, preço, comentário e status do cadastro, **favoritar** e **excluir** imóveis (Fase 2d).
-A **revisão periódica automática** de todos os anúncios (job agendado) está prevista na Fase 3 do roadmap; hoje o foco é cadastro sob demanda e leitura da lista.
+Em background, o sistema usa Playwright (headless) para extrair dados da página e gravar no banco (por defeito **SQLite** local; com `DATABASE_URL`, **PostgreSQL** ex.: Neon) associado ao seu `user_id`. No painel é possível **editar** bairro, preço, comentário e status do cadastro, **favoritar** e **excluir** imóveis (Fase 2d).
+A **revisão periódica automática** de anúncios (job agendado) está implementada (Fase 3); ver roadmap.
 
 ## 🛠️ Tecnologias Utilizadas
 
 - **Frontend:** Next.js (App Router), React, Tailwind CSS e componentes Shadcn UI para garantia de uma interface moderna e Premium; **SWR**, **Sonner** (*toasts*).
 - **Backend:** Python e FastAPI para garantir execuções assíncronas ágeis.
 - **Web Scraping:** Playwright para Python (lidando eficientemente com SPAs e SSR de imobiliárias).
-- **Banco de Dados:** SQLite (SQLModel), com dados por usuário (`user_id`); escalável para PostgreSQL + pgvector (Supabase/Neon).
+- **Banco de Dados:** SQLModel; **SQLite** em dev se `DATABASE_URL` estiver vazio; **PostgreSQL** (ex.: Neon) em produção via `DATABASE_URL` + Alembic. Dados por usuário (`user_id`). Futuro: pgvector para IA.
 - **Autenticação:** [Clerk](https://clerk.com) (login no frontend, JWT validado no FastAPI).
 - **IA e Buscas Avançadas:** NLP e vetores a serem definidos usando bibliotecas de embeddings do ecossistema RAG.
 
@@ -44,7 +44,7 @@ Você precisa de **dois terminais**: um para o backend (API na porta **8000**) e
 
 ### 1. Backend (FastAPI + Playwright)
 
-Entre na pasta `backend`, crie o ambiente virtual, instale dependências e os binários do Playwright (Chromium). **Antes de subir a API**, crie `backend/.env` a partir de `backend/.env.example` e defina `CLERK_ISSUER` (detalhes na secção **Autenticação (Clerk)** abaixo); sem isso, as rotas `/api/properties` não validam o JWT corretamente. Opcional: `RESCRAPE_INTERVAL_HOURS` e `RESCRAPE_MAX_CONCURRENT` (job agendado de re-scrape; ver `.env.example`). Para desativar o APScheduler (ex.: testes), use `DISABLE_SCHEDULER=1`.
+Entre na pasta `backend`, crie o ambiente virtual, instale dependências e os binários do Playwright (Chromium). **Antes de subir a API**, crie `backend/.env` a partir de `backend/.env.example` e defina `CLERK_ISSUER` (detalhes na secção **Autenticação (Clerk)** abaixo); sem isso, as rotas `/api/properties` não validam o JWT corretamente. Opcional: **`DATABASE_URL`** (PostgreSQL/Neon, driver `postgresql+psycopg://...?sslmode=require`); se omitido, usa-se SQLite (`database.db`). Opcional: `RESCRAPE_INTERVAL_HOURS` e `RESCRAPE_MAX_CONCURRENT` (job agendado de re-scrape; ver `.env.example`). Para desativar o APScheduler (ex.: testes), use `DISABLE_SCHEDULER=1`.
 
 Sempre que atualizar o repositório (`git pull`), execute de novo `pip install -r requirements.txt` no venv para pegar dependências novas (por exemplo PyJWT para validação de tokens).
 
@@ -118,7 +118,7 @@ Configure uma aplicação no [Clerk Dashboard](https://dashboard.clerk.com):
 1. Ative **Email** e **Google** (User & Authentication → Social connections).
 2. **Frontend:** em **API Keys**, copie `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` e `CLERK_SECRET_KEY` para `frontend/.env.local` (a partir de `frontend/.env.example`).
 3. **Backend:** o **`CLERK_ISSUER`** em `backend/.env` deve ser igual à **Frontend API URL** (e ao claim `iss` do JWT), na mesma página **API Keys** — não são as chaves `pk_` / `sk_`. Referência: [Manual JWT verification](https://clerk.com/docs/guides/sessions/manual-jwt-verification).
-4. **SQLite:** se você já tinha um `database.db` antigo sem a coluna `user_id`, apague `backend/database.db` para recriar o schema na próxima subida da API. Colunas posteriores (`comment`, `favorite`) são aplicadas por migração idempotente no startup — ver [backend/README.md](backend/README.md).
+4. **SQLite (sem `DATABASE_URL`):** se você já tinha um `database.db` antigo sem a coluna `user_id`, apague `backend/database.db` para recriar o schema na próxima subida da API. Colunas posteriores (`comment`, `favorite`) são aplicadas por migração idempotente no startup — ver [backend/README.md](backend/README.md). Com **PostgreSQL**, use Alembic (`backend/alembic/`).
 
 A API valida o JWT em todas as rotas `/api/properties`; cada usuário vê apenas os próprios imóveis. **CRUD completo (Fase 2d):** além de `GET`, `POST` e `DELETE`, existe **`PATCH /api/properties/{id}`** (JSON parcial em camelCase) para bairro, preço, comentário (`comment`), favorito (`favorite`) e status persistido (`status`: `active` \| `inactive` \| `error`). A resposta inclui **`listingStatus`** (valor no banco) e **`status`** (derivado para o painel: ativo, indisponível, preço subiu/caiu). No dashboard: editar, favoritar e excluir (com confirmação e *toast*).
 
@@ -144,7 +144,7 @@ A API valida o JWT em todas as rotas `/api/properties`; cada usuário vê apenas
 
 ```text
 monitora-imoveis/
-├── backend/          # API FastAPI, auth JWT (Clerk), scraping (Playwright), SQLite — ver backend/README.md
+├── backend/          # API FastAPI, auth JWT (Clerk), scraping (Playwright), SQLite ou Postgres — ver backend/README.md
 ├── frontend/         # App Next.js (Clerk, Dashboard) — ver frontend/README.md
 ├── docs/             # Roadmap, tasks, arquitetura, avaliação de schema
 └── README.md
@@ -157,5 +157,5 @@ Documentação detalhada:
 | [docs/roadmap.md](docs/roadmap.md) | Fases do produto (1–4), auth, CRUD (2d), backlog |
 | [docs/tasks.md](docs/tasks.md) | Checklist de tarefas por fase |
 | [docs/arquitetura.md](docs/arquitetura.md) | Componentes, fluxos, contrato da API com Bearer |
-| [docs/database-evaluation.md](docs/database-evaluation.md) | Schema SQLite vs boas práticas |
+| [docs/database-evaluation.md](docs/database-evaluation.md) | Schema e boas práticas (SQLite dev / Postgres prod) |
 | [docs/portals-scraping.md](docs/portals-scraping.md) | Portais suportados, URLs e limitações de scraping |
