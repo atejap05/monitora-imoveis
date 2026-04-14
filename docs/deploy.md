@@ -104,6 +104,54 @@ Push para registry (GHCR, ECR) e deploy automático podem ser acrescentados depo
 
 ---
 
+## Deploy no Render (backend com Docker)
+
+Com base na [documentação Render](https://render.com/docs/web-services) (web services, Docker, variável `PORT`, monorepos):
+
+### Pré-requisitos
+
+1. Código no **GitHub** (ou GitLab / Bitbucket) com o repositório do **monitora-imoveis** acessível ao Render.
+2. Conta Render ligada ao fornecedor Git (**Account Settings → Git**).
+
+### Passo a passo
+
+1. **Dashboard Render** → **New** → **Web Service**.
+2. **Connect** o repositório e escolhe o branch (ex.: `main`).
+3. **Name:** ex. `monitora-imoveis-api`.
+4. **Region:** a mais próxima dos utilizadores (ex.: Frankfurt).
+5. **Root Directory:** `backend` — obrigatório neste monorepo para o build usar a pasta certa ([monorepo](https://render.com/docs/monorepo-support)).
+6. **Runtime:** **Docker** (Render constrói a partir do [`Dockerfile`](../backend/Dockerfile) nessa pasta).
+7. **Dockerfile Path:** `Dockerfile` (relativo ao *root directory* `backend`).
+8. **Instance type:** *Free* ou pago, conforme o plano.
+9. **Health Check Path:** `/` (o `GET /` da API responde JSON de estado).
+
+10. **Environment** → **Add Environment Variable** (não commits segredos no Git):
+
+    | Key | Valor |
+    |-----|--------|
+    | `DATABASE_URL` | Connection string do Neon (com `?sslmode=require` se aplicável). |
+    | `CLERK_ISSUER` | **Frontend API URL** do Clerk (igual ao claim `iss` do JWT). |
+    | `CORS_ORIGINS` | Origem do frontend em produção (ex.: `https://xxx.vercel.app`). Separar várias origens por vírgula. |
+    | `RESCRAPE_INTERVAL_HOURS` | Opcional (ex.: `12`). |
+    | `RESCRAPE_MAX_CONCURRENT` | Opcional (ex.: `2`). |
+
+    O Render injeta **`PORT`** automaticamente; o [`Dockerfile`](../backend/Dockerfile) usa `${PORT:-8000}` para o uvicorn ouvir na porta correta ([documentação `PORT`](https://render.com/docs/environment-variables)).
+
+11. **Create Web Service** e aguarda o primeiro deploy (build Docker + Playwright pode demorar vários minutos).
+
+12. Copia o URL público (ex.: `https://monitora-imoveis-api.onrender.com`) e usa-o em **`NEXT_PUBLIC_API_URL`** no frontend (sem `/` final).
+
+### Free tier
+
+Serviços **free** podem **hibernar** após inatividade; o primeiro pedido após dormir pode demorar (cold start). Adequado para testes e tráfego baixo — ver [preços e limites](https://render.com/pricing) atuais.
+
+### Problemas comuns
+
+- **Deploy failed / health check:** confirma que a app faz bind em **`0.0.0.0`** e na variável **`PORT`** (já coberto no Dockerfile).
+- **CORS no browser:** `CORS_ORIGINS` tem de coincidir **exatamente** com a origem do site (esquema + host).
+
+---
+
 ## Checklist pré go-live
 
 - [ ] Migrações aplicadas (`alembic_version` / tabelas criadas no Neon).

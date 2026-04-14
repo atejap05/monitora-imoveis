@@ -1,6 +1,7 @@
 # FastAPI + Playwright (Chromium) para scraping em produção.
 # Build: docker build -f Dockerfile .
-# Run:  docker run --env-file .env -p 8000:8000 <image>
+# Run local: docker run --env-file .env -p 8000:8000 <image>
+# Render (e outros PaaS) injetam PORT; se ausente, usa-se 8000.
 
 FROM python:3.11-slim-bookworm
 
@@ -22,4 +23,5 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# shell form: PORT vem do ambiente (Render default ~10000); local sem PORT → 8000
+CMD ["sh", "-c", "exec uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
