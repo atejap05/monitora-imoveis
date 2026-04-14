@@ -150,12 +150,12 @@ export function Dashboard() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex items-start gap-4">
             <div
-              className="mt-1.5 hidden h-10 w-1 rounded-full bg-gradient-to-b from-primary to-primary/20 sm:block"
+              className="mt-1.5 hidden h-10 w-1 rounded-full bg-linear-to-b from-primary to-primary/20 sm:block"
               aria-hidden="true"
             />
             <div>
               <h1 className="font-heading text-3xl tracking-tight italic sm:text-4xl">
-                <span className="bg-gradient-to-r from-foreground via-foreground/90 to-primary bg-clip-text text-transparent">
+                <span className="bg-linear-to-r from-foreground via-foreground/90 to-primary bg-clip-text text-transparent pr-2">
                   Meus Imóveis
                 </span>
               </h1>
@@ -214,25 +214,23 @@ export function Dashboard() {
                 id={`filter-${filter.value}`}
                 type="button"
                 onClick={() => handleFilterChange(filter.value)}
-                className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold tracking-wide transition-all duration-200 ${
-                  isActive
-                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/20 scale-105"
-                    : "bg-secondary/40 text-muted-foreground hover:bg-secondary/70 hover:text-foreground"
-                }`}
+                className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold tracking-wide transition-all duration-200 ${isActive
+                  ? "bg-primary text-primary-foreground shadow-md shadow-primary/20 scale-105"
+                  : "bg-secondary/40 text-muted-foreground hover:bg-secondary/70 hover:text-foreground"
+                  }`}
               >
                 {filter.value !== "all" ? (
                   <span
-                    className={`h-1.5 w-1.5 rounded-full ${
-                      filter.value === "favorites"
-                        ? "bg-amber-400"
-                        : filter.value === "active"
+                    className={`h-1.5 w-1.5 rounded-full ${filter.value === "favorites"
+                      ? "bg-amber-400"
+                      : filter.value === "active"
+                        ? "bg-emerald-400"
+                        : filter.value === "price_drop"
                           ? "bg-emerald-400"
-                          : filter.value === "price_drop"
-                            ? "bg-emerald-400"
-                            : filter.value === "price_up"
-                              ? "bg-amber-400"
-                              : "bg-rose-400"
-                    } ${isActive ? "opacity-100" : "opacity-50"}`}
+                          : filter.value === "price_up"
+                            ? "bg-amber-400"
+                            : "bg-rose-400"
+                      } ${isActive ? "opacity-100" : "opacity-50"}`}
                   />
                 ) : null}
                 {filter.label}
@@ -267,7 +265,7 @@ export function Dashboard() {
             ))}
           </div>
         ) : (
-          <div className="animate-fade-up flex flex-col items-center justify-center rounded-2xl border border-dashed border-border/30 bg-gradient-to-b from-card/30 to-transparent py-20">
+          <div className="animate-fade-up flex flex-col items-center justify-center rounded-2xl border border-dashed border-border/30 bg-linear-to-b from-card/30 to-transparent py-20">
             {EMPTY_STATE_ICON}
             <h3 className="mb-1 font-heading text-lg italic text-foreground/80">
               Nenhum imóvel por aqui
@@ -280,9 +278,7 @@ export function Dashboard() {
       </section>
 
       <footer className="mt-12 mb-6 text-center text-[11px] text-muted-foreground/40">
-        Monitora Imóveis © {new Date().getFullYear()} — Use &quot;Atualizar
-        todos&quot; para reconsultar os anúncios; o servidor também executa
-        verificações periódicas automáticas.
+        Monitora Imóveis © {new Date().getFullYear()} - Todos os direitos reservados.
       </footer>
     </div>
   );
