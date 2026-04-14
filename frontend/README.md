@@ -11,6 +11,10 @@ Resumo:
 1. `cp .env.example .env.local` e preencha as chaves do Clerk.
 2. `npm install` e `npm run dev` — painel em [http://localhost:3000](http://localhost:3000).
 
+### Aviso do Turbopack sobre “workspace root” / vários lockfiles
+
+Se o Next.js avisar que inferiu a raiz errada por causa de outro `package-lock.json` (por exemplo na pasta do utilizador, fora deste repo), a solução estável é **apagar ou mover** esse ficheiro se não for necessário. **Não** se usa `turbopack.root` só para a pasta `frontend` neste projeto: isso quebra a resolução de `tailwindcss` em `globals.css`.
+
 ## Estrutura relevante
 
 - `src/app/` — rotas (`/`, `/sign-in`, `/sign-up`)
