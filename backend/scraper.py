@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 import asyncio
-import json
 import re
 from urllib.parse import urlparse
 
-from playwright.async_api import async_playwright
+from playwright.sync_api import sync_playwright
 
 USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -58,10 +57,10 @@ def _first_int(pattern: str, text: str) -> int | None:
         return None
 
 
-async def _scrape_primeira_porta(page) -> dict:
+def _scrape_primeira_porta_sync(page) -> dict:
     """Structured extraction for primeiraporta.com.br listing pages."""
-    title = await page.title()
-    body_text = await page.locator("body").inner_text()
+    title = page.title()
+    body_text = page.locator("body").inner_text()
 
     price = _parse_brl_price(body_text)
 
@@ -100,7 +99,7 @@ async def _scrape_primeira_porta(page) -> dict:
         city = f"{city_match.group(1).strip()} - {city_match.group(2)}"
 
     # Try meta description / og for cleaner title
-    og_title = await page.locator('meta[property="og:title"]').get_attribute("content")
+    og_title = page.locator('meta[property="og:title"]').get_attribute("content")
     if og_title and len(og_title) > 5:
         title = og_title.strip()
 
@@ -120,27 +119,21 @@ async def _scrape_primeira_porta(page) -> dict:
     }
 
 
-async def fetch_property_data(url: str) -> dict:
-    """
-    Fetch property data from a URL using Playwright.
-    Returns keys aligned with models.Property (optional fields may be None).
-    """
+def _fetch_property_data_sync(url: str) -> dict:
+    """Playwright sync API (runs in a worker thread; avoids asyncio subprocess on Win+Selector loop)."""
     parsed = urlparse(url)
-    if not parsed.scheme or not parsed.netloc:
-        return {"status": "error", "error": "URL inválida"}
-
     host = parsed.netloc.lower()
     is_primeira = "primeiraporta" in host
     source = _host_label(url)
     sale_rent = _detect_sale_rent(url)
 
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
-        context = await browser.new_context(user_agent=USER_AGENT)
-        page = await context.new_page()
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        context = browser.new_context(user_agent=USER_AGENT)
+        page = context.new_page()
 
         try:
-            response = await page.goto(
+            response = page.goto(
                 url,
                 wait_until="domcontentloaded",
                 timeout=30000,
@@ -153,13 +146,13 @@ async def fetch_property_data(url: str) -> dict:
                     "source": source,
                 }
 
-            await page.wait_for_timeout(2500)
+            page.wait_for_timeout(2500)
 
             if is_primeira:
-                data = await _scrape_primeira_porta(page)
+                data = _scrape_primeira_porta_sync(page)
             else:
-                title = await page.title()
-                body_text = await page.locator("body").inner_text()
+                title = page.title()
+                body_text = page.locator("body").inner_text()
                 data = {
                     "title": title or "Imóvel",
                     "price": _parse_brl_price(body_text),
@@ -185,7 +178,6 @@ async def fetch_property_data(url: str) -> dict:
             if sale_rent:
                 data["property_type"] = sale_rent
             elif is_primeira:
-                # Infer from page text if URL did not contain venda/aluguel
                 body_lower = (data.get("raw_text_sample") or "").lower()
                 if "aluguel" in body_lower or "locação" in body_lower:
                     data["property_type"] = "rent"
@@ -199,7 +191,19 @@ async def fetch_property_data(url: str) -> dict:
         except Exception as e:
             return {"status": "error", "error": str(e), "source": source}
         finally:
-            await browser.close()
+            browser.close()
+
+
+async def fetch_property_data(url: str) -> dict:
+    """
+    Fetch property data from a URL using Playwright.
+    Returns keys aligned with models.Property (optional fields may be None).
+    """
+    parsed = urlparse(url)
+    if not parsed.scheme or not parsed.netloc:
+        return {"status": "error", "error": "URL inválida"}
+
+    return await asyncio.to_thread(_fetch_property_data_sync, url)
 
 
 if __name__ == "__main__":
