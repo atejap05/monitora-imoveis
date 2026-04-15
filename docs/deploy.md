@@ -38,7 +38,7 @@ flowchart LR
 3. **Dados (opcional):** [`backend/scripts/migrate_data.py`](../backend/scripts/migrate_data.py) se vier de SQLite local.
 4. **Backend:** expor HTTPS (reverse proxy ou PaaS), definir variáveis (tabela abaixo), incluindo **`CORS_ORIGINS`** com a origem exata do frontend.
 5. **Clerk (produção):** instância ou ambiente de produção; **Frontend API URL** = `CLERK_ISSUER`; URLs autorizadas do app (sign-in, domínio Vercel).
-6. **Frontend (Vercel):** `NEXT_PUBLIC_API_URL` = URL base da API **sem** barra final (ex.: `https://api.seudominio.com`).
+6. **Frontend (Vercel):** `NEXT_PUBLIC_API_URL` = URL base da API no Render **sem** barra final (ex.: `https://monitora-imoveis.onrender.com`).
 7. Smoke: login, listar imóveis, adicionar URL de teste.
 
 ---
@@ -78,10 +78,18 @@ Variáveis opcionais: `PLAYWRIGHT_BROWSERS_PATH` (ex.: Windows / paths custom); 
 
 ---
 
-## Frontend (Next.js)
+## Frontend (Next.js) — híbrido (recomendado)
 
-- Em **produção**, `NEXT_PUBLIC_API_URL` deve apontar para a API pública. O código em [`frontend/src/lib/api.ts`](../frontend/src/lib/api.ts) faz `fetch(\`${API_BASE}/api/properties\`)`; com base vazia, o browser pede `/api/...` **ao mesmo host** do Next — no Vercel **não** existe proxy para o FastAPI, por isso a base tem de ser a URL do backend.
+**API no Render (Docker)** + **Next.js na Vercel**, sem `vercel.json` na raiz: o projeto Vercel usa só a pasta [`frontend/`](../frontend).
+
+1. **Vercel** → importar o mesmo repositório Git → **Root Directory:** `frontend` (o build corre `npm install` / `next build` dentro dessa pasta).
+2. **Environment:** `NEXT_PUBLIC_CLERK_*`, `CLERK_SECRET_KEY`, e **`NEXT_PUBLIC_API_URL`** = URL base da API no Render **sem** barra final (ex.: `https://monitora-imoveis.onrender.com`).
+3. **Backend (Render):** em `CORS_ORIGINS`, inclui a origem exata do site na Vercel (ex.: `https://teu-app.vercel.app` e o domínio customizado, se existir). Origens diferentes = CORS obrigatório.
+
+- Em **produção**, o código em [`frontend/src/lib/api.ts`](../frontend/src/lib/api.ts) faz `fetch(\`${API_BASE}/api/properties\`)`; com base vazia, o browser pede `/api/...` ao host do Next — **no Vercel não há proxy** para o FastAPI, por isso **`NEXT_PUBLIC_API_URL` tem de estar definida** apontando para o Render.
 - O **rewrite** em [`frontend/next.config.ts`](../frontend/next.config.ts) (`/api/*` → `localhost:8000`) serve **apenas desenvolvimento local**.
+
+**Nota:** [Vercel Services](https://vercel.com/docs/services) (`experimentalServices` com FastAPI no mesmo domínio) não é usado neste fluxo — o backend com Playwright e scheduler permanece no contentor Render.
 
 ---
 
@@ -152,6 +160,12 @@ Serviços **free** podem **hibernar** após inatividade; o primeiro pedido após
 - **`failed to read dockerfile: ... backend: is a directory`:** o Render está a usar a pasta `backend` como se fosse o ficheiro Dockerfile. Com **Root Directory** = `backend`, o **Dockerfile Path** tem de ser o ficheiro **`Dockerfile`** (não `backend` nem `backend/Dockerfile` nesse campo). Se preferires raiz do repo vazia, usa **Dockerfile Path** = `backend/Dockerfile` e contexto `backend`, ou o [`render.yaml`](../render.yaml).
 - **Deploy failed / health check:** confirma que a app faz bind em **`0.0.0.0`** e na variável **`PORT`** (já coberto no Dockerfile).
 - **CORS no browser:** `CORS_ORIGINS` tem de coincidir **exatamente** com a origem do site (esquema + host).
+
+### MCP Render (Cursor)
+
+Com o **Render MCP** ligado ao Cursor podes inspecionar a conta sem abrir o dashboard: `list_workspaces` / `select_workspace`, `list_services`, `get_service`, `list_deploys`, `get_deploy`, `list_logs` (ex.: `type: build`), `update_environment_variables` (merge de envs), métricas e Postgres.
+
+**Limitações:** a criação de serviços via MCP (`create_web_service`) é [limitada](https://dashboard.render.com/web/new) para imagens Docker/registry; para **Docker** neste monorepo usa o dashboard, o [`render.yaml`](../render.yaml) (Blueprint) ou a API Render completa. O `update_web_service` no MCP não expõe campos como **Dockerfile Path** — altera **Settings → Docker** no dashboard ou recria o serviço com o Blueprint.
 
 ---
 
