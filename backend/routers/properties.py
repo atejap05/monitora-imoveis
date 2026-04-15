@@ -276,10 +276,49 @@ def delete_property(
     session: Annotated[Session, Depends(get_session)],
     user_id: Annotated[str, Depends(get_current_user_id)],
 ):
+    # #region agent log
+    import json, time, pathlib, logging as _lg
+    _log_path = pathlib.Path(__file__).resolve().parents[1] / ".." / "debug-cea429.log"
+    _logger = _lg.getLogger("debug.cea429")
+    def _dbg(msg, data=None, hyp=""):
+        payload = {"sessionId":"cea429","hypothesisId":hyp,"location":"properties.py:delete_property","message":msg,"data":data or {},"timestamp":int(time.time()*1000)}
+        _logger.warning("[DBG-cea429] %s | %s", msg, json.dumps(data or {}))
+        try:
+            with open(_log_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(payload) + "\n")
+        except Exception:
+            pass
+    # #endregion
+
+    # #region agent log
+    _dbg("delete_property called", {"property_id": property_id, "user_id": user_id}, "H1")
+    # #endregion
+
     prop = session.get(Property, property_id)
     if not prop or prop.user_id != user_id:
+        # #region agent log
+        _dbg("property not found or wrong user", {"found": prop is not None, "prop_user": getattr(prop, "user_id", None)}, "H1")
+        # #endregion
         raise HTTPException(status_code=404, detail="Imóvel não encontrado")
 
-    session.delete(prop)
-    session.commit()
+    # #region agent log
+    hist_count = len(prop.histories) if prop.histories else 0
+    _dbg("property found, about to delete", {"prop_id": prop.id, "history_count": hist_count}, "H1")
+    # #endregion
+
+    try:
+        session.delete(prop)
+        # #region agent log
+        _dbg("session.delete() ok, about to commit", {"property_id": property_id}, "H1")
+        # #endregion
+        session.commit()
+        # #region agent log
+        _dbg("delete committed successfully", {"property_id": property_id}, "H1")
+        # #endregion
+    except Exception as exc:
+        # #region agent log
+        _dbg("delete FAILED", {"error_type": type(exc).__name__, "error_msg": str(exc)[:500]}, "H1")
+        # #endregion
+        raise
+
     return None
