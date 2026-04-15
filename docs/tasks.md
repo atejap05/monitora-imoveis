@@ -1,6 +1,6 @@
 # Task List — Monitora Imóveis MVP
 
-Última revisão alinhada ao código em `backend/` e `frontend/` (painel com CRUD, scraper multi-domínio).
+Última revisão: painel com CRUD, scraper multi-domínio; **deploy em produção** (Vercel + Render + Neon/Postgres + Clerk) conforme [deploy.md](deploy.md).
 
 ## Fase 1: Setup da fundação (Backend)
 
@@ -50,9 +50,9 @@
 - [x] `CORS_ORIGINS` no FastAPI e documentação em `backend/.env.example`
 - [x] `backend/Dockerfile` + `backend/.dockerignore`
 - [x] Documentação [deploy.md](deploy.md) e atualização de [arquitetura.md](arquitetura.md)
-- [ ] Hospedar API em ambiente escolhido (Railway, Fly.io, Render, etc.) com HTTPS
-- [ ] Hospedar frontend na Vercel (ou similar) com env de produção
-- [ ] Clerk: domínio e URLs de produção alinhados a `CLERK_ISSUER`
+- [x] API em produção (ex.: **Render** + Docker, HTTPS, env `DATABASE_URL`, `CLERK_ISSUER`, `CORS_ORIGINS`)
+- [x] Frontend na **Vercel** (Root `frontend`, `NEXT_PUBLIC_API_URL`, chaves Clerk de produção)
+- [x] Clerk: domínio e URLs de produção alinhados a `CLERK_ISSUER` e origem do frontend em `CORS_ORIGINS`
 
 ## Fase 4: Refinamento e busca semântica
 

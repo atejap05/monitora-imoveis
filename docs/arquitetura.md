@@ -1,6 +1,6 @@
 # Arquitetura e fluxo de dados
 
-O **Monitora Imóveis** separa **frontend** (Next.js), **backend** (FastAPI) e **persistência** (**SQLite** em dev local ou **PostgreSQL** em produção, ex.: Neon, via `DATABASE_URL`). A autenticação é feita pelo **Clerk** no browser; o **FastAPI** valida o JWT e aplica **multi-tenant** por `user_id` em `Property`. O painel permite **listar, adicionar por URL, editar campos manuais, favoritar e excluir** (Fase 2d), **atualizar todos os imóveis ativos** via toolbar (**Fase 3**), além do **job agendado** no servidor que re-scrapeia anúncios `active` e evolui `PropertyHistory`.
+O **Monitora Imóveis** separa **frontend** (Next.js), **backend** (FastAPI) e **persistência** (**SQLite** em dev local ou **PostgreSQL** em produção, ex.: Neon, via `DATABASE_URL`). Em **produção**, o frontend costuma estar na **Vercel** e a API num serviço de processo longo (ex.: **Render** com Docker); o cliente chama a API via **`NEXT_PUBLIC_API_URL`** (ver [deploy.md](deploy.md)). A autenticação é feita pelo **Clerk** no browser; o **FastAPI** valida o JWT e aplica **multi-tenant** por `user_id` em `Property`. O painel permite **listar, adicionar por URL, editar campos manuais, favoritar e excluir** (Fase 2d), **atualizar todos os imóveis ativos** via toolbar (**Fase 3**), além do **job agendado** no servidor que re-scrapeia anúncios `active` e evolui `PropertyHistory`.
 
 ## Componentes
 

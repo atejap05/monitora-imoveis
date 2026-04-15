@@ -19,6 +19,10 @@ O usuário **faz login** (email/senha ou Google via Clerk), acessa o Painel, col
 Em background, o sistema usa Playwright (headless) para extrair dados da página e gravar no banco (por defeito **SQLite** local; com `DATABASE_URL`, **PostgreSQL** ex.: Neon) associado ao seu `user_id`. No painel é possível **editar** bairro, preço, comentário e status do cadastro, **favoritar** e **excluir** imóveis (Fase 2d).
 A **revisão periódica automática** de anúncios (job agendado) está implementada (Fase 3); ver roadmap.
 
+### Produção (deploy)
+
+A **Fase 5** (Postgres em produção, API em contentor, frontend na nuvem) está **concluída**. Arquitetura típica: **Vercel** (Next.js, pasta `frontend`) + **Render** (FastAPI via `backend/Dockerfile`) + **PostgreSQL** (ex.: Neon) + **Clerk** com variáveis e domínios de produção. O frontend usa **`NEXT_PUBLIC_API_URL`** com a URL pública da API; em local o rewrite para `localhost:8000` continua a valer. Detalhes, variáveis e checklist: **[docs/deploy.md](docs/deploy.md)**.
+
 ## 🛠️ Tecnologias Utilizadas
 
 - **Frontend:** Next.js (App Router), React, Tailwind CSS e componentes Shadcn UI para garantia de uma interface moderna e Premium; **SWR**, **Sonner** (*toasts*).
@@ -122,7 +126,7 @@ Configure uma aplicação no [Clerk Dashboard](https://dashboard.clerk.com):
 
 A API valida o JWT em todas as rotas `/api/properties`; cada usuário vê apenas os próprios imóveis. **CRUD completo (Fase 2d):** além de `GET`, `POST` e `DELETE`, existe **`PATCH /api/properties/{id}`** (JSON parcial em camelCase) para bairro, preço, comentário (`comment`), favorito (`favorite`) e status persistido (`status`: `active` \| `inactive` \| `error`). A resposta inclui **`listingStatus`** (valor no banco) e **`status`** (derivado para o painel: ativo, indisponível, preço subiu/caiu). No dashboard: editar, favoritar e excluir (com confirmação e *toast*).
 
-**Variável opcional:** `NEXT_PUBLIC_API_URL` — só se a API não estiver no mesmo host com rewrite para `localhost:8000` em desenvolvimento.
+**Variável `NEXT_PUBLIC_API_URL`:** em **desenvolvimento local** pode ficar vazio (rewrite para `localhost:8000`). Em **produção na Vercel** é **obrigatória** (URL base da API pública, sem barra no fim).
 
 ---
 
@@ -158,5 +162,5 @@ Documentação detalhada:
 | [docs/tasks.md](docs/tasks.md) | Checklist de tarefas por fase |
 | [docs/arquitetura.md](docs/arquitetura.md) | Componentes, fluxos, contrato da API com Bearer |
 | [docs/database-evaluation.md](docs/database-evaluation.md) | Schema e boas práticas (SQLite dev / Postgres prod) |
-| [docs/deploy.md](docs/deploy.md) | Deploy (Vercel, API, Neon, Clerk, CI, Docker, variáveis) |
+| [docs/deploy.md](docs/deploy.md) | Deploy em produção (híbrido Vercel + API, Neon, Clerk, CI, Docker, variáveis) |
 | [docs/portals-scraping.md](docs/portals-scraping.md) | Portais suportados, URLs e limitações de scraping |

@@ -7,6 +7,11 @@ import type {
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 
+/** True when build has a public API base URL (required in production on Vercel). */
+export const IS_API_BASE_CONFIGURED =
+  typeof process.env.NEXT_PUBLIC_API_URL === "string" &&
+  process.env.NEXT_PUBLIC_API_URL.trim().length > 0;
+
 export const PROPERTIES_ENDPOINT = "/api/properties";
 
 export type GetTokenFn = () => Promise<string | null>;
@@ -42,13 +47,25 @@ export async function fetcher<T>(
   getToken: GetTokenFn,
 ): Promise<T> {
   const headers = await authHeader(getToken);
-  const res = await fetch(`${API_BASE}${url}`, { headers });
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}${url}`, { headers });
+  } catch (e) {
+    throw new Error(
+      e instanceof Error
+        ? e.message
+        : "Falha de rede ao contactar a API (CORS ou URL incorreta).",
+    );
+  }
   if (!res.ok) {
     if (res.status === 401) {
       throw new Error("Não autorizado. Faça login novamente.");
     }
     const err = await res.json().catch(() => ({}));
-    throw new Error(parseErrorDetail(err));
+    const detail = parseErrorDetail(err);
+    throw new Error(
+      detail !== "Erro na requisição" ? detail : `HTTP ${res.status} ao pedir ${url}`,
+    );
   }
   return res.json() as Promise<T>;
 }

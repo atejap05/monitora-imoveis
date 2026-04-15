@@ -2,6 +2,18 @@
 
 Guia operacional para hospedar o **Monitora Imóveis** com **Next.js** (ex.: Vercel), **FastAPI** (contentor ou PaaS com processo longo), **PostgreSQL** (ex.: Neon) e **Clerk**. O CI do repositório (`.github/workflows/ci.yml`) valida testes, lint, build e imagem Docker em cada push/PR.
 
+## Fase atual do projeto
+
+O deploy da aplicação está **operacional** com o modelo **híbrido** recomendado no repositório:
+
+| Camada | Destino típico | Notas |
+|--------|------------------|--------|
+| **Frontend** | **Vercel** | Root Directory **`frontend`**; `NEXT_PUBLIC_API_URL` = URL base da API **sem** `/` final; chaves Clerk de **produção**; redeploy obrigatório após alterar `NEXT_PUBLIC_*`. |
+| **API** | **Render** (Docker) | `Dockerfile` em `backend/`; `PORT`, `DATABASE_URL`, `CLERK_ISSUER`, `CORS_ORIGINS` (origem exata do site na Vercel), `RESCRAPE_*` opcionais. |
+| **Base de dados** | **Neon** (ou outro Postgres) | `DATABASE_URL`; migrações Alembic no arranque da API. |
+
+Exemplos de URLs usados na documentação: frontend `https://monitora-imoveis.vercel.app`, API `https://monitora-imoveis.onrender.com` — ajusta conforme os teus serviços. **Não** é usado `vercel.json` com `experimentalServices` para o FastAPI neste fluxo (o backend permanece no Render).
+
 ---
 
 ## Arquitetura alvo

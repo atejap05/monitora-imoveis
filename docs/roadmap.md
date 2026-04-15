@@ -15,11 +15,11 @@ Este documento descreve a visão de produto, o estado das fases e o backlog pós
 | **2d** | CRUD completo (edição manual, favoritos, exclusão na UI)                                    | Concluída |
 | **3**  | Jobs em background, re-scrape periódico, histórico de preço evolutivo                       | Concluída |
 | **4**  | Busca semântica (IA)                                                                        | Planejada |
-| **5**  | Migração para PostgreSQL (produção), Alembic/migrações versionadas, deploy (API + frontend) | Em andamento |
+| **5**  | Migração para PostgreSQL (produção), Alembic/migrações versionadas, deploy (API + frontend) | Concluída |
 
 ---
 
-**Estado atual (snapshot):** o MVP está funcional em desenvolvimento local: FastAPI com **SQLite** (`database.db`, `migrations_sqlite.py` idempotente) quando `DATABASE_URL` não está definido; com **`DATABASE_URL`** (ex.: **Neon** + `postgresql+psycopg://...`) o backend usa **PostgreSQL** e **Alembic** (`alembic/`, `alembic upgrade head` no arranque). Script opcional `backend/scripts/migrate_data.py` para copiar dados do SQLite para o Neon. Next.js com dados reais via rewrite para a API, Clerk e fluxos das Fases 2c–3 concluídos. **Pendente na Fase 5:** pipeline de deploy (API + frontend) e URL pública da API; o trabalho seguinte concentra-se nisso antes de evoluir a Fase 4 (IA) e o restante do backlog.
+**Estado atual (snapshot — abril de 2026):** o MVP está **em produção** com arquitetura **híbrida**: **Next.js** na **Vercel** (Root Directory `frontend`), **FastAPI** em contentor **Docker** na **Render**, **PostgreSQL** (ex.: **Neon**) via `DATABASE_URL`, **Clerk** com chaves e domínios de produção. O browser chama a API com `NEXT_PUBLIC_API_URL` (URL pública do Render); **`CORS_ORIGINS`** no backend inclui a origem do frontend na Vercel. CI em [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) valida testes, lint, build e imagem Docker. Desenvolvimento local mantém-se: SQLite ou Postgres, rewrite `/api/*` → `localhost:8000`. **Próximo foco de produto:** Fase 4 (busca semântica / IA) e refinamentos do backlog; deploy operacional está descrito em **[deploy.md](deploy.md)**.
 
 ---
 
@@ -82,13 +82,13 @@ Este documento descreve a visão de produto, o estado das fases e o backlog pós
 
 ## Backlog futuro (pós-MVP)
 
-Ordem sugerida: **primeiro** estabilizar dados e hospedagem (**Fase 5**); **depois** incrementos de produto e IA (Fase 4 e itens abaixo).
+Ordem sugerida: **primeiro** estabilizar dados e hospedagem (**Fase 5** — **concluída**); **depois** incrementos de produto e IA (Fase 4 e itens abaixo).
 
-### Prioridade imediata — Fase 5 (migração + deploy)
+### Fase 5 (migração + deploy) — concluída
 
-- **PostgreSQL em produção:** **implementado** — [`database.py`](../backend/database.py) lê **`DATABASE_URL`** (ex.: **Neon** com `postgresql+psycopg://...?sslmode=require`); sem variável, mantém SQLite local. Constraints e unicidade `user_id` + `url` aplicadas no Postgres.
-- **Migrações versionadas:** **Alembic** em [`backend/alembic/`](../backend/alembic/); SQLite local continua com `create_all` + [`migrations_sqlite.py`](../backend/migrations_sqlite.py). Ver [backend/README.md](../backend/README.md) e [database-evaluation.md](database-evaluation.md).
-- **Dados existentes:** script one-off [`backend/scripts/migrate_data.py`](../backend/scripts/migrate_data.py) (SQLite → Postgres com `TRUNCATE` + `setval` das sequences).
-- **Deploy do backend:** [`Dockerfile`](../backend/Dockerfile) com **Playwright/Chromium**; expor HTTPS; `CLERK_ISSUER`, **`CORS_ORIGINS`**, `DATABASE_URL`, `RESCRAPE_*`. CI valida a imagem em [`.github/workflows/ci.yml`](../.github/workflows/ci.yml).
-- **Deploy do frontend:** **Vercel** (ou similar); **`NEXT_PUBLIC_API_URL`** = URL base da API (o rewrite do Next é só para dev); variáveis **Clerk** de produção.
-- **Documentação de deploy:** guia operacional em **[deploy.md](deploy.md)** (matriz de variáveis, ordem de provisionamento, checklist).
+- **PostgreSQL em produção:** [`database.py`](../backend/database.py) lê **`DATABASE_URL`** (ex.: **Neon** com `postgresql+psycopg://...?sslmode=require`); sem variável, mantém SQLite local.
+- **Migrações versionadas:** **Alembic** em [`backend/alembic/`](../backend/alembic/); SQLite local continua com `create_all` + [`migrations_sqlite.py`](../backend/migrations_sqlite.py).
+- **Dados existentes:** script one-off [`backend/scripts/migrate_data.py`](../backend/scripts/migrate_data.py) (SQLite → Postgres).
+- **Deploy do backend:** [`Dockerfile`](../backend/Dockerfile) na **Render** (ou PaaS equivalente); HTTPS; `CLERK_ISSUER`, **`CORS_ORIGINS`**, `DATABASE_URL`, `RESCRAPE_*`; CI valida a imagem.
+- **Deploy do frontend:** **Vercel**, Root Directory **`frontend`**; **`NEXT_PUBLIC_API_URL`** apontando para a API pública; chaves **Clerk** de produção; redeploy após alterar `NEXT_PUBLIC_*`.
+- **Documentação:** guia em **[deploy.md](deploy.md)** (matriz de variáveis, híbrido Vercel + API, checklist).

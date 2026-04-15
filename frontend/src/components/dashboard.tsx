@@ -15,7 +15,11 @@ import { Separator } from "@/components/ui/separator";
 import { DashboardToolbar } from "@/components/dashboard-toolbar";
 import { PropertyCard } from "@/components/property-card";
 import { StatsBar } from "@/components/stats-bar";
-import { fetcher, PROPERTIES_ENDPOINT } from "@/lib/api";
+import {
+  fetcher,
+  PROPERTIES_ENDPOINT,
+  IS_API_BASE_CONFIGURED,
+} from "@/lib/api";
 import type { Property, PropertyStatus } from "@/lib/types";
 
 type FilterStatus = "all" | PropertyStatus | "favorites";
@@ -178,8 +182,32 @@ export function Dashboard() {
           role="alert"
           className="mb-8 rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
         >
-          Não foi possível carregar os imóveis. Verifique se a API está rodando
-          (FastAPI em <code className="rounded bg-muted px-1">localhost:8000</code>).
+          {process.env.NODE_ENV === "production" &&
+          !IS_API_BASE_CONFIGURED ? (
+            <>
+              <strong className="font-medium">NEXT_PUBLIC_API_URL</strong> não está
+              definida no build. Na Vercel → Environment Variables, define a URL
+              base da API (ex.: Render), sem barra no fim, e faz{" "}
+              <strong>Redeploy</strong>.
+            </>
+          ) : (
+            <>
+              Não foi possível carregar os imóveis.{" "}
+              {process.env.NODE_ENV === "development" &&
+              !IS_API_BASE_CONFIGURED ? (
+                <>
+                  Em desenvolvimento, confirme o FastAPI em{" "}
+                  <code className="rounded bg-muted px-1">localhost:8000</code>{" "}
+                  ou defina <code className="rounded bg-muted px-1">NEXT_PUBLIC_API_URL</code>{" "}
+                  no <code className="rounded bg-muted px-1">.env.local</code>.
+                </>
+              ) : (
+                <span className="text-destructive/90">
+                  {error instanceof Error ? error.message : String(error)}
+                </span>
+              )}
+            </>
+          )}
         </div>
       ) : null}
 
