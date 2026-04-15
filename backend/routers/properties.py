@@ -2,14 +2,20 @@
 
 from __future__ import annotations
 
+import json
+import logging
+import time
 from datetime import datetime
 from decimal import Decimal
+from pathlib import Path
 from typing import Annotated, Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ConfigDict, field_validator
 from pydantic.alias_generators import to_camel
+from sqlalchemy import delete
 from sqlmodel import Session, select
+from starlette.responses import Response
 
 from auth import get_current_user_id
 from database import engine, get_session
@@ -277,48 +283,54 @@ def delete_property(
     user_id: Annotated[str, Depends(get_current_user_id)],
 ):
     # #region agent log
-    import json, time, pathlib, logging as _lg
-    _log_path = pathlib.Path(__file__).resolve().parents[1] / ".." / "debug-cea429.log"
-    _logger = _lg.getLogger("debug.cea429")
-    def _dbg(msg, data=None, hyp=""):
-        payload = {"sessionId":"cea429","hypothesisId":hyp,"location":"properties.py:delete_property","message":msg,"data":data or {},"timestamp":int(time.time()*1000)}
-        _logger.warning("[DBG-cea429] %s | %s", msg, json.dumps(data or {}))
-        try:
-            with open(_log_path, "a", encoding="utf-8") as f:
-                f.write(json.dumps(payload) + "\n")
-        except Exception:
-            pass
-    # #endregion
+    _agent_log_path = Path(__file__).resolve().parents[2] / "debug-4fd340.log"
 
-    # #region agent log
-    _dbg("delete_property called", {"property_id": property_id, "user_id": user_id}, "H1")
+    def _agent_log(hypothesis_id: str, message: str, data: dict) -> None:
+        try:
+            with open(_agent_log_path, "a", encoding="utf-8") as f:
+                f.write(
+                    json.dumps(
+                        {
+                            "sessionId": "4fd340",
+                            "hypothesisId": hypothesis_id,
+                            "location": "properties.py:delete_property",
+                            "message": message,
+                            "data": data,
+                            "timestamp": int(time.time() * 1000),
+                        },
+                    )
+                    + "\n",
+                )
+        except OSError:
+            pass
+
     # #endregion
 
     prop = session.get(Property, property_id)
     if not prop or prop.user_id != user_id:
-        # #region agent log
-        _dbg("property not found or wrong user", {"found": prop is not None, "prop_user": getattr(prop, "user_id", None)}, "H1")
-        # #endregion
         raise HTTPException(status_code=404, detail="Imóvel não encontrado")
 
     # #region agent log
-    hist_count = len(prop.histories) if prop.histories else 0
-    _dbg("property found, about to delete", {"prop_id": prop.id, "history_count": hist_count}, "H1")
+    _agent_log(
+        "H1",
+        "delete start",
+        {"property_id": property_id, "hist_count": len(prop.histories) if prop.histories else 0},
+    )
     # #endregion
 
     try:
+        # Remove históricos antes do imóvel (evita IntegrityError se FK CASCADE estiver ausente no PG).
+        session.exec(delete(PropertyHistory).where(PropertyHistory.property_id == property_id))
         session.delete(prop)
-        # #region agent log
-        _dbg("session.delete() ok, about to commit", {"property_id": property_id}, "H1")
-        # #endregion
         session.commit()
         # #region agent log
-        _dbg("delete committed successfully", {"property_id": property_id}, "H1")
+        _agent_log("H1", "delete committed", {"property_id": property_id})
         # #endregion
-    except Exception as exc:
+    except Exception:
+        logging.exception("delete_property failed property_id=%s", property_id)
         # #region agent log
-        _dbg("delete FAILED", {"error_type": type(exc).__name__, "error_msg": str(exc)[:500]}, "H1")
+        _agent_log("H1", "delete FAILED", {"property_id": property_id})
         # #endregion
         raise
 
-    return None
+    return Response(status_code=204)
