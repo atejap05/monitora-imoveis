@@ -2,12 +2,9 @@
 
 from __future__ import annotations
 
-import json
 import logging
-import time
 from datetime import datetime
 from decimal import Decimal
-from pathlib import Path
 from typing import Annotated, Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -282,55 +279,17 @@ def delete_property(
     session: Annotated[Session, Depends(get_session)],
     user_id: Annotated[str, Depends(get_current_user_id)],
 ):
-    # #region agent log
-    _agent_log_path = Path(__file__).resolve().parents[2] / "debug-4fd340.log"
-
-    def _agent_log(hypothesis_id: str, message: str, data: dict) -> None:
-        try:
-            with open(_agent_log_path, "a", encoding="utf-8") as f:
-                f.write(
-                    json.dumps(
-                        {
-                            "sessionId": "4fd340",
-                            "hypothesisId": hypothesis_id,
-                            "location": "properties.py:delete_property",
-                            "message": message,
-                            "data": data,
-                            "timestamp": int(time.time() * 1000),
-                        },
-                    )
-                    + "\n",
-                )
-        except OSError:
-            pass
-
-    # #endregion
-
     prop = session.get(Property, property_id)
     if not prop or prop.user_id != user_id:
         raise HTTPException(status_code=404, detail="Imóvel não encontrado")
-
-    # #region agent log
-    _agent_log(
-        "H1",
-        "delete start",
-        {"property_id": property_id, "hist_count": len(prop.histories) if prop.histories else 0},
-    )
-    # #endregion
 
     try:
         # Remove históricos antes do imóvel (evita IntegrityError se FK CASCADE estiver ausente no PG).
         session.exec(delete(PropertyHistory).where(PropertyHistory.property_id == property_id))
         session.delete(prop)
         session.commit()
-        # #region agent log
-        _agent_log("H1", "delete committed", {"property_id": property_id})
-        # #endregion
     except Exception:
         logging.exception("delete_property failed property_id=%s", property_id)
-        # #region agent log
-        _agent_log("H1", "delete FAILED", {"property_id": property_id})
-        # #endregion
         raise
 
     return Response(status_code=204)
