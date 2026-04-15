@@ -3,10 +3,17 @@
 from __future__ import annotations
 
 import asyncio
+import re
 
+from adapters.cid_imoveis import CidImoveisAdapter
 from adapters.next_data_extract import extract_from_next_data_json
 from adapters.nova_freitas import NovaFreitasAdapter
-from adapters.parsing import detect_sale_rent, parse_brl_price
+from adapters.parsing import (
+    detect_sale_rent,
+    parse_brl_price,
+    parse_condominio_fee_brl,
+    parse_primeira_porta_desc_tags_paragraphs,
+)
 from adapters.primeira_porta import PrimeiraPortaAdapter
 from adapters.registry import AdapterRegistry
 from adapters.univen import UnivenAdapter
@@ -27,6 +34,10 @@ def test_detect_sale_rent() -> None:
 
 def test_registry_routes_urls() -> None:
     assert isinstance(AdapterRegistry.find("https://www.primeiraporta.com.br/x"), PrimeiraPortaAdapter)
+    assert isinstance(
+        AdapterRegistry.find("https://www.cidimoveis.com.br/imovel/1/x"),
+        CidImoveisAdapter,
+    )
     assert isinstance(
         AdapterRegistry.find("http://www.gintervale.com.br/alugar/sp/x/y/z/1"),
         UnivenAdapter,
@@ -69,8 +80,13 @@ class _FakeLocator:
         self._page = page
         self._sel = sel
 
+    def nth(self, _i: int) -> "_FakeLocator":
+        return self
+
     async def count(self) -> int:
         if self._sel == "h1":
+            return 0
+        if self._sel == "#desc_tags p":
             return 0
         return 1
 
@@ -105,6 +121,39 @@ class _FakePage:
 
     async def title(self) -> str:
         return "Title"
+
+
+def test_parse_primeira_porta_desc_tags_bairro() -> None:
+    paras = [
+        "Código: PP170",
+        "Endereço: Rua Emílio Marelo, 100",
+        "Bairro: Jardim das Indústrias",
+        "Condomínio: Splendor Garden",
+    ]
+    tags = parse_primeira_porta_desc_tags_paragraphs(paras)
+    assert tags["Bairro"] == "Jardim das Indústrias"
+    assert tags["Código"] == "PP170"
+
+
+def test_parse_primeira_porta_menu_bairro_noise() -> None:
+    """Regex no body pegaria 'da Floresta' do menu; a ficha tem o bairro certo."""
+    body = (
+        "Bairro da Floresta\n"
+        "R$ 1.300.000\n"
+        "Bairro: Jardim das Indústrias\n"
+    )
+    nb = re.search(
+        r"(?:Bairro|bairro)\s*[:\-]?\s*([^\n,]+)",
+        body[:4000],
+    )
+    assert nb is not None
+    assert nb.group(1).strip().startswith("da Floresta")
+    tags = parse_primeira_porta_desc_tags_paragraphs(["Bairro: Jardim das Indústrias"])
+    assert tags["Bairro"] == "Jardim das Indústrias"
+
+
+def test_parse_condominio_fee() -> None:
+    assert parse_condominio_fee_brl("Venda R$ 5.000.000\n+ Condomínio R$ 1.160,00") == 1160.0
 
 
 def test_primeira_porta_extract_uses_og_title() -> None:

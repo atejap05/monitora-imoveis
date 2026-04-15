@@ -1,4 +1,8 @@
-"""Playwright scraper: Primeira Porta structured extraction + generic fallback."""
+"""Playwright sync scraper used by the API and jobs.
+
+Portal-specific logic lives in `adapters/` (e.g. `scrape_cid_imoveis_sync`, Primeira Porta
+`#desc_tags` parsing) and is mirrored by `AdapterRegistry` adapters for async tests.
+"""
 
 from __future__ import annotations
 
@@ -8,6 +12,15 @@ import re
 from urllib.parse import urlparse
 
 from playwright.sync_api import sync_playwright
+
+from adapters.cid_imoveis import scrape_cid_imoveis_sync
+from adapters.parsing import (
+    area_text_to_size_field,
+    parse_brl_price,
+    parse_condominio_fee_brl,
+    parse_iptu_fee_brl,
+    parse_primeira_porta_desc_tags_paragraphs,
+)
 
 USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -32,23 +45,6 @@ def _detect_sale_rent(url: str) -> str | None:
         return "rent"
     if "venda" in u:
         return "sale"
-    return None
-
-
-def _parse_brl_price(text: str) -> float | None:
-    """Extract first BRL price from text (e.g. R$ 1.300.000,00)."""
-    if not text:
-        return None
-    matches = re.findall(
-        r"R\$\s*([\d]{1,3}(?:\.\d{3})*(?:,\d{2})?)",
-        text.replace("\xa0", " "),
-    )
-    for m in matches:
-        normalized = m.replace(".", "").replace(",", ".")
-        try:
-            return float(normalized)
-        except ValueError:
-            continue
     return None
 
 
@@ -84,6 +80,17 @@ def _parse_i9vale_url(url: str) -> dict:
     return out
 
 
+def _collect_desc_tags_sync(page) -> dict[str, str]:
+    loc = page.locator("#desc_tags p")
+    n = loc.count()
+    if n == 0:
+        return {}
+    paragraphs: list[str] = []
+    for i in range(n):
+        paragraphs.append(loc.nth(i).inner_text())
+    return parse_primeira_porta_desc_tags_paragraphs(paragraphs)
+
+
 def _scrape_i9vale_sync(page) -> dict:
     """Kenlo / i9vale: rótulos colados ao número (ex.: Quartos4) ou URL com -N-quartos-M-m."""
     title = page.title()
@@ -91,7 +98,7 @@ def _scrape_i9vale_sync(page) -> dict:
     page_url = page.url
     url_hints = _parse_i9vale_url(page_url)
 
-    price = _parse_brl_price(body_text)
+    price = parse_brl_price(body_text)
 
     # Número depois do rótulo (comum) ou antes ("4 Quartos")
     bedrooms = _first_int_any(
@@ -195,34 +202,51 @@ def _scrape_primeira_porta_sync(page) -> dict:
     title = page.title()
     body_text = page.locator("body").inner_text()
 
-    price = _parse_brl_price(body_text)
+    tags = _collect_desc_tags_sync(page)
+
+    price = parse_brl_price(body_text)
+    condo_fee = parse_condominio_fee_brl(body_text)
+    iptu = parse_iptu_fee_brl(body_text)
 
     bedrooms = _first_int(r"(\d+)\s*(?:quarto|quartos|dorm|dormit)", body_text)
     suites = _first_int(r"(\d+)\s*(?:su[ií]te|su[ií]tes)", body_text)
     bathrooms = _first_int(r"(\d+)\s*(?:banheiro|banheiros)", body_text)
     parking = _first_int(r"(\d+)\s*(?:vaga|vagas)", body_text)
 
-    area_m = re.search(
-        r"(\d+(?:[.,]\d+)?)\s*m[²2]",
-        body_text,
-        re.IGNORECASE,
-    )
     size: str | None = None
-    if area_m:
-        size = f"{area_m.group(1).replace(',', '.')}m²"
+    if "Área Útil" in tags:
+        size = area_text_to_size_field(tags["Área Útil"])
+    if size is None and "Área Total" in tags:
+        size = area_text_to_size_field(tags["Área Total"])
+    if size is None:
+        area_m = re.search(
+            r"(\d+(?:[.,]\d+)?)\s*m[²2]",
+            body_text,
+            re.IGNORECASE,
+        )
+        if area_m:
+            size = f"{area_m.group(1).replace(',', '.')}m²"
 
     neighborhood = ""
     city = ""
     address = ""
+    reference_code: str | None = None
 
-    # Common patterns: "Bairro X" / city line
+    if tags.get("Bairro"):
+        neighborhood = tags["Bairro"].strip()[:120]
+    if tags.get("Endereço"):
+        address = tags["Endereço"].strip()[:500]
+    if tags.get("Código"):
+        reference_code = tags["Código"].strip()[:80]
+
     loc_block = body_text[:4000]
-    nb = re.search(
-        r"(?:Bairro|bairro)\s*[:\-]?\s*([^\n,]+)",
-        loc_block,
-    )
-    if nb:
-        neighborhood = nb.group(1).strip()[:120]
+    if not neighborhood:
+        nb = re.search(
+            r"(?:Bairro|bairro)\s*[:\-]?\s*([^\n,]+)",
+            loc_block,
+        )
+        if nb:
+            neighborhood = nb.group(1).strip()[:120]
 
     city_match = re.search(
         r"([A-Za-zÀ-ÿ\s]+)\s*[-–]\s*([A-Z]{2})\b",
@@ -231,10 +255,11 @@ def _scrape_primeira_porta_sync(page) -> dict:
     if city_match:
         city = f"{city_match.group(1).strip()} - {city_match.group(2)}"
 
-    # Try meta description / og for cleaner title
     og_title = page.locator('meta[property="og:title"]').get_attribute("content")
     if og_title and len(og_title) > 5:
         title = og_title.strip()
+
+    og_image = page.locator('meta[property="og:image"]').get_attribute("content")
 
     return {
         "title": title or "Imóvel",
@@ -247,6 +272,10 @@ def _scrape_primeira_porta_sync(page) -> dict:
         "address": address,
         "neighborhood": neighborhood,
         "city": city,
+        "condo_fee": condo_fee,
+        "iptu": iptu,
+        "reference_code": reference_code,
+        "image_url": og_image.strip() if og_image else None,
         "raw_text_sample": body_text[:800],
         "status": "active",
     }
@@ -257,6 +286,7 @@ def _fetch_property_data_sync(url: str) -> dict:
     parsed = urlparse(url)
     host = parsed.netloc.lower()
     is_primeira = "primeiraporta" in host
+    is_cid = "cidimoveis.com.br" in host
     is_i9vale = "i9vale.com.br" in host or "i9vale" in host
     source = _host_label(url)
     sale_rent = _detect_sale_rent(url)
@@ -281,9 +311,21 @@ def _fetch_property_data_sync(url: str) -> dict:
                 }
 
             page.wait_for_timeout(2500)
+            if is_primeira:
+                try:
+                    page.wait_for_selector("#desc_tags", timeout=4000)
+                except Exception:
+                    pass
+            if is_cid:
+                try:
+                    page.wait_for_selector("#amenity-vagas, .property-amenities", timeout=4000)
+                except Exception:
+                    pass
 
             if is_primeira:
                 data = _scrape_primeira_porta_sync(page)
+            elif is_cid:
+                data = scrape_cid_imoveis_sync(page)
             elif is_i9vale:
                 data = _scrape_i9vale_sync(page)
             else:
@@ -313,7 +355,7 @@ def _fetch_property_data_sync(url: str) -> dict:
                         size_val = f"{area_m.group(1).replace(',', '.')}m²"
                 data = {
                     "title": title or "Imóvel",
-                    "price": _parse_brl_price(body_text),
+                    "price": parse_brl_price(body_text),
                     "bedrooms": bedrooms,
                     "bathrooms": _first_int_any(
                         [
@@ -331,7 +373,7 @@ def _fetch_property_data_sync(url: str) -> dict:
                     ),
                     "size": size_val,
                     "parking_spots": _first_int_any(
-                        [r"Vagas\s*(\d+)", r"(\d+)\s*vaga"],
+                        [r"Vagas\s*(\d+)", r"(\d+)\s*vagas?"],
                         body_text,
                     ),
                     "address": "",
@@ -344,7 +386,7 @@ def _fetch_property_data_sync(url: str) -> dict:
             data["source"] = source
             if sale_rent:
                 data["property_type"] = sale_rent
-            elif is_primeira or is_i9vale:
+            elif is_primeira or is_i9vale or is_cid:
                 body_lower = (data.get("raw_text_sample") or "").lower()
                 if "aluguel" in body_lower or "locação" in body_lower:
                     data["property_type"] = "rent"

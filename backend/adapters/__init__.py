@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from adapters.registry import AdapterRegistry
 
+from adapters.cid_imoveis import CidImoveisAdapter
 from adapters.imovelweb import ImovelWebAdapter
 from adapters.nova_freitas import NovaFreitasAdapter
 from adapters.olx import OlxImoveisAdapter
@@ -17,6 +18,7 @@ def _register_all() -> None:
     AdapterRegistry.clear()
     # Most specific / regional first
     AdapterRegistry.register(PrimeiraPortaAdapter())
+    AdapterRegistry.register(CidImoveisAdapter())
     AdapterRegistry.register(UnivenAdapter())
     AdapterRegistry.register(NovaFreitasAdapter())
     AdapterRegistry.register(OlxImoveisAdapter())
@@ -29,6 +31,7 @@ _register_all()
 
 __all__ = [
     "AdapterRegistry",
+    "CidImoveisAdapter",
     "PrimeiraPortaAdapter",
     "UnivenAdapter",
     "NovaFreitasAdapter",
