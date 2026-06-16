@@ -32,35 +32,30 @@ const FiltrosSchema = z.object({
 // Isso garante que o formulário e a validação estejam sempre sincronizados.
 type TFilterForm = z.infer<typeof FiltrosSchema>;
 
+function filtersToFormValues(filters: TFilter): TFilterForm {
+  return {
+    filtro: filters.filtro,
+    anos: filters.anos.map(String),
+    valorMin: filters.valorMin?.toString() ?? null,
+    valorMax: filters.valorMax?.toString() ?? null,
+    uf: filters.uf,
+    municipio: filters.municipio?.toString() ?? null,
+    regiao: filters.regiao,
+    contribuintes: filters.contribuintes.map(String),
+  };
+}
+
 export const AmbienteFilters = () => {
   const { filters, submitFilters, isLoading } = useAmbienteFiltersState();
 
   const form = useForm<TFilterForm>({
     resolver: zodResolver(FiltrosSchema),
-    defaultValues: {
-      filtro: filters.filtro,
-      anos: filters.anos.map(String),
-      valorMin: filters.valorMin?.toString() ?? null,
-      valorMax: filters.valorMax?.toString() ?? null,
-      uf: filters.uf,
-      municipio: filters.municipio?.toString() ?? null,
-      regiao: filters.regiao,
-      contribuintes: ["1", "2", "3"],
-    },
+    defaultValues: filtersToFormValues(filters),
   });
 
   // Sempre que os filtros globais mudarem, reseta o formulário
   useEffect(() => {
-    form.reset({
-      filtro: filters.filtro,
-      anos: filters.anos.map(String),
-      valorMin: filters.valorMin?.toString() ?? null,
-      valorMax: filters.valorMax?.toString() ?? null,
-      uf: filters.uf,
-      municipio: filters.municipio?.toString() ?? null,
-      regiao: filters.regiao,
-      contribuintes: ["1", "2", "3"],
-    });
+    form.reset(filtersToFormValues(filters));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
